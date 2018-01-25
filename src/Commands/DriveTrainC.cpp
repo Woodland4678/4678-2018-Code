@@ -24,14 +24,14 @@ DriveTrainC::DriveTrainC(): frc::Command() {
 
 // Called just before this Command runs the first time
 void DriveTrainC::Initialize() {
-	JoyX = Robot::oi->driver->GetX();
-	JoyY = Robot::oi->driver->GetY();
+	JoyX = Robot::oi->getDriver()->GetX();
+	JoyY = Robot::oi->getDriver()->GetY();
 }
 
 // Called repeatedly when this Command is scheduled to run
 void DriveTrainC::Execute() {
-	JoyX = Robot::oi->driver->GetX();
-	JoyY = Robot::oi->driver->GetY();
+	JoyX = Robot::oi->getDriver()->GetX();
+	JoyY = Robot::oi->getDriver()->GetY();
 
 	Robot::driveTrain->SetLeftPower(JoyY + JoyX);
 	Robot::driveTrain->SetRightPower(JoyY - JoyX);

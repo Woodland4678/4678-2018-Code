@@ -78,7 +78,7 @@ void Robot::TeleopInit() {
 void Robot::TeleopPeriodic() {
 	frc::Scheduler::GetInstance()->Run();
 
-	if((oi->driver->GetRawButton(1))&&(!done))
+	if((oi->getDriver()->GetRawButton(1))&&(!done))
 		{
 
 		frc::Scheduler::GetInstance()->Run();
