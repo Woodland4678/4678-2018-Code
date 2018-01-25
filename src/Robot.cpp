@@ -82,9 +82,9 @@ void Robot::TeleopPeriodic() {
 		{
 
 		frc::Scheduler::GetInstance()->Run();
-		double leftEnValue = driveTrain->leftEncoder->Get();
+		double leftEnValue = driveTrain->getLeftEncoder()->Get();
 		frc::SmartDashboard::PutNumber("Left Encoder Value",leftEnValue);
-		double rightEnValue = driveTrain->rightEncoder->Get();
+		double rightEnValue = driveTrain->getRightEncoder()->Get();
 		frc::SmartDashboard::PutNumber("Right Encoder Value",rightEnValue);
 
 		//done = driveTrain->goToDistance(50,75,1,10,10,0.5,0.5);
