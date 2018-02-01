@@ -29,7 +29,9 @@ void LidarScan::Initialize() {
 
 // Called repeatedly when this Command is scheduled to run
 void LidarScan::Execute() {
-
+	frc::SmartDashboard::PutNumber("LidarFrequency", Robot::lidar->getFrequency());
+	int pwm = frc::SmartDashboard::GetNumber("LidarPWM", 660);
+	Robot::lidar->setMotorSpeed(pwm);
 }
 
 // Make this return true when this Command no longer needs to run execute()
