@@ -13,6 +13,7 @@
 #define DRIVETRAIN_H
 #include "Commands/Subsystem.h"
 #include "WPILib.h"
+#include "./DriveTrain/DriveMotorCalculator.h"
 
 /**
  *
@@ -63,6 +64,8 @@ public:
 	double powerOffset;
 	double leftPower;
 	double rightPower;
+
+	std::shared_ptr<DriveMotorCalculator> calculator;
 };
 
 #endif

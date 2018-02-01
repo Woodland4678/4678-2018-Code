@@ -87,91 +87,22 @@ std::shared_ptr<frc::Encoder> DriveTrain::getRightEncoder() {
 }
 
 bool DriveTrain::goToDistance(double rightCentimeters, double leftCentimeters, double power, int rampUpDistance, int rampDownDistance, double startingPower, double endingPower) {
-	//Initial state
 	if (goToDistanceState == 0) {
-		goToDistanceState++;
-		startingLeftDistance = leftEncoder->Get();
-		startingRightDistance = rightEncoder->Get();
-	}
-
-	// --------------------------------------------------------------------------
-	// ---------------------Get target and current distances---------------------
-	// --------------------------------------------------------------------------
-	// Get target distance in centimeters
-	targetLeft = leftCentimeters * encoderClicksPerCentimeter;
-	targetRight = rightCentimeters * encoderClicksPerCentimeter;
-
-	// Get the current distance in centimeters
-	currentLeft = std::abs((double)(leftEncoder->Get() - startingLeftDistance));
-	currentRight = std::abs((double)(rightEncoder->Get() - startingRightDistance));
-	currentLeftCentimeters = currentLeft / encoderClicksPerCentimeter;
-	currentRightCentimeters = currentRight / encoderClicksPerCentimeter;
-	// Find the percentage the left and right are to their target
-	leftPercentThere = std::abs(currentLeft / targetLeft);
-	rightPercentThere = std::abs(currentRight / targetRight);
-
-	// Initially set the powers to their default values
-	leftMotorMultiplier = 1;
-	rightMotorMultiplier = 1;
-
-	// --------------------------------------------------------------------------
-	// ----------------Adjust powers if one side has gone farther----------------
-	// --------------------------------------------------------------------------
-
-	powerOffset = GO_TO_DISTANCE_CORRECTION_SPEED * std::abs(leftPercentThere - rightPercentThere);
-	// Only start adjusting the powers once the motors have gone 2 percent
-	// of the target distance, to avoid calculation errors
-	if (currentRight >= (targetRight * 0.02) && (currentLeft >= (targetLeft * 0.02))) {
-		// If the right is closer than the left, increase the left power and
-		// decrease the right power
-		if (rightPercentThere > (leftPercentThere + 0.001)) {
-			leftMotorMultiplier *= 1 + powerOffset;
-			rightMotorMultiplier *= 1 - powerOffset;
+		calculator.reset(new DriveMotorCalculator(getLeftEncoder()->Get(), getRightEncoder()->Get(), leftCentimeters, rightCentimeters, encoderClicksPerCentimeter));
+		goToDistanceState = 1;
+		return false;
+	} else if (goToDistanceState == 1) {
+		float left_motor_power;
+		float right_motor_power;
+		bool done = calculator->getMotorSpeeds(left_motor_power, right_motor_power, getLeftEncoder()->Get(), getRightEncoder()->Get());
+		printf("right: %i, left: %i\n", getRightEncoder()->Get(), getLeftEncoder()->Get());
+		SetRightPower(right_motor_power);
+		SetLeftPower(left_motor_power);
+		if (done) {
+			goToDistanceState = 0;
 		}
-
-		// If the left is closer than the right, increase the right power,
-		// and decrease the left power
-		if ((rightPercentThere + 0.001) < leftPercentThere) {
-			leftMotorMultiplier *= 1 - powerOffset;
-			rightMotorMultiplier *= 1 + powerOffset;
-		}
+		return done;
 	}
-
-	// --------------------------------------------------------------------------
-	// -----------------------Flip the powers if necessary-----------------------
-	// --------------------------------------------------------------------------
-
-	if ((rightEncoder->Get() - startingRightDistance) > targetRight) {
-		rightMotorMultiplier *= -1;
-	}
-
-	if ((leftEncoder->Get() - startingLeftDistance) > targetLeft) {
-		leftMotorMultiplier *= -1;
-	}
-
-	// --------------------------------------------------------------------------
-	// -----------------------------Ramp Down Speeds-----------------------------
-	// --------------------------------------------------------------------------
-
-	double rampDownPercentage = 1;
-	if (currentRightCentimeters < rampUpDistance) {
-		rampDownPercentage = ((currentRightCentimeters / rampUpDistance) * (1 - startingPower)) + startingPower;
-	} else if (currentRightCentimeters > std::abs(rightCentimeters) - rampDownDistance) {
-		rampDownPercentage = (((std::abs(rightCentimeters) - currentRightCentimeters) / rampDownDistance) * (1 - endingPower)) + endingPower;
-	}
-
-	//Set motor speeds
-	leftMotor->Set(-rightMotorMultiplier * power * rampDownPercentage);
-	rightMotor->Set(leftMotorMultiplier * power * rampDownPercentage);
-
-	//Check if we've made it
-	if (rightPercentThere >= 1 && leftPercentThere >= 1) {
-		leftMotor->Set(0);
-		rightMotor->Set(0);
-		goToDistanceState = 0;
-		return true;
-	}
-
 	return false;
 }
 // Put methods for controlling this subsystem
