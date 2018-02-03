@@ -53,6 +53,12 @@ void Robot::RobotInit() {
 	frc::SmartDashboard::PutData("Auto Modes", &chooser);
 	frc::SmartDashboard::PutNumber("LidarFrequency", 0.0);
 	frc::SmartDashboard::PutNumber("LidarPWM", 660);
+	frc::SmartDashboard::PutNumber("LeftEncoder", 0.0);
+	frc::SmartDashboard::PutNumber("RightEncoder", 0.0);
+	frc::SmartDashboard::PutNumber("LeftPower", 0.0);
+	frc::SmartDashboard::PutNumber("RightPower", 0.0);
+	frc::SmartDashboard::PutNumber("LeftCM", 0.0);
+	frc::SmartDashboard::PutNumber("RightCM", 0.0);
 }
 
 /**
@@ -93,6 +99,10 @@ void Robot::TeleopPeriodic() {
 	frc::Scheduler::GetInstance()->Run();
 	frc::SmartDashboard::PutNumber("LidarFrequency", Robot::lidar->getFrequency());
 	int pwm = frc::SmartDashboard::GetNumber("LidarPWM", 660);
+	frc::SmartDashboard::PutNumber("LeftEncoder", Robot::driveTrain->getLeftEncoder()->Get());
+	frc::SmartDashboard::PutNumber("RightEncoder", Robot::driveTrain->getRightEncoder()->Get());
+	frc::SmartDashboard::PutNumber("LeftPower", RobotMap::driveTrainLeftMotor->Get());
+	frc::SmartDashboard::PutNumber("RightPower", -RobotMap::driveTrainRightMotor->Get());
 	Robot::lidar->setMotorSpeed(pwm);
 	/*if((oi->getDriver()->GetRawButton(1))&&(!done))
 		{

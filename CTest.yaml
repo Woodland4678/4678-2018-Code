@@ -19,9 +19,9 @@ Children:
           default: '0'
           name: Output Channel (PWM)
           validators: &id003 [PWMOutput]
-          value: '1'
+          value: '0'
         Inverted: !!robotbuilder.data.properties.BooleanProperty {default: false,
-          name: Inverted, validators: null, value: false}
+          name: Inverted, validators: null, value: true}
       Base: Speed Controller
       Name: LeftMotor
     - Children: []
@@ -37,7 +37,7 @@ Children:
           default: '0'
           name: Output Channel (PWM)
           validators: *id003
-          value: '0'
+          value: '1'
         Inverted: !!robotbuilder.data.properties.BooleanProperty {default: false,
           name: Inverted, validators: null, value: false}
       Base: Speed Controller
@@ -250,7 +250,7 @@ Children:
       Run When Disabled: !!robotbuilder.data.properties.BooleanProperty {default: false,
         name: Run When Disabled, validators: null, value: false}
       Requires: !!robotbuilder.data.properties.TypeSelectionProperty {default: None,
-        name: Requires, type: Subsystem, validators: null, value: Lidar}
+        name: Requires, type: Subsystem, validators: null, value: DriveTrain}
       Parameter presets: !!robotbuilder.data.properties.ParameterSetProperty
         default: []
         name: Parameter presets

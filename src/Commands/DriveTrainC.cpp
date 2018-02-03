@@ -33,8 +33,8 @@ void DriveTrainC::Execute() {
 	JoyX = Robot::oi->getDriver()->GetX();
 	JoyY = Robot::oi->getDriver()->GetY();
 
-	Robot::driveTrain->SetLeftPower(JoyY + JoyX);
-	Robot::driveTrain->SetRightPower(JoyY - JoyX);
+	Robot::driveTrain->SetLeftPower(-JoyY + JoyX);
+	Robot::driveTrain->SetRightPower(-JoyY - JoyX);
 }
 
 // Make this return true when this Command no longer needs to run execute()

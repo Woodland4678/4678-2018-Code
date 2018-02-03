@@ -46,6 +46,8 @@ public:
 
     bool  getMotorSpeeds(float &leftMotorPower, float &rightMotorPower, int leftEncoder, int rightEncoder) const;
 
+    std::string  dumpObject() const;
+
 private:
     // TODO: change the constructors and operators to c11
 // LIFECYCLE
@@ -93,6 +95,12 @@ private:
     float  m_finalPower;				// power the motors should be after the robot has traveled the distance
 
     bool   m_goingBackwards;			// whether the robot is going forward or backwards
+
+    bool  m_printStartUp;
+    bool  m_printRampUp;
+    bool  m_printTravel;
+    bool  m_printRampDown;
+    bool  m_printFinish;
 };
 
 #endif /* DRIVE_MOTOR_CALCULATOR_H_ */

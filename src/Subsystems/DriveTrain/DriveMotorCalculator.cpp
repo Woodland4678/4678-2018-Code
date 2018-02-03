@@ -12,6 +12,8 @@
 // SYSTEM INCLUDES
 #include <cassert>
 #include <cmath>
+#include <sstream>
+#include <iostream>
 
 // PROJECT INCLUDES
 #include "DriveMotorCalculator.h"
@@ -70,7 +72,14 @@ DriveMotorCalculator::DriveMotorCalculator(int leftEncoder, int rightEncoder, in
     m_rampDownPower(0.0),
     m_finalPower(0.0),
 
-    m_goingBackwards(false)
+    m_goingBackwards(false),
+
+    m_printStartUp(false),
+    m_printRampUp(false),
+    m_printTravel(false),
+    m_printRampDown(false),
+    m_printFinish(false)
+
 {
     setTotalDistances(leftDistanceCm, rightDistanceCm);
     setZonePowers(initialPower, finishPower);
@@ -169,9 +178,38 @@ bool  DriveMotorCalculator::getMotorSpeeds(float &leftMotorPower, float &rightMo
 		break;
 	}
 
-	correctPowers(leftMotorPower, rightMotorPower);
+    correctPowers(leftMotorPower, rightMotorPower);
 
 	return retval;
+}
+
+std::string  DriveMotorCalculator::dumpObject() const {
+    std::stringstream   stream;
+
+    stream << "leftEncoder=" << m_startingLeftEncoder;
+    stream << ", rightEncoder=" << m_startingRightEncoder;
+	stream << ", pulsesPerCm=" << m_encoderPulsesPerCm;
+    stream << std::endl;
+
+    stream << "leftDistCm=" << m_leftTotalDistanceCm;
+    stream << ", rightDistCm=" << m_rightTotalDistanceCm;
+    stream << ", backwards=" << m_goingBackwards;
+    stream << std::endl;
+
+    stream << "rampUpStartCm=" << m_rampUpStartCm;
+    stream << ", travelStartCm=" << m_travelStartCm;
+    stream << ", rampDownStartCm=" << m_rampDownStartCm;
+    stream << ", turnStartCm=" << m_turnStartCm;
+    stream << std::endl;
+
+    stream << "startUpPower=" << m_startUpPower;
+    stream << ", rampUpPower=" << m_rampUpPower;
+    stream << ", travelPower=" << m_travelPower;
+    stream << ", rampDownPower=" << m_rampDownPower;
+    stream << ", finalPower=" << m_finalPower;
+    stream << std::endl;
+
+    return stream.str();
 }
 
 // /////////////////////////////////  PRIVATE ////////////////////////////////////////////////
@@ -255,7 +293,6 @@ void  DriveMotorCalculator::setZonePowers(float initialPower, float finalPower) 
 void  DriveMotorCalculator::setZoneStartPoints(float initialPower) {
     const int  max_distance((m_leftTotalDistanceCm > m_rightTotalDistanceCm) ? 
                                 m_leftTotalDistanceCm : m_rightTotalDistanceCm);
-
     float  tmp_float;
     int    tmp_int;
     int    tmp_distance;
@@ -294,8 +331,8 @@ void  DriveMotorCalculator::setZoneStartPoints(float initialPower) {
 void  DriveMotorCalculator::calculateTravelDistance(float &leftTravelCm, float &rightTravelCm,
 			int leftEncoder, int rightEncoder) const {
 	// Change encoder pulses into distance the robot has travelled in CM
-	const float  left_encoder_pulses(static_cast<float>(std::abs(leftEncoder - m_startingLeftEncoder)));
-	const float  right_encoder_pulses(static_cast<float>(std::abs(rightEncoder - m_startingRightEncoder)));
+    const float  left_encoder_pulses(static_cast<float>(std::abs(leftEncoder - m_startingLeftEncoder)));
+    const float  right_encoder_pulses(static_cast<float>(std::abs(rightEncoder - m_startingRightEncoder)));
 
 	leftTravelCm  = left_encoder_pulses / m_encoderPulsesPerCm;
 	rightTravelCm = right_encoder_pulses / m_encoderPulsesPerCm;
@@ -304,29 +341,51 @@ void  DriveMotorCalculator::calculateTravelDistance(float &leftTravelCm, float &
 MotorStateEnum  DriveMotorCalculator::getMotorState(float leftTravelCm, float rightTravelCm) const {
     const float  travel_distance((leftTravelCm > rightTravelCm) ? leftTravelCm : rightTravelCm);
 
+
 	if (travel_distance < m_rampUpStartCm) {
+		/*if (m_printStartUp == false) {
+			m_printStartUp = true;
+			std::cout << "******  MOTOR_STATE_START beginning  *****" << std::endl;
+		}*/
 		return MOTOR_STATE_START;
 	}
 
 	if (travel_distance >= m_rampUpStartCm && travel_distance < m_travelStartCm) {
+		/*if (m_printRampUp == false) {
+			m_printRampUp = true;
+			std::cout << "******  MOTOR_STATE_RAMPUP beginning  *****" << std::endl;
+		}*/
 		return MOTOR_STATE_RAMPUP;
 	}
 
 	if (travel_distance >= m_travelStartCm && travel_distance < m_rampDownStartCm) {
+		/*if (m_printTravel == false) {
+			m_printTravel = true;
+			std::cout << "******  MOTOR_STATE_TRAVEL beginning  *****" << std::endl;
+		}*/
 		return MOTOR_STATE_TRAVEL;
 	}
 
 	if (travel_distance >= m_rampDownStartCm && 
         leftTravelCm < m_leftTotalDistanceCm && rightTravelCm < m_rightTotalDistanceCm) {
+		/*if (m_printRampDown == false) {
+			m_printRampDown = true;
+			std::cout << "******  MOTOR_STATE_RAMPDOWN beginning  *****" << std::endl;
+		}*/
 		return MOTOR_STATE_RAMPDOWN;
 	}
 
 	if (leftTravelCm >= m_leftTotalDistanceCm && rightTravelCm >= m_rightTotalDistanceCm) {
+		/*if (m_printFinish == false) {
+			m_printFinish = true;
+			std::cout << "******  MOTOR_STATE_FINISH beginning  *****" << std::endl;
+		}*/
 		return MOTOR_STATE_FINISH;
 	}
 
     return MOTOR_STATE_UNKNOWN;
 }
+
 
 void   DriveMotorCalculator::calculateRampUpSpeeds(float &leftMotorPower, float &rightMotorPower,
 			float leftTravelCm, float rightTravelCm) const {
@@ -398,7 +457,7 @@ void   DriveMotorCalculator::calculateRampDownSpeeds(float &leftMotorPower, floa
         const float  max_travel((leftTravelCm > rightTravelCm) ? leftTravelCm : rightTravelCm);
 
         const float  ramp_travel(max_travel - m_rampDownStartCm);
-        const float  ramp_distance(max_distance - m_rampUpStartCm);
+        const float  ramp_distance(max_distance - m_rampDownStartCm);
     	const float  ramp_multiplier(ramp_travel / ramp_distance);
 	    const float  power_diff(m_travelPower - m_rampDownPower);
 
@@ -426,7 +485,7 @@ void   DriveMotorCalculator::calculateTurnMultipliers(float &leftMultiplier, flo
 		const float  right_percent(rightDistanceCm / m_rightTotalDistanceCm);
 
 		// Difference between how far the left and right have gone
-		const float  power_correction(s_TurningCorrectionMultiplier * std::abs(left_percent - right_percent));
+        const float  power_correction(s_TurningCorrectionMultiplier * std::abs(left_percent - right_percent));
 
 		// If the right is closer than the left, increase the left power and decrease the right power
 		const float  fudge_factor(0.001);
@@ -444,7 +503,6 @@ void   DriveMotorCalculator::calculateTurnMultipliers(float &leftMultiplier, flo
 			leftMultiplier  = 1.0 - power_correction;
 			rightMultiplier = 1.0 + power_correction;
 		}
-		printf("Right Mult= %f   Left Mult= %f   Corr=%f\n",right_percent,left_percent,std::abs(left_percent - right_percent));
 	}
 }
 
@@ -482,10 +540,10 @@ void   DriveMotorCalculator::validateIntegerity() const {
 	assert(m_leftTotalDistanceCm != 0);
 	assert(m_rightTotalDistanceCm != 0);
 
-	assert(m_rampUpStartCm >= 0);
-	assert(m_travelStartCm >= 0);
+	assert(m_rampUpStartCm >= 0 && m_rampUpStartCm <= s_MaxRampUpDistanceCm);
+	assert(m_travelStartCm > m_rampUpStartCm);
 	assert(m_rampDownStartCm >= 0);
-	assert(m_turnStartCm >= 0);
+	assert(m_turnStartCm >= 0  && m_turnStartCm <= s_MaxStraightDistanceCm);
 
 	assert(m_startUpPower > 0.0);
 	assert(m_rampUpPower > 0.0);
