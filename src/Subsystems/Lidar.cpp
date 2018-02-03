@@ -124,12 +124,13 @@ void Lidar::Periodic() {
 size_t Lidar::GetRawData(rplidar_response_measurement_node_t *nodes) {
 	size_t count;
 	int result = drv->grabScanData(nodes, count);
+	printf("lidar result: %i, %i\n", result, count);
 	if (!result)
 		drv->ascendScanData(nodes, count);
 	return count;
 }
 
-unsigned int Lidar::FilterRaw(rplidar_response_measurement_node_t *nodes, rplidar_response_measurement_node_t *filteredNodes, size_t count, double LeftLimit, double RightLimit, double MinDistance, double MaxDistance) {
+size_t Lidar::FilterRaw(rplidar_response_measurement_node_t *nodes, rplidar_response_measurement_node_t *filteredNodes, size_t count, double LeftLimit, double RightLimit, double MinDistance, double MaxDistance) {
 	unsigned int startidx = 0, n=0;
 	double dist, angle;
 	//Finding the starting index for the new array
@@ -165,18 +166,19 @@ unsigned int Lidar::FilterRaw(rplidar_response_measurement_node_t *nodes, rplida
 	return n;
 }
 
-void Lidar::ConvertToXY(rplidar_response_measurement_node_t *nodes, tpPoint *out, unsigned int count){
-	double rad;
-	int x,y;
+size_t Lidar::ConvertToXY(rplidar_response_measurement_node_t *nodes, tpPoint *out, unsigned int count){
+	size_t j = 0;
 	for(unsigned int i=0;i<count;i++){
-		rad = M_PI * (((nodes + i)->angle_q6_checkbit >> RPLIDAR_RESP_MEASUREMENT_ANGLE_SHIFT)/64.0f) / 180;
+		double rad = M_PI * ((nodes[i].angle_q6_checkbit >> RPLIDAR_RESP_MEASUREMENT_ANGLE_SHIFT)/64.0f) / 180;
 		if (nodes[i].distance_q2) {
-			x = ((nodes + i)->distance_q2/4.0f) * std::sin(rad);
-			y = ((nodes + i)->distance_q2/4.0f) * std::cos(rad);
-			(out+i)->x = x;
-			(out+i)->y = y;
+			int x = std::round((nodes[i].distance_q2/4.0f) * std::sin(rad));
+			int y = std::round((nodes[i].distance_q2/4.0f) * std::cos(rad));
+			j++;
+			out[j].x = x;
+			out[j].y = y;
 		}
 	}
+	return j;
 }
 
 /*
@@ -398,8 +400,8 @@ int Lidar::FindCubes(tpLine *lines, tpCube * cubes, unsigned int linecnt){
 		diffHieght = std::abs(CUBEHIEGHT - (lines + i)->length);
 		if ((diffWidth < CUBERANGEWIDTH)||(diffHieght < CUBERANGEHIEGHT)){
 			angle = (M_PI * (45 + (lines+i)->angle)) / 180;
-			(cubes + n)->location.x = (lines + i)->start.x + 233.5 * cos(angle);
-			(cubes + n)->location.y = (lines + i)->start.y + 233.5 * sin(angle);
+			(cubes + n)->location.x = (lines + i)->start.x + CENTRECUBE * cos(angle);
+			(cubes + n)->location.y = (lines + i)->start.y + CENTRECUBE * sin(angle);
 			//Distance from 0,0 (lidar)
 			(cubes + n)->distance = sqrt(pow((cubes + n)->location.x,2) + pow((cubes + n)->location.y,2));
 			//Angle from the front from 0,0 (lidar)

@@ -87,11 +87,9 @@ std::shared_ptr<frc::Encoder> DriveTrain::getRightEncoder() {
 	return rightEncoder;
 }
 
-bool DriveTrain::goToDistance(double rightCentimeters, double leftCentimeters, double power, int rampUpDistance, int rampDownDistance, double startingPower, double endingPower) {
+bool DriveTrain::goToDistance(double rightCentimeters, double leftCentimeters, double power) {
 	if (goToDistanceState == 0) {
-		double leftCM = frc::SmartDashboard::GetNumber("LeftCM", 0.0);
-		double rightCM = frc::SmartDashboard::GetNumber("RightCM", 0.0);
-		calculator.reset(new DriveMotorCalculator(getLeftEncoder()->Get(), getRightEncoder()->Get(), leftCM, rightCM, encoderClicksPerCentimeter));
+		calculator.reset(new DriveMotorCalculator(getLeftEncoder()->Get(), getRightEncoder()->Get(), leftCentimeters, rightCentimeters, encoderClicksPerCentimeter));
 
 		calculator->setStartUpPower(0.25);
 		calculator->setRampUpPower(0.5);

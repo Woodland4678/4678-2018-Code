@@ -5,6 +5,13 @@
  *      Author: wchs
  */
 
+
+// TODO: get rid of rampUpPower - go from startUpPower to totalPower over rampUpDistance
+// TODO: extend the initial startup distance to be 5 cm
+// TODO: determine the max distance as part of the constructor instead of calculating for each call
+// TODO: check the abs calls for test harness
+
+
 // The define below enables asserts within the code
 // It should only be enabled when within the test harness - off for production
 #define TEST_HARNESS_ENABLE_CHECKS    1
@@ -13,7 +20,7 @@
 #include <cassert>
 #include <cmath>
 #include <sstream>
-#include <iostream>
+//#include <iostream>
 
 // PROJECT INCLUDES
 #include "DriveMotorCalculator.h"
@@ -52,7 +59,7 @@ static const float s_TurningCorrectionMultiplier(5.0);
 // //////////////////////////////////  PUBLIC ////////////////////////////////////////////////
 // ********************************  LIFECYCLE  *********************************************
 
-DriveMotorCalculator::DriveMotorCalculator(int leftEncoder, int rightEncoder, int leftDistanceCm,
+DriveMotorCalculator::DriveMotorCalculator(unsigned int leftEncoder, unsigned int rightEncoder, int leftDistanceCm,
 							int rightDistanceCm, int encoderPulsesPerCm, float initialPower, float finishPower) :
     m_startingLeftEncoder(leftEncoder),
     m_startingRightEncoder(rightEncoder),
@@ -72,14 +79,7 @@ DriveMotorCalculator::DriveMotorCalculator(int leftEncoder, int rightEncoder, in
     m_rampDownPower(0.0),
     m_finalPower(0.0),
 
-    m_goingBackwards(false),
-
-    m_printStartUp(false),
-    m_printRampUp(false),
-    m_printTravel(false),
-    m_printRampDown(false),
-    m_printFinish(false)
-
+    m_goingBackwards(false)
 {
     setTotalDistances(leftDistanceCm, rightDistanceCm);
     setZonePowers(initialPower, finishPower);
@@ -132,7 +132,7 @@ int   DriveMotorCalculator::getRightDistanceCm() const {
 	return m_rightTotalDistanceCm;
 }
 
-bool  DriveMotorCalculator::getMotorSpeeds(float &leftMotorPower, float &rightMotorPower, int leftEncoder, int rightEncoder) const {
+bool  DriveMotorCalculator::getMotorSpeeds(float &leftMotorPower, float &rightMotorPower, unsigned int leftEncoder, unsigned int rightEncoder) const {
 	validateIntegerity();
 
 	// Convert the encode values to distance travelled
@@ -244,8 +244,9 @@ void  DriveMotorCalculator::setTotalDistances(int leftDistanceCm, int rightDista
 
 float  DriveMotorCalculator::validatePower(float power) const {
 	// Calculations are done with positive values, and then flipped at end if going backwards
+	// Let first if fall through the clipping statement
     if (power < 0.0)  {
-        return std::abs(power);
+        power *= -1.0;
     }
 
     if (power > 1.0) {
@@ -329,10 +330,10 @@ void  DriveMotorCalculator::setZoneStartPoints(float initialPower) {
 }
 
 void  DriveMotorCalculator::calculateTravelDistance(float &leftTravelCm, float &rightTravelCm,
-			int leftEncoder, int rightEncoder) const {
+			unsigned int leftEncoder, unsigned int rightEncoder) const {
 	// Change encoder pulses into distance the robot has travelled in CM
-    const float  left_encoder_pulses(static_cast<float>(std::abs(leftEncoder - m_startingLeftEncoder)));
-    const float  right_encoder_pulses(static_cast<float>(std::abs(rightEncoder - m_startingRightEncoder)));
+    const float  left_encoder_pulses(static_cast<float>(leftEncoder - m_startingLeftEncoder));
+    const float  right_encoder_pulses(static_cast<float>(rightEncoder - m_startingRightEncoder));
 
 	leftTravelCm  = left_encoder_pulses / m_encoderPulsesPerCm;
 	rightTravelCm = right_encoder_pulses / m_encoderPulsesPerCm;
@@ -341,45 +342,26 @@ void  DriveMotorCalculator::calculateTravelDistance(float &leftTravelCm, float &
 MotorStateEnum  DriveMotorCalculator::getMotorState(float leftTravelCm, float rightTravelCm) const {
     const float  travel_distance((leftTravelCm > rightTravelCm) ? leftTravelCm : rightTravelCm);
 
+    // TODO: if both total distances are 0 then set to MOTOR_STATE_UNKNOWN
 
 	if (travel_distance < m_rampUpStartCm) {
-		/*if (m_printStartUp == false) {
-			m_printStartUp = true;
-			std::cout << "******  MOTOR_STATE_START beginning  *****" << std::endl;
-		}*/
 		return MOTOR_STATE_START;
 	}
 
 	if (travel_distance >= m_rampUpStartCm && travel_distance < m_travelStartCm) {
-		/*if (m_printRampUp == false) {
-			m_printRampUp = true;
-			std::cout << "******  MOTOR_STATE_RAMPUP beginning  *****" << std::endl;
-		}*/
 		return MOTOR_STATE_RAMPUP;
 	}
 
 	if (travel_distance >= m_travelStartCm && travel_distance < m_rampDownStartCm) {
-		/*if (m_printTravel == false) {
-			m_printTravel = true;
-			std::cout << "******  MOTOR_STATE_TRAVEL beginning  *****" << std::endl;
-		}*/
 		return MOTOR_STATE_TRAVEL;
 	}
 
 	if (travel_distance >= m_rampDownStartCm && 
         leftTravelCm < m_leftTotalDistanceCm && rightTravelCm < m_rightTotalDistanceCm) {
-		/*if (m_printRampDown == false) {
-			m_printRampDown = true;
-			std::cout << "******  MOTOR_STATE_RAMPDOWN beginning  *****" << std::endl;
-		}*/
 		return MOTOR_STATE_RAMPDOWN;
 	}
 
 	if (leftTravelCm >= m_leftTotalDistanceCm && rightTravelCm >= m_rightTotalDistanceCm) {
-		/*if (m_printFinish == false) {
-			m_printFinish = true;
-			std::cout << "******  MOTOR_STATE_FINISH beginning  *****" << std::endl;
-		}*/
 		return MOTOR_STATE_FINISH;
 	}
 

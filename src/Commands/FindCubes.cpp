@@ -39,8 +39,11 @@ void FindCubes::Initialize() {
 void FindCubes::Search() {
 	size_t cnt = Robot::lidar->GetRawData(Nodes);
 
+	unsigned int xyCnt = Robot::lidar->ConvertToXY(Nodes, Data, cnt);
+	for(unsigned int i = 0; i<xyCnt; i++)
+		printf("%i, %i \n",Data[i].x,Data[i].y);
 	size_t filteredcnt = Robot::lidar->FilterRaw(Nodes, Filtered, cnt, 60,60,50,3000);
-	Robot::lidar->ConvertToXY(Filtered, Data, filteredcnt);
+	filteredcnt = Robot::lidar->ConvertToXY(Filtered, Data, filteredcnt);
 	int lineCount = Robot::lidar->FindLines(Data, lines, filteredcnt);
 	cubeCount = Robot::lidar->FindCubes(lines, cubes,lineCount);
 
@@ -55,6 +58,12 @@ void FindCubes::Search() {
 }
 
 void FindCubes::FindPath() {
+	if (cubeCount == 0) {
+		rightcm = 0;
+		leftcm = 0;
+		printf("rightcm = %f   leftcm = %f\n", rightcm, leftcm);
+		return;
+	}
 	unsigned int idx = 0;
 	int shortestdist = 6000;
 	for (unsigned int i = 0; i < cubeCount; i++){
@@ -75,7 +84,7 @@ void FindCubes::FindPath() {
 
 // Called repeatedly when this Command is scheduled to run
 void FindCubes::Execute() {
-	doneGo = Robot::driveTrain->goToDistance(100, 75,0.75,10,10,0.5,0.5);
+	doneGo = Robot::driveTrain->goToDistance(rightcm, leftcm, 0.75);
 }
 
 // Make this return true when this Command no longer needs to run execute()

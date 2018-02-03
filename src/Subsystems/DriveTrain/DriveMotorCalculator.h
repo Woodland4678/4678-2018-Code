@@ -29,7 +29,7 @@ class DriveMotorCalculator
 {
 public:
 // LIFECYCLE
-    DriveMotorCalculator(int leftEncoder, int rightEncoder, int leftDistanceCm, int rightDistanceCm, int encoderPulsesPerCm,
+    DriveMotorCalculator(unsigned int leftEncoder, unsigned int rightEncoder, int leftDistanceCm, int rightDistanceCm, int encoderPulsesPerCm,
                          float initialPower = 0.0, float finalPower = 0.0);
     ~DriveMotorCalculator();
 
@@ -44,7 +44,7 @@ public:
     int   getLeftDistanceCm() const;
     int   getRightDistanceCm() const;
 
-    bool  getMotorSpeeds(float &leftMotorPower, float &rightMotorPower, int leftEncoder, int rightEncoder) const;
+    bool  getMotorSpeeds(float &leftMotorPower, float &rightMotorPower, unsigned int leftEncoder, unsigned int rightEncoder) const;
 
     std::string  dumpObject() const;
 
@@ -64,7 +64,7 @@ private:
     void  setZonePowers(float initialPower, float finalPower);
     void  setZoneStartPoints(float initialPower);
 
-    void  calculateTravelDistance(float &leftTravelCm, float &rightTravelCm, int leftEncoder, int rightEncoder) const;
+    void  calculateTravelDistance(float &leftTravelCm, float &rightTravelCm, unsigned int leftEncoder, unsigned int rightEncoder) const;
 
     MotorStateEnum  getMotorState(float leftTravelCm, float rightTravelCm) const;
 
@@ -95,12 +95,6 @@ private:
     float  m_finalPower;				// power the motors should be after the robot has traveled the distance
 
     bool   m_goingBackwards;			// whether the robot is going forward or backwards
-
-    bool  m_printStartUp;
-    bool  m_printRampUp;
-    bool  m_printTravel;
-    bool  m_printRampDown;
-    bool  m_printFinish;
 };
 
 #endif /* DRIVE_MOTOR_CALCULATOR_H_ */
