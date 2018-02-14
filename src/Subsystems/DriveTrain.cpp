@@ -92,7 +92,6 @@ bool DriveTrain::goToDistance(double rightCentimeters, double leftCentimeters, d
 		calculator.reset(new DriveMotorCalculator(getLeftEncoder()->Get(), getRightEncoder()->Get(), leftCentimeters, rightCentimeters, encoderClicksPerCentimeter));
 
 		calculator->setStartUpPower(0.25);
-		calculator->setRampUpPower(0.5);
 		calculator->setTravelPower(0.5);
 		calculator->setRampDownPower(0.25);
 
@@ -117,6 +116,35 @@ bool DriveTrain::goToDistance(double rightCentimeters, double leftCentimeters, d
 	}
 	return false;
 }
+
+bool DriveTrain::GyroTurn(double current, double turnAmount, double p, double i, double d){
+
+	static double past = 0;
+	static double iValue = 0;
+	double error = turnAmount - current;
+	double pValue = p*error;
+	iValue += i*(error);
+	double dValue = d*(past - current);
+	double totalValue = pValue + iValue + dValue;
+
+	printf("Gyro: %f  tv = %f\n",current, totalValue);
+
+	Robot::driveTrain->SetRightPower(-totalValue);
+	Robot::driveTrain->SetLeftPower(totalValue);
+
+
+	past = current;
+	if (std::abs(error) < 1) {
+		past = 0;
+		iValue = 0;
+		Robot::driveTrain->SetRightPower(0);
+		Robot::driveTrain->SetLeftPower(0);
+		return true;
+	}
+	return false;
+}
+
+
 // Put methods for controlling this subsystem
 // here. Call these from Commands.
 

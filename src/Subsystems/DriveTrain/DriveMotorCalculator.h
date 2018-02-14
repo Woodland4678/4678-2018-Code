@@ -29,14 +29,13 @@ class DriveMotorCalculator
 {
 public:
 // LIFECYCLE
-    DriveMotorCalculator(unsigned int leftEncoder, unsigned int rightEncoder, int leftDistanceCm, int rightDistanceCm, int encoderPulsesPerCm,
+    DriveMotorCalculator(int leftEncoder, int rightEncoder, int leftDistanceCm, int rightDistanceCm, int encoderPulsesPerCm,
                          float initialPower = 0.0, float finalPower = 0.0);
     ~DriveMotorCalculator();
 
 // METHODS
     void  setStartingEncoders(int leftEncoder, int rightEncoder);
     void  setStartUpPower(float power);
-    void  setRampUpPower(float power);
     void  setTravelPower(float power);
     void  setRampDownPower(float power);
     void  setFinalPower(float power);
@@ -44,7 +43,7 @@ public:
     int   getLeftDistanceCm() const;
     int   getRightDistanceCm() const;
 
-    bool  getMotorSpeeds(float &leftMotorPower, float &rightMotorPower, unsigned int leftEncoder, unsigned int rightEncoder) const;
+    bool  getMotorSpeeds(float &leftMotorPower, float &rightMotorPower, int leftEncoder, int rightEncoder) const;
 
     std::string  dumpObject() const;
 
@@ -63,11 +62,11 @@ private:
 
     void  setZonePowers(float initialPower, float finalPower);
     void  setZoneStartPoints(float initialPower);
-
-    void  calculateTravelDistance(float &leftTravelCm, float &rightTravelCm, unsigned int leftEncoder, unsigned int rightEncoder) const;
+    void  calculateTravelDistance(float &leftTravelCm, float &rightTravelCm, int leftEncoder, int rightEncoder) const;
 
     MotorStateEnum  getMotorState(float leftTravelCm, float rightTravelCm) const;
 
+    void   calculateStartUpSpeeds(float &leftMotorPower, float &rightMotorPower, float leftDistanceCm, float rightDistanceCm) const;
     void   calculateRampUpSpeeds(float &leftMotorPower, float &rightMotorPower, float leftDistanceCm, float rightDistanceCm) const;
     void   calculateTravelSpeeds(float &leftMotorPower, float &rightMotorPower, float leftTravelCm, float rightTravelCm) const;
     void   calculateRampDownSpeeds(float &leftMotorPower, float &rightMotorPower, float leftTravelCm, float rightTravelCm) const;
@@ -82,6 +81,7 @@ private:
 
     int    m_leftTotalDistanceCm;       // number of CMs for the left wheels to travel
     int    m_rightTotalDistanceCm;      // number of CMs for the right wheels to travel
+    int    m_maxTotalDistanceCm;        // number of CMs max(leftDistance, rightDistance)
 
     int    m_rampUpStartCm;             // number of CMs to the start of the rampUp zone
     int    m_travelStartCm;             // number of CMs to the start of the travel zone
@@ -89,8 +89,7 @@ private:
     int    m_turnStartCm;               // number of CMs from the starting point before the robot can start turning
 
     float  m_startUpPower;				// power the motors should be set to on startup
-    float  m_rampUpPower;				// power the motors should be set to at the end of the rampUp zone
-    float  m_travelPower;				// power the motors should be set to when the robot is between rampUp and rampDown
+    float  m_travelPower;				// power the motors should be set to between rampUp and rampDown
     float  m_rampDownPower;				// power the motors should be set to at the end of the rampDown zone
     float  m_finalPower;				// power the motors should be after the robot has traveled the distance
 

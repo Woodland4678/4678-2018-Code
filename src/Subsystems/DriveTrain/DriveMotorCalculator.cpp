@@ -5,13 +5,6 @@
  *      Author: wchs
  */
 
-
-// TODO: get rid of rampUpPower - go from startUpPower to totalPower over rampUpDistance
-// TODO: extend the initial startup distance to be 5 cm
-// TODO: determine the max distance as part of the constructor instead of calculating for each call
-// TODO: check the abs calls for test harness
-
-
 // The define below enables asserts within the code
 // It should only be enabled when within the test harness - off for production
 #define TEST_HARNESS_ENABLE_CHECKS    1
@@ -20,38 +13,56 @@
 #include <cassert>
 #include <cmath>
 #include <sstream>
-//#include <iostream>
 
 // PROJECT INCLUDES
 #include "DriveMotorCalculator.h"
 
 //  MAGIC VALUES
-// Default motor powers to use
-static const float s_DefaultStartUpPower(0.5);
-static const float s_DefaultRampUpPower(0.75);
+// Default motor powers to use when traveling > 100 cm
+static const float s_DefaultStartUpPower(0.25);
 static const float s_DefaultTravelPower(1.0);
-static const float s_DefaultRampDownPower(0.75);
+static const float s_DefaultRampDownPower(0.5);
 static const float s_DefaultFinishPower(0.0);
 
-// Default upper limits on distances to cap how long a zone can be 
-static const int  s_MaxStartUpDistanceCm(5);
-static const int  s_MaxRampUpDistanceCm(10);
+// Default motor powers to use when traveling < 50 cm
+static const float s_MinStartUpPower(0.25);
+static const float s_MinTravelPower(0.5);
+static const float s_MinRampDownPower(0.25);
+static const float s_MinFinishPower(0.0);
+
+// Default motor powers to use when traveling 50-100 cm
+static const float s_MediumStartUpPower(0.25);
+static const float s_MediumTravelPower(0.5);
+static const float s_MediumRampDownPower(0.25);
+static const float s_MediumFinishPower(0.0);
+
+// Default limits on distances to cap how long a zone can be 
+static const int  s_StartUpDistanceCm(5);
+static const int  s_MinRampUpDistanceCm(5);
+static const int  s_MaxRampUpDistanceCm(20);
+static const int  s_MinRampDownDistanceCm(5);
 static const int  s_MaxRampDownDistanceCm(10);
 static const int  s_MaxStraightDistanceCm(20);
 
 // Default percents of total distance for a zone expressed as a float
-static const float s_DefaultStartUpMultiplier(0.01);
-static const float s_DefaultRampUpMultiplier(0.1);
+static const float s_DefaultRampUpMultiplier(0.2);
 static const float s_DefaultRampDownMultiplier(0.1);
 static const float s_DefaultStraightMultiplier(0.02);
 
 // Distances where the power values change - maximum power varies by area
-static const int   s_MinPowerDistanceCm(25);
+// Between 10-50 cm use min power values
+// Between 50-100 use medium power values
+// 100+ use default power values
+static const int   s_MinPowerDistanceCm(50);
 static const int   s_MediumPowerDistanceCm(100);
 
-// Limit distances this code is expected to work with
+// Limit distances this code is expected to work with to 10-1500 cm
 static const int   s_MinLimitDistanceCm(10);
 static const int   s_MaxLimitDistanceCm(1500);  // length of the field
+
+// Min and max power values a motor can handle
+static const float s_MinPowerAllowed(-1.0);
+static const float s_MaxPowerAllowed(1.0);
 
 // Turning ratio correction factor - I copied this from the goToDistance code so have no idea why 5??
 static const float s_TurningCorrectionMultiplier(5.0);
@@ -59,7 +70,7 @@ static const float s_TurningCorrectionMultiplier(5.0);
 // //////////////////////////////////  PUBLIC ////////////////////////////////////////////////
 // ********************************  LIFECYCLE  *********************************************
 
-DriveMotorCalculator::DriveMotorCalculator(unsigned int leftEncoder, unsigned int rightEncoder, int leftDistanceCm,
+DriveMotorCalculator::DriveMotorCalculator(int leftEncoder, int rightEncoder, int leftDistanceCm,
 							int rightDistanceCm, int encoderPulsesPerCm, float initialPower, float finishPower) :
     m_startingLeftEncoder(leftEncoder),
     m_startingRightEncoder(rightEncoder),
@@ -67,6 +78,7 @@ DriveMotorCalculator::DriveMotorCalculator(unsigned int leftEncoder, unsigned in
 
     m_leftTotalDistanceCm(0),
     m_rightTotalDistanceCm(0),
+    m_maxTotalDistanceCm(0),
 
     m_rampUpStartCm(0),
     m_travelStartCm(0),
@@ -74,7 +86,6 @@ DriveMotorCalculator::DriveMotorCalculator(unsigned int leftEncoder, unsigned in
     m_turnStartCm(0),
 
     m_startUpPower(0.0),
-    m_rampUpPower(0.0),
     m_travelPower(0.0),
     m_rampDownPower(0.0),
     m_finalPower(0.0),
@@ -108,10 +119,6 @@ void  DriveMotorCalculator::setStartUpPower(float power) {
     m_startUpPower = validatePower(power);
 }
 
-void  DriveMotorCalculator::setRampUpPower(float power) {
-    m_rampUpPower = validatePower(power);
-}
-
 void  DriveMotorCalculator::setTravelPower(float power) {
     m_travelPower = validatePower(power);
 }
@@ -132,7 +139,7 @@ int   DriveMotorCalculator::getRightDistanceCm() const {
 	return m_rightTotalDistanceCm;
 }
 
-bool  DriveMotorCalculator::getMotorSpeeds(float &leftMotorPower, float &rightMotorPower, unsigned int leftEncoder, unsigned int rightEncoder) const {
+bool  DriveMotorCalculator::getMotorSpeeds(float &leftMotorPower, float &rightMotorPower, int leftEncoder, int rightEncoder) const {
 	validateIntegerity();
 
 	// Convert the encode values to distance travelled
@@ -147,8 +154,7 @@ bool  DriveMotorCalculator::getMotorSpeeds(float &leftMotorPower, float &rightMo
 
 	switch (motor_state) {
 	case MOTOR_STATE_START:
-		leftMotorPower  = m_startUpPower;
-		rightMotorPower = m_startUpPower;
+		calculateStartUpSpeeds(leftMotorPower, rightMotorPower, left_travel_cm,  right_travel_cm);
 		break;
 
 	case MOTOR_STATE_RAMPUP:
@@ -173,8 +179,6 @@ bool  DriveMotorCalculator::getMotorSpeeds(float &leftMotorPower, float &rightMo
 	default:
 		// Houston we have a problem...
 		// We should never end up in the default case
-
-		// TODO: figure out how to handle the error condition - throw an error
 		break;
 	}
 
@@ -203,7 +207,6 @@ std::string  DriveMotorCalculator::dumpObject() const {
     stream << std::endl;
 
     stream << "startUpPower=" << m_startUpPower;
-    stream << ", rampUpPower=" << m_rampUpPower;
     stream << ", travelPower=" << m_travelPower;
     stream << ", rampDownPower=" << m_rampDownPower;
     stream << ", finalPower=" << m_finalPower;
@@ -240,6 +243,13 @@ void  DriveMotorCalculator::setTotalDistances(int leftDistanceCm, int rightDista
     else {
         m_rightTotalDistanceCm = abs_right_distance;
     }
+
+    if (abs_left_distance >= abs_right_distance) {
+        m_maxTotalDistanceCm = abs_left_distance;
+    }
+    else {
+        m_maxTotalDistanceCm = abs_right_distance;
+    }
 }
 
 float  DriveMotorCalculator::validatePower(float power) const {
@@ -249,8 +259,8 @@ float  DriveMotorCalculator::validatePower(float power) const {
         power *= -1.0;
     }
 
-    if (power > 1.0) {
-        return 1.0;
+    if (power > s_MaxPowerAllowed) {
+        return s_MaxPowerAllowed;
     }
 
     return power;
@@ -258,33 +268,27 @@ float  DriveMotorCalculator::validatePower(float power) const {
 
 void  DriveMotorCalculator::setZonePowers(float initialPower, float finalPower) {
     // Calculate powers and zone starting points based on the total distance
-    const int  max_distance((m_leftTotalDistanceCm > m_rightTotalDistanceCm) ? 
-                                m_leftTotalDistanceCm : m_rightTotalDistanceCm);
 
     initialPower = validatePower(initialPower);
     finalPower   = validatePower(finalPower);
 
-    if (initialPower == 0.0) {
-        m_startUpPower  = s_DefaultStartUpPower;
-    }
-
-    if (max_distance < s_MinPowerDistanceCm) {
-        // When going a minimal distance leave the robot at startup power
-        m_rampUpPower   = s_DefaultStartUpPower;
-        m_travelPower   = s_DefaultStartUpPower;
-        m_rampDownPower = s_DefaultStartUpPower;
+    if (m_maxTotalDistanceCm < s_MinPowerDistanceCm) {
+        // When going a small distance use min power values
+        m_startUpPower  = (initialPower == 0.0) ? s_MinStartUpPower : initialPower;
+        m_travelPower   = s_MinTravelPower;
+        m_rampDownPower = s_MinRampDownPower;
         m_finalPower    = finalPower;
     }
-    else if (max_distance < s_MediumPowerDistanceCm) {
-        // When going a short distance (< 1M) get to rampUp power
-        m_rampUpPower   = s_DefaultRampUpPower;
-        m_travelPower   = s_DefaultRampUpPower;
-        m_rampDownPower = s_DefaultRampDownPower;
+    else if (m_maxTotalDistanceCm < s_MediumPowerDistanceCm) {
+        // When going a medium distance use medium power values
+        m_startUpPower  = (initialPower == 0.0) ? s_MediumStartUpPower : initialPower;
+        m_travelPower   = s_MediumTravelPower;
+        m_rampDownPower = s_MediumRampDownPower;
         m_finalPower    = finalPower;
     }
     else {
-        // For longer distances (> 1M && < 15M) get to travelPower
-        m_rampUpPower   = s_DefaultRampUpPower;
+        // For longer distances (> 1M && < 15M) use default power values
+        m_startUpPower  = (initialPower == 0.0) ? s_DefaultStartUpPower : initialPower;
         m_travelPower   = s_DefaultTravelPower;
         m_rampDownPower = s_DefaultRampDownPower;
         m_finalPower    = finalPower;
@@ -292,37 +296,29 @@ void  DriveMotorCalculator::setZonePowers(float initialPower, float finalPower) 
 }
 
 void  DriveMotorCalculator::setZoneStartPoints(float initialPower) {
-    const int  max_distance((m_leftTotalDistanceCm > m_rightTotalDistanceCm) ? 
-                                m_leftTotalDistanceCm : m_rightTotalDistanceCm);
-    float  tmp_float;
-    int    tmp_int;
-    int    tmp_distance;
-
-    // Calculate the startUp zone distance
+    // startUp zone distance is fixed at 5 cm
     if (initialPower == 0.0) {
-        tmp_float    = max_distance * s_DefaultStartUpMultiplier;
-        tmp_int      = static_cast<int>(ceil(tmp_float));
-        tmp_distance = std::min(tmp_int, s_MaxStartUpDistanceCm);
-
-        m_rampUpStartCm = tmp_distance;
+        m_rampUpStartCm = s_StartUpDistanceCm;
     }
 
     // Calculate the rampUp zone distance
-    tmp_float    = max_distance * s_DefaultRampUpMultiplier;
-    tmp_int      = static_cast<int>(ceil(tmp_float));
-    tmp_distance = std::min(tmp_int, s_MaxRampUpDistanceCm);
+    float tmp_float(m_maxTotalDistanceCm * s_DefaultRampUpMultiplier);
+    int   tmp_int(static_cast<int>(ceil(tmp_float)));
+    int   tmp_distance(std::min(tmp_int, s_MaxRampUpDistanceCm));
 
+    tmp_distance    = std::max(tmp_distance, s_MinRampUpDistanceCm);
     m_travelStartCm = m_rampUpStartCm + tmp_distance;
 
     // Calculate the rampDown zone distance
-    tmp_float    = max_distance * s_DefaultRampDownMultiplier;
+    tmp_float    = m_maxTotalDistanceCm * s_DefaultRampDownMultiplier;
     tmp_int      = static_cast<int>(ceil(tmp_float));
     tmp_distance = std::min(tmp_int, s_MaxRampDownDistanceCm);
+    tmp_distance = std::max(tmp_distance, s_MinRampDownDistanceCm);
 
-    m_rampDownStartCm = max_distance - tmp_distance;
+    m_rampDownStartCm = m_maxTotalDistanceCm - tmp_distance;
 
     // Calculate the turning zone distance
-    tmp_float    = max_distance * s_DefaultStraightMultiplier;
+    tmp_float    = m_maxTotalDistanceCm * s_DefaultStraightMultiplier;
     tmp_int      = static_cast<int>(ceil(tmp_float));
     tmp_distance = std::min(tmp_int, s_MaxStraightDistanceCm);
 
@@ -330,19 +326,24 @@ void  DriveMotorCalculator::setZoneStartPoints(float initialPower) {
 }
 
 void  DriveMotorCalculator::calculateTravelDistance(float &leftTravelCm, float &rightTravelCm,
-			unsigned int leftEncoder, unsigned int rightEncoder) const {
+			int leftEncoder, int rightEncoder) const {
 	// Change encoder pulses into distance the robot has travelled in CM
-    const float  left_encoder_pulses(static_cast<float>(leftEncoder - m_startingLeftEncoder));
-    const float  right_encoder_pulses(static_cast<float>(rightEncoder - m_startingRightEncoder));
+    const int  left_encoder_pulses(std::abs(leftEncoder - m_startingLeftEncoder));
+    const int  right_encoder_pulses(std::abs(rightEncoder - m_startingRightEncoder));
 
-	leftTravelCm  = left_encoder_pulses / m_encoderPulsesPerCm;
-	rightTravelCm = right_encoder_pulses / m_encoderPulsesPerCm;
+	leftTravelCm  = static_cast<float>(left_encoder_pulses) / m_encoderPulsesPerCm;
+	rightTravelCm = static_cast<float>(right_encoder_pulses) / m_encoderPulsesPerCm;
 }
 
 MotorStateEnum  DriveMotorCalculator::getMotorState(float leftTravelCm, float rightTravelCm) const {
-    const float  travel_distance((leftTravelCm > rightTravelCm) ? leftTravelCm : rightTravelCm);
 
-    // TODO: if both total distances are 0 then set to MOTOR_STATE_UNKNOWN
+    //  Check if both total distances are 0.  Found this happened sometimes with robot
+    //  If both are 0 then set to final state, otherwise, the robot jerks and stops
+	if (m_leftTotalDistanceCm == 0.0 && m_rightTotalDistanceCm == 0.0) {
+		return MOTOR_STATE_FINISH;
+	}
+
+    const float  travel_distance((leftTravelCm > rightTravelCm) ? leftTravelCm : rightTravelCm);
 
 	if (travel_distance < m_rampUpStartCm) {
 		return MOTOR_STATE_START;
@@ -368,12 +369,10 @@ MotorStateEnum  DriveMotorCalculator::getMotorState(float leftTravelCm, float ri
     return MOTOR_STATE_UNKNOWN;
 }
 
-
-void   DriveMotorCalculator::calculateRampUpSpeeds(float &leftMotorPower, float &rightMotorPower,
+void   DriveMotorCalculator::calculateStartUpSpeeds(float &leftMotorPower, float &rightMotorPower,
 			float leftTravelCm, float rightTravelCm) const {
-	// The rampUp zone is for gradually increasing the power to the motors
-	// In order to get accurate values from the encoders the robot MUST avoid spinning the wheels
-	// At the end of the rampUp zone the robot should be traveling at m_rampUpPower
+	//  The starUp zone is is to get the robot moving without spinning the wheels
+	//  Other than turning we want the robot to travel at startUp power
 
 	// Determine if have any variance between sides from turning
 	float  left_multiplier(1.0);
@@ -381,10 +380,27 @@ void   DriveMotorCalculator::calculateRampUpSpeeds(float &leftMotorPower, float 
 
 	calculateTurnMultipliers(left_multiplier, right_multiplier, leftTravelCm, rightTravelCm);
 
-    if (m_rampUpPower == m_startUpPower) {
+	leftMotorPower  = left_multiplier * m_startUpPower;
+	rightMotorPower = right_multiplier * m_startUpPower;
+}
+
+
+void   DriveMotorCalculator::calculateRampUpSpeeds(float &leftMotorPower, float &rightMotorPower,
+			float leftTravelCm, float rightTravelCm) const {
+	// The rampUp zone is for gradually increasing the power to the motors
+	// In order to get accurate values from the encoders the robot MUST avoid spinning the wheels
+	// At the end of the rampUp zone the robot should be traveling at m_travelPower
+
+	// Determine if have any variance between sides from turning
+	float  left_multiplier(1.0);
+	float  right_multiplier(1.0);
+
+	calculateTurnMultipliers(left_multiplier, right_multiplier, leftTravelCm, rightTravelCm);
+
+    if (m_travelPower == m_startUpPower) {
         // At small distances run at a constant speed - no rampup
-    	leftMotorPower  = left_multiplier * m_rampUpPower;
-	    rightMotorPower = right_multiplier * m_rampUpPower;
+    	leftMotorPower  = left_multiplier * m_travelPower;
+	    rightMotorPower = right_multiplier * m_travelPower;
     }
     else {
 	    // Calculate what percentage of the rampUp distance the robot has traveled
@@ -392,7 +408,7 @@ void   DriveMotorCalculator::calculateRampUpSpeeds(float &leftMotorPower, float 
         const float  ramp_travel(max_travel - m_rampUpStartCm);
         const float  ramp_distance(static_cast<float>(m_travelStartCm - m_rampUpStartCm));
     	const float  ramp_multiplier(ramp_travel / ramp_distance);
-    	const float  power_diff(m_rampUpPower - m_startUpPower);
+    	const float  power_diff(m_travelPower - m_startUpPower);
 
     	leftMotorPower  = left_multiplier * (m_startUpPower + (ramp_multiplier * power_diff));
 	    rightMotorPower = right_multiplier * (m_startUpPower + (ramp_multiplier * power_diff));
@@ -414,7 +430,6 @@ void   DriveMotorCalculator::calculateTravelSpeeds(float &leftMotorPower, float 
 	rightMotorPower = right_multiplier * m_travelPower;
 }
 
-
 void   DriveMotorCalculator::calculateRampDownSpeeds(float &leftMotorPower, float &rightMotorPower,
 			float leftTravelCm, float rightTravelCm) const {
 	// The rampDown zone is for gradually decreasing the power to the motors
@@ -434,12 +449,9 @@ void   DriveMotorCalculator::calculateRampDownSpeeds(float &leftMotorPower, floa
     }
     else {
     	// Calculate what percentage of the rampDown distance the robot has traveled
-        const float  max_distance(static_cast<float>((m_leftTotalDistanceCm > m_rightTotalDistanceCm) ? 
-                                    m_leftTotalDistanceCm : m_rightTotalDistanceCm));
         const float  max_travel((leftTravelCm > rightTravelCm) ? leftTravelCm : rightTravelCm);
-
         const float  ramp_travel(max_travel - m_rampDownStartCm);
-        const float  ramp_distance(max_distance - m_rampDownStartCm);
+        const float  ramp_distance(m_maxTotalDistanceCm - m_rampDownStartCm);
     	const float  ramp_multiplier(ramp_travel / ramp_distance);
 	    const float  power_diff(m_travelPower - m_rampDownPower);
 
@@ -488,24 +500,24 @@ void   DriveMotorCalculator::calculateTurnMultipliers(float &leftMultiplier, flo
 	}
 }
 
-void   DriveMotorCalculator::correctPowers(float &leftMultiplier, float &rightMultiplier) const {
+void   DriveMotorCalculator::correctPowers(float &leftMotorPower, float &rightMotorPower) const {
 	// The motor speeds need to be between -1.0 and 1.0, if outside this range then clip
-	if (leftMultiplier > 1.0) {
-		leftMultiplier = 1.0;
+	if (leftMotorPower > s_MaxPowerAllowed) {
+		leftMotorPower = s_MaxPowerAllowed;
 	}
 
-	if (rightMultiplier > 1.0) {
-		rightMultiplier = 1.0;
+	if (rightMotorPower > s_MaxPowerAllowed) {
+		rightMotorPower = s_MaxPowerAllowed;
 	}
 
 	// Check if going backwards - if so reverse the motor settings
 	if (m_goingBackwards == true) {
-		if (leftMultiplier > 0.0) {
-			leftMultiplier *= -1.0;
+		if (leftMotorPower > 0.0) {
+			leftMotorPower *= -1.0;
 		}
 
-		if (rightMultiplier > 0.0) {
-			rightMultiplier *= -1.0;
+		if (rightMotorPower > 0.0) {
+			rightMotorPower *= -1.0;
 		}
 	}
 }
@@ -522,13 +534,12 @@ void   DriveMotorCalculator::validateIntegerity() const {
 	assert(m_leftTotalDistanceCm != 0);
 	assert(m_rightTotalDistanceCm != 0);
 
-	assert(m_rampUpStartCm >= 0 && m_rampUpStartCm <= s_MaxRampUpDistanceCm);
-	assert(m_travelStartCm > m_rampUpStartCm);
-	assert(m_rampDownStartCm >= 0);
-	assert(m_turnStartCm >= 0  && m_turnStartCm <= s_MaxStraightDistanceCm);
+	assert(m_rampUpStartCm >= 0 && m_rampUpStartCm <= m_travelStartCm);
+	assert(m_travelStartCm > m_rampUpStartCm && m_travelStartCm < m_rampDownStartCm);
+	assert(m_rampDownStartCm > m_travelStartCm);
+	assert(m_turnStartCm >= 0 && m_turnStartCm <= s_MaxStraightDistanceCm);
 
-	assert(m_startUpPower > 0.0);
-	assert(m_rampUpPower > 0.0);
+	assert(m_startUpPower >= 0.0);
 	assert(m_travelPower > 0.0);
 	assert(m_rampDownPower > 0.0);
 	assert(m_finalPower >= 0.0);
