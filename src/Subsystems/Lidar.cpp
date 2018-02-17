@@ -124,7 +124,6 @@ void Lidar::Periodic() {
 size_t Lidar::GetRawData(rplidar_response_measurement_node_t *nodes) {
 	size_t count;
 	int result = drv->grabScanData(nodes, count);
-	printf("lidar result: %i, %i\n", result, count);
 	if (!result)
 		drv->ascendScanData(nodes, count);
 	return count;
@@ -147,7 +146,6 @@ size_t Lidar::FilterRaw(rplidar_response_measurement_node_t *nodes, rplidar_resp
 		if((dist < MinDistance)||(dist > MaxDistance))
 			continue;
 		*(filteredNodes + n) = *(nodes + i);
-		printf("Point angle=%f\n",((filteredNodes + n)->angle_q6_checkbit >> RPLIDAR_RESP_MEASUREMENT_ANGLE_SHIFT)/64.0f);
 		n++;
 	}
 	//From 0 degrees to right limit
@@ -159,7 +157,6 @@ size_t Lidar::FilterRaw(rplidar_response_measurement_node_t *nodes, rplidar_resp
 		if((dist < MinDistance)||(dist > MaxDistance))
 			continue;
 		*(filteredNodes + n) = *(nodes + i);
-		printf("Point angle=%f\n",((filteredNodes + n)->angle_q6_checkbit >> RPLIDAR_RESP_MEASUREMENT_ANGLE_SHIFT)/64.0f);
 		n++;
 	}
 	//return number of data points
@@ -356,25 +353,6 @@ int Lidar::FindLines(tpPoint *data, tpLine *lines, unsigned int cnt){
 
 		(lines + NumLines)->length = totalDist;
 		(lines + NumLines)->angle = (180 * (asin(distY / totalDist))) / M_PI;
-		}
-	distX = ((lines)->start.x - (lines + NumLines)->end.x);
-	distY = ((lines)->start.y - (lines + NumLines)->end.y);
-	totalDist = sqrt(pow(distX,2)+pow(distY,2));
-	if(totalDist < MAXDISTRANGE)
-		{
-		diff = (lines)->angle - (lines + NumLines)->angle;
-		if((diff > (-MINANGLERANGE))&&(diff < MAXANGLERANGE))
-			{
-			(lines)->start.x = (lines + NumLines)->start.x;
-			(lines)->start.y = (lines + NumLines)->start.y;
-			distX = ((lines)->end.x - (lines)->start.x);
-			distY = ((lines)->end.y - (lines)->start.y);
-			totalDist = 330;
-			printf("\n%i %i\n",(lines+ NumLines)->end.x,(lines+ NumLines)->start.x);
-			(lines)->length = totalDist;
-			(lines)->angle = (180 * (asin(distY / totalDist))) / M_PI;
-			NumLines--;
-			}
 		}
 	NumLines++;
 	return NumLines;

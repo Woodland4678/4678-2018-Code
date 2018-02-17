@@ -31,6 +31,7 @@ void FindCubes::Initialize() {
 	r = 0;
 	rLeft = 0;
 	rRight = 0;
+	rumbleCount = 0;
 	doneGo = false;
 	Search();
 	FindPath();
@@ -38,19 +39,18 @@ void FindCubes::Initialize() {
 
 void FindCubes::Search() {
 	size_t cnt = Robot::lidar->GetRawData(Nodes);
-
-	unsigned int xyCnt = Robot::lidar->ConvertToXY(Nodes, Data, cnt);
-	for(unsigned int i = 0; i<xyCnt; i++)
-		printf("%i, %i \n",Data[i].x,Data[i].y);
+	printf("Data: %i\n",cnt);
 	size_t filteredcnt = Robot::lidar->FilterRaw(Nodes, Filtered, cnt, 60,60,50,3000);
+	printf("Filtered: %i\n",filteredcnt);
 	filteredcnt = Robot::lidar->ConvertToXY(Filtered, Data, filteredcnt);
+	printf("Converted: %i\n",filteredcnt);
 	int lineCount = Robot::lidar->FindLines(Data, lines, filteredcnt);
+	printf("Lines: %i\n",lineCount);
 	cubeCount = Robot::lidar->FindCubes(lines, cubes,lineCount);
 
-	for(unsigned int i = 0; i<filteredcnt; i++)
-		printf("%i, %i \n",Data[i].x,Data[i].y);
+	printf("Cubes %i\n",cubeCount);
 
-	for(int i = 0; i<=lineCount; i++)
+	for(int i = 0; i<lineCount; i++)
 		printf("Line %i: start(%i, %i) end(%i, %i) angle=%f length=%i \n",i, lines[i].start.x,lines[i].start.y, lines[i].end.x,lines[i].end.y,lines[i].angle,lines[i].length);
 
 	for(int i = 0; i<cubeCount; i++)
@@ -61,12 +61,12 @@ void FindCubes::FindPath() {
 	if (cubeCount == 0) {
 		rightcm = 0;
 		leftcm = 0;
-		printf("rightcm = %f   leftcm = %f\n", rightcm, leftcm);
+		doneGo = true;
 		return;
 	}
 	unsigned int idx = 0;
 	int shortestdist = 6000;
-	for (unsigned int i = 0; i < cubeCount; i++){
+	for (int i = 0; i < cubeCount; i++){
 		if(cubes[i].distance < shortestdist){
 			shortestdist = cubes[i].distance;
 			idx = i;
@@ -79,12 +79,27 @@ void FindCubes::FindPath() {
 	rLeft = ((cubes[idx].angle > 0) ? (r + 368) : (r - 368));
 	rightcm = (theta * rRight)/5;
 	leftcm = (theta * rLeft)/5;
+
 	printf("rightcm = %f   leftcm = %f\n", rightcm, leftcm);
 }
 
 // Called repeatedly when this Command is scheduled to run
 void FindCubes::Execute() {
-	doneGo = Robot::driveTrain->goToDistance(rightcm, leftcm, 0.75);
+	//Check if there are any cubes
+	if (cubeCount == 0)
+		doneGo = true;
+	//Check if button released
+	if(!Robot::oi->getdriver()->GetRawButton(6))
+		doneGo = true;
+	if (rumbleCount < 25)
+		{
+		Robot::oi->driverRumble(0.2);
+		rumbleCount++;
+		}
+	else
+		Robot::oi->driverRumble(0);
+	if(!doneGo)
+		doneGo = Robot::driveTrain->goToDistance(rightcm, leftcm, 0.75);
 }
 
 // Make this return true when this Command no longer needs to run execute()
@@ -94,6 +109,12 @@ bool FindCubes::IsFinished() {
 
 // Called once after isFinished returns true
 void FindCubes::End() {
+	Robot::oi->driverRumble(0);
+	memset(cubes,0,sizeof(tpCube)*5);
+	memset(lines,0,sizeof(tpLine)*100);
+	memset(Data,0,sizeof(tpPoint)*720);
+	memset(Filtered,0,sizeof(rplidar_response_measurement_node_t)*720);
+	memset(Nodes,0,sizeof(rplidar_response_measurement_node_t)*720);
 }
 
 // Called when another command which requires one or more of the same

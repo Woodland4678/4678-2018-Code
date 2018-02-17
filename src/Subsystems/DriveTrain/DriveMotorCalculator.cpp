@@ -7,19 +7,20 @@
 
 // The define below enables asserts within the code
 // It should only be enabled when within the test harness - off for production
-#define TEST_HARNESS_ENABLE_CHECKS    1
+#define TEST_HARNESS_ENABLE_CHECKS    0
 
 // SYSTEM INCLUDES
 #include <cassert>
 #include <cmath>
 #include <sstream>
+#include <Robot.h>
 
 // PROJECT INCLUDES
 #include "DriveMotorCalculator.h"
 
 //  MAGIC VALUES
 // Default motor powers to use when traveling > 100 cm
-static const float s_DefaultStartUpPower(0.25);
+static const float s_DefaultStartUpPower(0.5);
 static const float s_DefaultTravelPower(1.0);
 static const float s_DefaultRampDownPower(0.5);
 static const float s_DefaultFinishPower(0.0);
@@ -39,14 +40,14 @@ static const float s_MediumFinishPower(0.0);
 // Default limits on distances to cap how long a zone can be 
 static const int  s_StartUpDistanceCm(5);
 static const int  s_MinRampUpDistanceCm(5);
-static const int  s_MaxRampUpDistanceCm(20);
+static const int  s_MaxRampUpDistanceCm(75);
 static const int  s_MinRampDownDistanceCm(5);
-static const int  s_MaxRampDownDistanceCm(10);
+static const int  s_MaxRampDownDistanceCm(150);
 static const int  s_MaxStraightDistanceCm(20);
 
 // Default percents of total distance for a zone expressed as a float
-static const float s_DefaultRampUpMultiplier(0.2);
-static const float s_DefaultRampDownMultiplier(0.1);
+static const float s_DefaultRampUpMultiplier(0.4);
+static const float s_DefaultRampDownMultiplier(0.5);
 static const float s_DefaultStraightMultiplier(0.02);
 
 // Distances where the power values change - maximum power varies by area
@@ -64,8 +65,8 @@ static const int   s_MaxLimitDistanceCm(1500);  // length of the field
 static const float s_MinPowerAllowed(-1.0);
 static const float s_MaxPowerAllowed(1.0);
 
-// Turning ratio correction factor - I copied this from the goToDistance code so have no idea why 5??
-static const float s_TurningCorrectionMultiplier(5.0);
+// Turning ratio correction factor
+static const float s_TurningCorrectionMultiplier(10.0);
 
 // //////////////////////////////////  PUBLIC ////////////////////////////////////////////////
 // ********************************  LIFECYCLE  *********************************************
@@ -375,6 +376,7 @@ void   DriveMotorCalculator::calculateStartUpSpeeds(float &leftMotorPower, float
 	//  Other than turning we want the robot to travel at startUp power
 
 	// Determine if have any variance between sides from turning
+	Robot::driveTrain->shiftDown();
 	float  left_multiplier(1.0);
 	float  right_multiplier(1.0);
 
@@ -421,6 +423,7 @@ void   DriveMotorCalculator::calculateTravelSpeeds(float &leftMotorPower, float 
 	// Other than turning we want the robot to travel at maximum speed
 
 	// Determine if have any variance between sides from turning
+	Robot::driveTrain->shiftUp();
 	float  left_multiplier(1.0);
 	float  right_multiplier(1.0);
 
@@ -432,6 +435,7 @@ void   DriveMotorCalculator::calculateTravelSpeeds(float &leftMotorPower, float 
 
 void   DriveMotorCalculator::calculateRampDownSpeeds(float &leftMotorPower, float &rightMotorPower,
 			float leftTravelCm, float rightTravelCm) const {
+	Robot::driveTrain->shiftDown();
 	// The rampDown zone is for gradually decreasing the power to the motors
 	// In order to get accurate values from the encoders the robot MUST avoid skidding
 	// At the end of the rampDown zone the robot should be traveling at m_rampDownPower
@@ -470,8 +474,8 @@ void   DriveMotorCalculator::calculateTurnMultipliers(float &leftMultiplier, flo
 	leftMultiplier  = 1.0;
 	rightMultiplier = 1.0;
 
-	if (m_leftTotalDistanceCm != m_rightTotalDistanceCm && 
-        leftDistanceCm >= m_turnStartCm && rightDistanceCm >= m_turnStartCm) {
+//	if (m_leftTotalDistanceCm != m_rightTotalDistanceCm &&
+//    if (leftDistanceCm >= m_turnStartCm && rightDistanceCm >= m_turnStartCm) {
 		// Calculate the percentage the left side has travelled
 		const float  left_percent(leftDistanceCm / m_leftTotalDistanceCm);
 
@@ -497,7 +501,7 @@ void   DriveMotorCalculator::calculateTurnMultipliers(float &leftMultiplier, flo
 			leftMultiplier  = 1.0 - power_correction;
 			rightMultiplier = 1.0 + power_correction;
 		}
-	}
+//	}
 }
 
 void   DriveMotorCalculator::correctPowers(float &leftMotorPower, float &rightMotorPower) const {
