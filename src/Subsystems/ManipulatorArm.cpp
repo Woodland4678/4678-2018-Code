@@ -175,8 +175,8 @@ void ManipulatorArm::setWristPID(double p, double i, double d)
 //***Get Encoder Values From Talons***
 int ManipulatorArm::getShoulderAngular()
 	{
-	frc::SmartDashboard::PutNumber("Shoulder Error", shoulder->GetClosedLoopError(0));
-	frc::SmartDashboard::PutNumber("Shoulder Integral", shoulder->GetIntegralAccumulator(0));
+	frc::SmartDashboard::PutNumber("Shoulder Current", shoulder->GetOutputCurrent());
+	frc::SmartDashboard::PutNumber("Shoulder Voltage", shoulder->GetMotorOutputVoltage());
 	return shoulder->GetSensorCollection().GetPulseWidthPosition();
 	}
 
@@ -187,8 +187,8 @@ int ManipulatorArm::getWristAngular()
 
 int ManipulatorArm::getElbowAngular()
 	{
-	frc::SmartDashboard::PutNumber("Elbow Error", elbow->GetClosedLoopError(0));
-	frc::SmartDashboard::PutNumber("Elbow Integral", elbow->GetIntegralAccumulator(0));
+	frc::SmartDashboard::PutNumber("Elbow Current", elbow->GetOutputCurrent());
+	frc::SmartDashboard::PutNumber("Elbow Voltage", elbow->GetMotorOutputVoltage());
 	return elbow->GetSelectedSensorPosition(0);
 	}
 

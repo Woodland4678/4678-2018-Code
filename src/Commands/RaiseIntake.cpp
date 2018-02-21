@@ -31,7 +31,7 @@ void RaiseIntake::Initialize() {
 // Called repeatedly when this Command is scheduled to run
 void RaiseIntake::Execute() {
 	Robot::intake->stopWheels();
-	Robot::intake->setLifterPosition(600);
+	Robot::intake->setLifterPosition(2577);
 }
 
 // Make this return true when this Command no longer needs to run execute()

@@ -94,7 +94,7 @@ void Intake::grab(){
 }
 
 void Intake::setRightSpeed(double power){
-	rightWheels->Set(power);
+	rightWheels->Set(-power);
 }
 
 void Intake::setLeftSpeed(double power){
@@ -108,7 +108,7 @@ void Intake::stopWheels(){
 	setLeftSpeed(0);
 }
 void Intake::lowerIntake(){
-	setLifterPosition(6410);
+	setLifterPosition(8300);
 	if (lifter->GetClosedLoopError(0) < 100) {
 		setRightSpeed(-0.5);
 		setLeftSpeed(-0.5);

@@ -30,7 +30,7 @@ void raiseCube::Initialize() {
 
 // Called repeatedly when this Command is scheduled to run
 void raiseCube::Execute() {
-	//done = Robot::manipulatorArm->raiseCube();
+	done = Robot::manipulatorArm->raiseCube();
 }
 
 // Make this return true when this Command no longer needs to run execute()
