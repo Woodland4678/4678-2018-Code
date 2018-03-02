@@ -30,8 +30,12 @@ void RaiseIntake::Initialize() {
 
 // Called repeatedly when this Command is scheduled to run
 void RaiseIntake::Execute() {
+	Robot::manipulatorArm->updateArm();
+	if((Robot::manipulatorArm->endEffectorX > 0) && (Robot::manipulatorArm->endEffectorY < 14))
+		return;
 	Robot::intake->stopWheels();
-	Robot::intake->setLifterPosition(2577);
+	Robot::intake->setLifterPosition(572);
+	Robot::intake->upPos = true;
 }
 
 // Make this return true when this Command no longer needs to run execute()

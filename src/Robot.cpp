@@ -89,6 +89,7 @@ void Robot::TeleopInit() {
 	frc::SmartDashboard::PutNumber("d factor", 0);
 	frc::SmartDashboard::PutNumber("zone factor",10);
 	frc::SmartDashboard::PutNumber("Elbow Setpoint", 0);
+	frc::SmartDashboard::PutNumber("Move To", 1);
 	done = false;
 	caseThing = 0;
 
@@ -107,6 +108,8 @@ void Robot::TeleopPeriodic() {
 	frc::SmartDashboard::PutNumber("Lifter Position", intake->getLifterAngular());
 
 	frc::SmartDashboard::PutNumber("Lifter error", intake->getLifterError());
+
+	driveTrain->readLeftMotor();
 //	if (oi->getdriver()->GetRawButton(1)) {
 //
 //		//driveTrain->goToDistance(548, 548, 1);
@@ -123,28 +126,28 @@ void Robot::TeleopPeriodic() {
 //	else
 //		frc::SmartDashboard::PutString("PID", "Same");
 
-	/*if (oi->getdriver()->GetRawButton(3)) {
-		intake->setRightSpeed(-0.5);
-		intake->setLeftSpeed(-0.5);
-	}
-	if (oi->getdriver()->GetRawButton(9)) {
-		intake->setRightSpeed(0);
-		intake->setLeftSpeed(0);
-	}
-	if (oi->getdriver()->GetRawButton(4)) {
-		intake->setRightSpeed(0.5);
-		intake->setLeftSpeed(0.5);
-	}
-	if (oi->getdriver()->GetRawButton(7)) {
-		manipulatorArm->squeeze();
-	}
-	if (oi->getdriver()->GetRawButton(8)) {
-		manipulatorArm->release();
-	}*/
+//	if (oi->getdriver()->GetRawButton(3)) {
+//		intake->setRightSpeed(-0.5);
+//		intake->setLeftSpeed(-0.5);
+//	}
+//	if (oi->getdriver()->GetRawButton(9)) {
+//		intake->setRightSpeed(0);
+//		intake->setLeftSpeed(0);
+//	}
+//	if (oi->getdriver()->GetRawButton(4)) {
+//		intake->setRightSpeed(0.5);
+//		intake->setLeftSpeed(0.5);
+//	}
+//	if (oi->getdriver()->GetRawButton(7)) {
+//		manipulatorArm->squeeze();
+//	}
+//	if (oi->getdriver()->GetRawButton(8)) {
+//		manipulatorArm->release();
+//	}
 //	if (oi->getdriver()->GetRawButton(1)) {
 //		intake->grab();
 //	}
-//	if (oi->getdriver()->GetRawButton(2)) {
+//	if (oi->getdriver()->GetRawButton(4)) {
 //		intake->release();
 //	}
 	/*if (oi->getdriver()->GetRawButton(4)) {
