@@ -30,11 +30,11 @@ void LowerIntake::Initialize() {
 // Called repeatedly when this Command is scheduled to run
 void LowerIntake::Execute() {
 	Robot::intake->lowerIntake();
-	if (Robot::oi->getdriver()->GetRawButton(1)) {
-		Robot::intake->grab();
-	} else if (Robot::oi->getdriver()->GetRawButton(2)) {
-		Robot::intake->release();
-	}
+//	if (Robot::oi->getdriver()->GetRawButton(1)) {
+//		Robot::intake->grab();
+//	} else if (Robot::oi->getdriver()->GetRawButton(2)) {
+//		Robot::intake->release();
+//	}
 }
 
 // Make this return true when this Command no longer needs to run execute()

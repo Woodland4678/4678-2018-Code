@@ -40,17 +40,25 @@ ManipulatorArm::ManipulatorArm() : frc::Subsystem("ManipulatorArm") {
     shoulder->EnableCurrentLimit(false);
     shoulder->ConfigVoltageCompSaturation(12, 0);
     shoulder->EnableVoltageCompensation(true);
-	shoulder->Config_kP(0, 4, 0);
-	shoulder->Config_kI(0, 0, 0);
-	shoulder->Config_kD(0, 0, 0);
+    setShoulderPID(4,0,0,0,0);
 	shoulder->ConfigAllowableClosedloopError(0, 5, 0);
-	shoulder->ConfigSelectedFeedbackSensor(FeedbackDevice::PulseWidthEncodedPosition, 0, 0);
+	shoulder->ConfigSelectedFeedbackSensor(FeedbackDevice::QuadEncoder, 0, 0);
 	shoulder->SetStatusFramePeriod(StatusFrame::Status_1_General_, 10, 0);
-    startPosition = (getShoulderAngular() % 4096);
+    startPosition = (shoulder->GetSensorCollection().GetPulseWidthPosition() % 4096);
 	if (startPosition < 0)
 		startPosition += 4096;
 	shoulder->GetSensorCollection().SetPulseWidthPosition(startPosition, 0);
 	shoulder->GetSensorCollection().SetQuadraturePosition(startPosition, 0);
+	
+	shoulderSeg.posX = 0;
+	shoulderSeg.posY = 0;
+	shoulderSeg.length = 37; //inches
+	shoulderSeg.convSlope = 0.008594429939077;
+	shoulderSeg.convIntercept = 102.68635770235;
+	shDegreePerSecond = 50;
+	shMinTime = 1;
+	updateShoulder();
+	
     //Elbow
 	elbowSlave->Follow(*elbow);
 	elbow->SelectProfileSlot(0,0);
@@ -58,24 +66,30 @@ ManipulatorArm::ManipulatorArm() : frc::Subsystem("ManipulatorArm") {
 	elbow->ConfigVoltageCompSaturation(12, 0);
 	elbow->EnableVoltageCompensation(false);
 	elbow->EnableCurrentLimit(false);
-	elbow->Config_kP(0, 2.5, 0);
-	elbow->Config_kI(0, 0, 0);
-	elbow->Config_kD(0, 0, 0);
-	elbow->Config_IntegralZone(0, 10, 0);
+	setElbowPID(3,0,0,0,0);
 	elbow->ConfigAllowableClosedloopError(0, 5, 0);
 	elbow->ConfigSelectedFeedbackSensor(FeedbackDevice::CTRE_MagEncoder_Absolute, 0, 0);
 	elbow->SetStatusFramePeriod(StatusFrame::Status_1_General_, 10, 0);
-    startPosition = (getElbowAngular() % 4096);
+    startPosition = ((getElbowAngular()) % 4096);
+    //startposition is close to 0, when we are done value should be -2048 to +2048
 	if (startPosition < 0)
 		startPosition += 4096;
 	elbow->SetSelectedSensorPosition(startPosition, 0, 0);
+	
+	elbowSeg.posX = 0;
+	elbowSeg.posY = 37;
+	elbowSeg.length = 40; //inches
+	elbowSeg.convSlope = -0.023020774;
+	elbowSeg.convIntercept = -164 - getElbowAngular()*elbowSeg.convSlope ;
+	elDegreePerSecond = 90;
+	elMinTime = 2;
+	updateElbow();
+	
     //Wrist
 	wrist->EnableCurrentLimit(false);
 	wrist->ConfigVoltageCompSaturation(6, 0);
 	wrist->EnableVoltageCompensation(true);
-	wrist->Config_kP(0, 1, 0);
-	wrist->Config_kI(0, 0, 0);
-	wrist->Config_kD(0, 0, 0);
+	setWristPID(1,0,0,0,0);
 	wrist->ConfigAllowableClosedloopError(0, 5, 0);
 	wrist->ConfigSelectedFeedbackSensor(FeedbackDevice::PulseWidthEncodedPosition, 0, 0);
 	wrist->SetStatusFramePeriod(StatusFrame::Status_1_General_, 10, 0);
@@ -83,9 +97,70 @@ ManipulatorArm::ManipulatorArm() : frc::Subsystem("ManipulatorArm") {
 	if (startPosition < 0)
 		startPosition += 4096;
 	wrist->GetSensorCollection().SetPulseWidthPosition(startPosition, 0);
-
-	posOffset = 4;
+	
+	wristSeg.posX = 0;
+	wristSeg.posY = 77;
+	wristSeg.length = 6; //inches
+	wristSeg.convSlope = 0.037453761;
+	wristSeg.convIntercept = -56.25369914;
+	wrDegreePerSecond = 90;
+	wrMinTime = 1;
+	updateWrist();
+	
+	posOffset = 4.25;
 	multOffset = (12 + (posOffset - 4)) * 1000;
+	
+	//Positions:
+	positions[0][0] = 109;   //e:624     r:109
+    positions[0][1] = -56.5; //e:2914    r:-164
+    positions[0][2] = 0;     //e:2970    r:55
+    
+    positions[1][0] = 87;    //e:-2634   r:87
+    positions[1][1] = 75;    //e:-3673   r:-12
+    positions[1][2] = 15;    //e:-99     r:-60
+    
+    positions[2][0] = 116;   //e:1660    r:116
+    positions[2][1] = 44.5;  //e:-1096   r:-71
+    positions[2][2] = 14;    //e:687     r:-30
+    
+    positions[3][0] = 93;    //e:-1745   r:93
+    positions[3][1] = 105;   //e:-4714   r:12 
+    positions[3][2] = 165;   //e:3103    r:60
+    
+    positions[4][0] = 64;    //e:-6042   r:64
+    positions[4][1] = 135;   //e:-7272   r:71 
+    positions[4][2] = 165;   //e:2303    r:30
+    
+    positions[5][0] = 94;    //e:-1745   r:93
+    positions[5][1] = -54;   //e:2478    r:-154
+    positions[5][2] = -90;   //e:754     r:-28
+    
+    positions[6][0] = 86;    //e:-2784   r:86
+    positions[6][1] = -60;   //e:2134    r:-146
+    positions[6][2] = -89;   //e:728     r:-29
+    
+    positions[7][0] = 123;   //e:2697    r:123
+    positions[7][1] = -11;   //e:1614    r:-134
+    positions[7][2] = 19;    //e:2302    r:30
+    
+    positions[8][0] = 57;    //e:-7080   r:123
+    positions[8][1] = 191;   //e:-10001  r:134
+    positions[8][2] = 162;   //e:728     r:-30
+    
+    positions[9][0] = 71;    //e:-5007   r:71
+    positions[9][1] = 227;   //e:-10957  r:155
+    positions[9][2] = 270;   //e:2649    r:43
+    
+    positions[10][0] = 99;   //e:-859    r:99
+    positions[10][1] = 98;   //e:-4154   r:0
+    positions[10][2] = 180;  //e:3691    r:82
+    
+    positions[11][0] = 127;  //e:3291    r:127
+    positions[11][1] = -27;  //e:2479    r:-154
+    positions[11][2] = 61;   //e:3851    r:88
+
+    currPos = 0;
+    targetPos = 0;
 }
 
 void ManipulatorArm::InitDefaultCommand() {
@@ -104,13 +179,264 @@ void ManipulatorArm::Periodic() {
 
 void ManipulatorArm::initMovement(){
 	origTimeStamp = frc::Timer::GetFPGATimestamp();
-	shoulderStartPos = getShoulderAngular();
-	elbowStartPos = getElbowAngular();
-	wristStartPos = getWristAngular();
+	updateShoulder();
+	updateElbow();
+	updateWrist();
+	
+	shoulderStartPos = shoulderSeg.absAngle;
+	elbowStartPos = elbowSeg.absAngle;
+	wristStartPos = wristSeg.absAngle;
 	shoulderMovement = false;
+	shoulderMovement2 = false;
+	shoulderMovement3 = false;
 	elbowMovement = false;
 	wristMovement = false;
+	moveCase = 0;
+	shTarget1 = 0;
+    shTarget2 = 0;
+	shTime = 0;
+	elTime = 0;
+	wrTime = 0;
+    shTime1 = 0;
+    shTime2 = 0;
 }
+
+bool ManipulatorArm::fineMovement(int yDirection, int xDirection)
+	{
+	//Get current end point
+	updateArm();
+	double currX = endEffectorX;
+	double currY = endEffectorY;
+	//Calculate Target Position
+	double tarX = abs(currX);
+	double tarY = abs(currY);
+
+	tarX += xDirection;
+	tarY += yDirection;
+
+	//Check limits
+	if((tarX > 27)||(tarX < -27))
+		return;
+	if((tarY > 77)||(tarY < 50))
+		return;
+	if((tarX < 1)&&(tarY > -1))
+		return;
+
+	//Inverse Kitematics
+	//Elbow
+	double casBrakets = ((pow(tarX,2) + pow(tarY,2)) - pow(37,2) - pow(40,2))/(-2*(37)*(40));
+	//Check value incase it is too far
+	if((casBrakets < -1)||(casBrakets > 1))
+		casBrakets = round(casBrakets);
+	double angElbow = PI - acos(casBrakets);
+	//Shoulder
+	double angShoulder =  atan(tarY / tarX) - atan((40 * sin(-angElbow))/(37 + 40 * cos(-angElbow)));
+
+	//Convert radians to degrees
+	double elbowDeg = (angElbow * 180) / PI;
+	double ShoulderDeg = (angShoulder * 180) / PI;
+
+	//Check for negative
+	if((currX + transAmount) < 0)
+		{
+		ShoulderDeg = (90 - abs(ShoulderDeg)) + 90;
+		elbowDeg *= -1;
+		}
+
+	frc::SmartDashboard::PutNumber("Shoulder Degree", ShoulderDeg);
+	frc::SmartDashboard::PutNumber("Elbow Degree", elbowDeg);
+	//setShoulderAbsAngle(ShoulderDeg);
+	//setElbowAbsAngle(elbowDeg);
+	}
+
+bool ManipulatorArm::moveTo(int pos)
+	{
+	switch(moveCase)
+		{
+		case 0:
+			{
+			targetPos = pos;
+			//Pre calculations here, timing and shoulder movements
+			//Timing
+			wrTime = (std::abs(wristStartPos - positions[pos][2])) / wrDegreePerSecond;
+			elTime = (std::abs(elbowStartPos - positions[pos][1])) / elDegreePerSecond;
+			shTime = (std::abs(shoulderStartPos - positions[pos][0])) / shDegreePerSecond;
+
+			frc::SmartDashboard::PutNumber("Sh Time", shTime);
+			frc::SmartDashboard::PutNumber("El Time", elTime);
+			frc::SmartDashboard::PutNumber("Wr Time", wrTime);
+
+			if(shTime < shMinTime)
+				shTime = shMinTime;
+			if(elTime < elMinTime)
+				elTime = elMinTime;
+			if(wrTime < wrMinTime)
+				wrTime = wrMinTime;
+			
+			//Extra shoulder positions
+			//We have to determine how the arm needs to moves to stay within the 16"
+			//Does the elbow move from one zone to another?
+			//Current zone
+			int currentZone = 1;
+			int targetZone = 1;
+			if(elbowStartPos <= 0)
+				currentZone = 0;
+			if(elbowStartPos >= 180)
+				currentZone = 2;
+
+			if(positions[pos][1] <= 0)
+				targetZone = 0;
+			if(positions[pos][1] >= 180)
+				targetZone = 2;
+
+			frc::SmartDashboard::PutNumber("El currZone", currentZone);
+			frc::SmartDashboard::PutNumber("El tarZone", targetZone);
+
+			if(currentZone != targetZone)
+				{
+				bool twoZones = false;
+				bool rTl = true;
+				shoulderMovement2 = true;
+				elTime += 0.25;
+				float mult = (multOffset / (elTime*1000));
+				if((std::abs(targetZone - currentZone)) > 1)
+					{
+					twoZones = true;
+					//add a second to each?
+					shTime += 0.7;
+					elTime += 0.5;
+					wrTime += 0.7;
+					shoulderMovement2 = false;
+					}
+				if(currentZone != 1)
+					{
+					if(currentZone > targetZone)
+					rTl = false;
+					}
+				else
+					{
+					if(currentZone < targetZone)
+					rTl = false;
+					}
+
+				if(rTl)
+					{
+					//abs 90 first
+					if(shoulderStartPos >= 118)
+						shTarget1 = shoulderStartPos;
+					else
+						{
+						if(positions[pos][0] > 118)
+							shTarget1 = positions[pos][0];
+						else
+							shTarget1 = 118;
+						}
+					shTime1 = invSigmod(positions[pos][1], elbowStartPos, mult,posOffset,0);
+
+					//abs -90 second
+					if(twoZones)
+						{
+						if(positions[pos][0] > 62)
+							{
+							if(positions[pos][0] < 62)
+								shTarget2 = positions[pos][0];
+							else
+								shTarget2 = 62;
+							shTime2 = invSigmod(positions[pos][1], elbowStartPos, mult,posOffset,180);
+							shTime1 += 0.1;
+							//Rounding
+							shTime2 *= 100;
+							shTime2 = (std::floor(shTime2)) / 100;
+							}
+						else
+							shoulderMovement2 = true;
+						}
+					}
+				else
+					{
+					//abs -90 first
+					if(shoulderStartPos <= 67)
+						shTarget1 = shoulderStartPos;
+					else
+						{
+						if(positions[pos][0] < 67)
+							shTarget1 = positions[pos][0];
+						else
+							shTarget1 = 67;
+						}
+					shTime1 = invSigmod(positions[pos][1], elbowStartPos, mult,posOffset,180);
+
+					//abs 90 second
+					if(twoZones)
+						{
+						if(positions[pos][0] < 113)
+							{
+							if(positions[pos][0] > 113)
+								shTarget2 = positions[pos][0];
+							else
+								shTarget2 = 113;
+							shTime2 = invSigmod(positions[pos][1], elbowStartPos, mult,posOffset,0);
+							shTime1 += 0.1;
+							//Rounding
+							shTime2 *= 100;
+							shTime2 = (std::floor(shTime2)) / 100;
+							}
+						else
+							shoulderMovement2 = true;
+						}
+					}
+				}
+			else
+				{
+				shTime += 0.4;
+				shoulderMovement2 = true;
+				shoulderMovement3 = true;
+				}
+
+			frc::SmartDashboard::PutNumber("Sh target 1", shTarget1);
+			frc::SmartDashboard::PutNumber("Sh Time 1", shTime1);
+			frc::SmartDashboard::PutNumber("Sh target 2", shTarget2);
+			frc::SmartDashboard::PutNumber("Sh Time 2", shTime2);
+
+			moveCase += 1;
+			}
+			break;
+		case 1:
+			{
+			updateArm();
+			double currTime = frc::Timer::GetFPGATimestamp() - origTimeStamp;
+			//Extra movements
+			if((shTarget1 != 0) && (!shoulderMovement3))
+				shoulderMovement3 = shoulderGoToPosition(shoulderStartPos,shTarget1,currTime,shTime1);//Move shoulder back
+			if ((shTarget2 != 0) && shoulderMovement3 && (!shoulderMovement2))
+				shoulderMovement2 = shoulderGoToPosition(shTarget1,shTarget2,currTime-shTime1,shTime2); //Move shoulder forward to 67 in what?
+			
+			//Normal movements
+			if (shoulderMovement3 && shoulderMovement2 && (!shoulderMovement))
+				{
+				if (shTarget1 != 0)
+					shoulderStartPos = shTarget1;
+				if (shTarget2 != 0)
+					shoulderStartPos = shTarget2;
+				shoulderMovement = shoulderGoToPosition(shoulderStartPos,positions[pos][0],currTime-(shTime1+shTime2),shTime);
+				}
+			if (!elbowMovement)
+				elbowMovement = elbowGoToPosition(elbowStartPos,positions[pos][1],currTime,elTime);
+			if (!wristMovement)
+				wristMovement = wristGoToPosition(wristStartPos,positions[pos][2],currTime,wrTime);
+			
+			//Movement Check
+			if(shoulderMovement && elbowMovement && wristMovement)
+				{
+				moveCase++;
+				currPos = pos;
+				return true;
+				}
+			}
+			break;
+		}
+	return false;
+	}
 
 bool ManipulatorArm::pickUpCube() {
 	double currTime = frc::Timer::GetFPGATimestamp() - origTimeStamp;
@@ -150,34 +476,39 @@ bool ManipulatorArm::raiseCube() {
 }
 
 //***Set PID values***
-void ManipulatorArm::setShoulderPID(double p, double i, double d)
+void ManipulatorArm::setShoulderPID(double p, double i, double d, int zone, double f)
 	{
+	shoulder->Config_kF(0, f, 0);
 	shoulder->Config_kP(0, p, 0);
 	shoulder->Config_kI(0, i, 0);
 	shoulder->Config_kD(0, d, 0);
+	shoulder->Config_IntegralZone(0, zone, 0);
 	}
 
-void ManipulatorArm::setElbowPID(double p, double i, double d, int zone)
+void ManipulatorArm::setElbowPID(double p, double i, double d, int zone, double f)
 	{
+	elbow->Config_kF(0, f, 0);
 	elbow->Config_kP(0, p, 0);
 	elbow->Config_kI(0, i, 0);
 	elbow->Config_kD(0, d, 0);
 	elbow->Config_IntegralZone(0, zone, 0);
 	}
 
-void ManipulatorArm::setWristPID(double p, double i, double d)
+void ManipulatorArm::setWristPID(double p, double i, double d, int zone, double f)
 	{
+	wrist->Config_kF(0, f, 0);
 	wrist->Config_kP(0, p, 0);
 	wrist->Config_kI(0, i, 0);
 	wrist->Config_kD(0, d, 0);
+	wrist->Config_IntegralZone(0, zone, 0);
 	}
 
 //***Get Encoder Values From Talons***
 int ManipulatorArm::getShoulderAngular()
 	{
-	frc::SmartDashboard::PutNumber("Shoulder Error", shoulder->GetClosedLoopError(0));
-	frc::SmartDashboard::PutNumber("Shoulder Integral", shoulder->GetIntegralAccumulator(0));
-	return shoulder->GetSensorCollection().GetPulseWidthPosition();
+	frc::SmartDashboard::PutNumber("Shoulder Current", shoulder->GetOutputCurrent());
+	frc::SmartDashboard::PutNumber("Shoulder Voltage", shoulder->GetMotorOutputVoltage());
+	return shoulder->GetSelectedSensorPosition(0);
 	}
 
 int ManipulatorArm::getWristAngular()
@@ -187,27 +518,47 @@ int ManipulatorArm::getWristAngular()
 
 int ManipulatorArm::getElbowAngular()
 	{
-	frc::SmartDashboard::PutNumber("Elbow Error", elbow->GetClosedLoopError(0));
-	frc::SmartDashboard::PutNumber("Elbow Integral", elbow->GetIntegralAccumulator(0));
+	//frc::SmartDashboard::PutNumber("Elbow Current", elbow->GetOutputCurrent());
+	//frc::SmartDashboard::PutNumber("Elbow Voltage", elbow->GetMotorOutputVoltage());
 	return elbow->GetSelectedSensorPosition(0);
 	}
 
 
 //***Set Positions***
 //These function send the talons a new setpoint
+void ManipulatorArm::setShoulderAbsAngle(double angle)
+	{
+	double pos = convertRelAngleToEncoder(&shoulderSeg, angle);
+	shoulder->Set(ControlMode::Position, pos);
+	}
+void ManipulatorArm::setElbowAbsAngle(double angle)
+	{
+	//Convert to relative
+	double relAng = angle - shoulderSeg.absAngle;
+	double pos = convertRelAngleToEncoder(&elbowSeg, relAng);
+	elbow->Set(ControlMode::Position, pos);
+	}
+void ManipulatorArm::setWristAbsAngle(double angle)
+	{
+	//Convert to relative
+	double relAng = angle - elbowSeg.relAngle - shoulderSeg.absAngle;
+	double pos = convertRelAngleToEncoder(&wristSeg, relAng);
+	wrist->Set(ControlMode::Position, pos);
+	}
+
 void ManipulatorArm::setShoulderPosition(double position)
 	{
-	shoulder->Set(ControlMode::Position, position);
+	//shoulder->Set(ControlMode::Position, position);
 	}
 
 void ManipulatorArm::setElbowPosition(double position)
 	{
-	elbow->Set(ControlMode::Position, position);
+	//elbow->Set(ControlMode::Position, position);
 	}
 
 void ManipulatorArm::setWristPosition(double position)
 	{
-	wrist->Set(ControlMode::Position, position);
+	//wrist->Set(ControlMode::Position, position);
 	}
 void ManipulatorArm::squeeze() {
 	claw->Set(frc::DoubleSolenoid::Value::kForward);
@@ -255,7 +606,7 @@ bool ManipulatorArm::shoulderGoToPosition(double start, double position, double 
 	double NewSet = sigmod(position, start, multiplier, posOffset, current);
 
 	//shoulderNewSet = (position - start) * current / time + start;
-	setShoulderPosition(NewSet);
+	setShoulderAbsAngle(NewSet);
 
 	//Return true if the elapse time is complete
 	if (current > time)
@@ -271,8 +622,7 @@ bool ManipulatorArm::elbowGoToPosition(double start, double position, double cur
 	double NewSet = sigmod(position, start, multiplier, posOffset, current);
 
 	//shoulderNewSet = (position - start) * current / time + start;
-	frc::SmartDashboard::PutNumber("Elbow Setpoint", NewSet);
-	setElbowPosition(NewSet);
+	setElbowAbsAngle(NewSet);
 
 	//Return true if the elapse time is complete
 	if (current > time)
@@ -288,7 +638,7 @@ bool ManipulatorArm::wristGoToPosition(double start, double position, double cur
 	double NewSet = sigmod(position, start, multiplier, posOffset, current);
 
 	//shoulderNewSet = (position - start) * current / time + start;
-	setWristPosition(NewSet);
+	setWristAbsAngle(NewSet);
 
 	//Return true if the elapse time is complete
 	if (current > time)
@@ -301,44 +651,79 @@ double ManipulatorArm::sigmod(double end, double start, double mult, double offs
 	return (((end-start)/(1+exp((-(mult*x))+offset)))+start);
 	}
 
+double ManipulatorArm::invSigmod(double end, double start, double mult, double offset, double pnt)
+    {
+    return ((std::log(((end-start)/(pnt-start)) - 1) - offset)/(-mult)); 
+    }	
+	
 //***Convert functions***
-//To determine what values the variables need to be to convert the encoder and angles
-//	Take the joint in question move it to a known angle like 0 degrees or 90 and record the encoder value for that angle
-//		Do this for two angles
-//	The M is the slope and B is the y intersection of the line
-
-//Shoulder
-double ManipulatorArm::convertShoulderToAngle(double encoder)
+void ManipulatorArm::updateArm()
 	{
-	return (conShoulder_EtA_M *(encoder) + conShoulder_EtA_B); //EtA = Encoder to Angle
+	updateShoulder();
+	updateElbow();
+	updateWrist();
+	updateEndEffector();
 	}
 
-double ManipulatorArm::convertShoulderToEncoder(double angle)
+void ManipulatorArm::updateShoulder()
 	{
-	return (conShoulder_AtE_M *(angle) + conShoulder_AtE_B); //AtE = Angle to Encoder
+	shoulderSeg.encValue = getShoulderAngular();
+	frc::SmartDashboard::PutNumber("Shoulder Encoder Quad", shoulderSeg.encValue);
+	frc::SmartDashboard::PutNumber("Shoulder Encoder Pulse", shoulder->GetSensorCollection().GetPulseWidthPosition());
+	//Get angles
+	shoulderSeg.relAngle = convertEncoderToRelAngle(&shoulderSeg, shoulderSeg.encValue);
+	frc::SmartDashboard::PutNumber("Shoulder Relative", shoulderSeg.relAngle);
+	shoulderSeg.absAngle = shoulderSeg.relAngle;
+	frc::SmartDashboard::PutNumber("Shoulder Absolute", shoulderSeg.absAngle);
+	}
+void ManipulatorArm::updateElbow()
+	{
+	elbowSeg.encValue = getElbowAngular();
+	frc::SmartDashboard::PutNumber("Elbow Encoder", elbowSeg.encValue);
+	//Get angles
+	elbowSeg.relAngle = convertEncoderToRelAngle(&elbowSeg, elbowSeg.encValue);
+	frc::SmartDashboard::PutNumber("Elbow Relative", elbowSeg.relAngle);
+	elbowSeg.absAngle = elbowSeg.relAngle + shoulderSeg.absAngle;
+	frc::SmartDashboard::PutNumber("Elbow Absolute", elbowSeg.absAngle);
+	//Position
+	elbowSeg.posX = shoulderSeg.posX + shoulderSeg.length * std::cos(shoulderSeg.absAngle * (M_PI/180));
+	frc::SmartDashboard::PutNumber("Elbow Pos X", elbowSeg.posX);
+	elbowSeg.posY = shoulderSeg.posY + shoulderSeg.length * std::sin(shoulderSeg.absAngle * (M_PI/180));
+	frc::SmartDashboard::PutNumber("Elbow Pos Y", elbowSeg.posY);
+	}
+void ManipulatorArm::updateWrist()
+	{
+	wristSeg.encValue = getWristAngular();
+	frc::SmartDashboard::PutNumber("Wrist Encoder", wristSeg.encValue);
+	//Get angles
+	wristSeg.relAngle = convertEncoderToRelAngle(&wristSeg, wristSeg.encValue);
+	frc::SmartDashboard::PutNumber("Wrist Relative", wristSeg.relAngle);
+	wristSeg.absAngle = wristSeg.relAngle + elbowSeg.relAngle + shoulderSeg.absAngle;
+	frc::SmartDashboard::PutNumber("Wrist Absolute", wristSeg.absAngle);
+	//Position
+	wristSeg.posX = elbowSeg.posX + elbowSeg.length * std::cos(elbowSeg.absAngle * (M_PI/180));
+	frc::SmartDashboard::PutNumber("Wrist Pos X", wristSeg.posX);
+	wristSeg.posY = elbowSeg.posY + elbowSeg.length * std::sin(elbowSeg.absAngle * (M_PI/180));
+	frc::SmartDashboard::PutNumber("Wrist Pos Y", wristSeg.posY);
+	}	
+void ManipulatorArm::updateEndEffector()
+	{
+	endEffectorX = wristSeg.posX + wristSeg.length * std::cos(wristSeg.absAngle * (M_PI/180));
+	frc::SmartDashboard::PutNumber("End Effector X", endEffectorX);
+	endEffectorY = wristSeg.posY + wristSeg.length * std::sin(wristSeg.absAngle * (M_PI/180));
+	frc::SmartDashboard::PutNumber("End Effector Y", endEffectorY);
 	}
 
-//Elbow
-double ManipulatorArm::convertElbowToAngle(double encoder)
+double ManipulatorArm::convertEncoderToRelAngle(tpArmSegment *Seg, double encoder)
 	{
-	return (conElbow_EtA_M *(encoder) + conElbow_EtA_B); //EtA = Encoder to Angle
+	return (encoder * Seg->convSlope + Seg->convIntercept);
+	}
+double ManipulatorArm::convertRelAngleToEncoder(tpArmSegment *Seg, double angle)
+	{
+	return (((angle) - (Seg->convIntercept))/(Seg->convSlope));
 	}
 
-double ManipulatorArm::convertElbowToEncoder(double angle)
-	{
-	return (conElbow_AtE_M *(angle) + conElbow_AtE_B); //AtE = Angle to Encoder
-	}
 
-//Wrist
-double ManipulatorArm::convertWristToAngle(double encoder)
-	{
-	return (conWrist_EtA_M *(encoder) + conWrist_EtA_B); //EtA = Encoder to Angle
-	}
-
-double ManipulatorArm::convertWristToEncoder(double angle)
-	{
-	return (conWrist_AtE_M *(angle) + conWrist_AtE_B); //AtE = Angle to Encoder
-	}
 // Put methods for controlling this subsystem
 // here. Call these from Commands.
 

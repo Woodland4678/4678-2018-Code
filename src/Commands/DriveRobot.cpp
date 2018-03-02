@@ -38,12 +38,15 @@ void DriveRobot::Initialize() {
 // Called repeatedly when this Command is scheduled to run
 void DriveRobot::Execute() {
 	Robot::driveTrain->enableCompressor();
-	if (Robot::oi->getdriver()->GetRawButton(5)) {
-		Robot::driveTrain->shiftDown();
-	}
-	if(Robot::oi->getdriver()->GetRawButton(6)) {
-		Robot::driveTrain->shiftUp();
-	}
+	frc::SmartDashboard::PutNumber("Left Encoder", Robot::driveTrain->getLeftEncoder()->Get());
+	frc::SmartDashboard::PutNumber("Right Encoder",Robot::driveTrain->getRightEncoder()->Get());
+
+//	if (Robot::oi->getdriver()->GetRawButton(5)) {
+//		Robot::driveTrain->shiftDown();
+//	}
+//	if(Robot::oi->getdriver()->GetRawButton(6)) {
+//		Robot::driveTrain->shiftUp();
+//	}
 #ifdef XBOXCONTROLTHROTTLES
 	throttleForward = Robot::oi->getdriver()->GetRawAxis(3);
 	throttleBackward = Robot::oi->getdriver()->GetRawAxis(2);
