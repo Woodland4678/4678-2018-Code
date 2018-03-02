@@ -9,41 +9,63 @@
 #define DRIVE_MOTOR_CALCULATOR_H_
 
 // SYSTEM INCLUDES
+//#include <boost/shared_ptr.hpp>         // test harness version
+#include <memory>                     // robot code version
 #include <string>
+
+// PROJECT INCLUDES
+#include "DriveStateObserver.h"
 
 // TODO: change this to a class enum for c11
 // ENUMS
-enum MotorStateEnum
+enum CalculatorStateEnum
 {
-   MOTOR_STATE_UNKNOWN = 0,
-   MOTOR_STATE_START,
-   MOTOR_STATE_RAMPUP,
-   MOTOR_STATE_TRAVEL,
-   MOTOR_STATE_RAMPDOWN,
-   MOTOR_STATE_FINISH,
-   MOTOR_STATE_MAX
+   CalculatorStateUnknown= 0,
+   CalculatorStateStartUp,
+   CalculatorStateRampUp,
+   CalculatorStateTravel,
+   CalculatorStateRampDown,
+   CalculatorStateFinish,
+   CalculatorStateMax
 };
 
+// FORWARD DECLARATION
+class DriveMotorCalculator;
 
+// TYPEDEFS
+//typedef boost::shared_ptr<DriveMotorCalculator>     DriveCalculatorPtrType;     // test harness version
+typedef std::shared_ptr<DriveMotorCalculator>    DriveCalculatorPtrType;     // robot code version
+
+// CLASS DECLARATION
 class DriveMotorCalculator
 {
 public:
 // LIFECYCLE
-    DriveMotorCalculator(int leftEncoder, int rightEncoder, int leftDistanceCm, int rightDistanceCm, int encoderPulsesPerCm,
-                         float initialPower = 0.0, float finalPower = 0.0);
+    DriveMotorCalculator(int leftEncoder, int rightEncoder, int leftDistanceCm, int rightDistanceCm, int encoderPulsesPerCm);
     ~DriveMotorCalculator();
 
 // METHODS
     void  setStartingEncoders(int leftEncoder, int rightEncoder);
+
+    void  removeStartUpZone();
+    void  removeRampUpZone();
+    void  removeRampDownZone();
+
     void  setStartUpPower(float power);
     void  setTravelPower(float power);
     void  setRampDownPower(float power);
     void  setFinalPower(float power);
 
-    int   getLeftDistanceCm() const;
-    int   getRightDistanceCm() const;
+    void  setRampUpDistance(int distanceCm);
+    void  setRampDownDistance(int distanceCm);
 
-    bool  getMotorSpeeds(float &leftMotorPower, float &rightMotorPower, int leftEncoder, int rightEncoder) const;
+    void  setObserver(StateObserverPtrType observerPtr);
+
+    int   getLeftDistanceCm() const;        // needed in test harness
+    int   getRightDistanceCm() const;       // needed in test harness
+    bool  getGoingBackwards() const;        // needed in test harness
+
+    bool  getMotorSpeeds(float &leftMotorPower, float &rightMotorPower, int leftEncoder, int rightEncoder);
 
     std::string  dumpObject() const;
 
@@ -60,18 +82,19 @@ private:
     void   setTotalDistances(int leftDistanceCm, int rightDistanceCm);
     float  validatePower(float powerValue) const;
 
-    void  setZonePowers(float initialPower, float finalPower);
-    void  setZoneStartPoints(float initialPower);
+    void  setDefaultZonePowers();
+    void  setDefaultZoneStartPoints();
     void  calculateTravelDistance(float &leftTravelCm, float &rightTravelCm, int leftEncoder, int rightEncoder) const;
 
-    MotorStateEnum  getMotorState(float leftTravelCm, float rightTravelCm) const;
+    CalculatorStateEnum  getMotorState(float leftTravelCm, float rightTravelCm) const;
 
     void   calculateStartUpSpeeds(float &leftMotorPower, float &rightMotorPower, float leftDistanceCm, float rightDistanceCm) const;
     void   calculateRampUpSpeeds(float &leftMotorPower, float &rightMotorPower, float leftDistanceCm, float rightDistanceCm) const;
     void   calculateTravelSpeeds(float &leftMotorPower, float &rightMotorPower, float leftTravelCm, float rightTravelCm) const;
     void   calculateRampDownSpeeds(float &leftMotorPower, float &rightMotorPower, float leftTravelCm, float rightTravelCm) const;
-    void   calculateTurnMultipliers(float &leftMultiplier, float &rightMultiplier, float leftTravelCm, float rightTravelCm) const;
+    void   calculateCorrection(float &leftMultiplier, float &rightMultiplier, float leftTravelCm, float rightTravelCm) const;
     void   correctPowers(float &leftMotorPower, float &rightMotorPower) const;
+    void   notifyObserver(CalculatorStateEnum  motorState);
     void   validateIntegerity() const;
 
 // VARIABLES
@@ -79,8 +102,8 @@ private:
     int    m_startingRightEncoder;		// starting value of the right encoder
     int    m_encoderPulsesPerCm;		// number of encoder pulese per CM, can change from year to year
 
-    int    m_leftTotalDistanceCm;       // number of CMs for the left wheels to travel
-    int    m_rightTotalDistanceCm;      // number of CMs for the right wheels to travel
+    int    m_leftTotalDistanceCm;       // number of CMs for the left wheels to travel (abs - used for calculations)
+    int    m_rightTotalDistanceCm;      // number of CMs for the right wheels to travel (abs - used for calculations)
     int    m_maxTotalDistanceCm;        // number of CMs max(leftDistance, rightDistance)
 
     int    m_rampUpStartCm;             // number of CMs to the start of the rampUp zone
@@ -94,6 +117,11 @@ private:
     float  m_finalPower;				// power the motors should be after the robot has traveled the distance
 
     bool   m_goingBackwards;			// whether the robot is going forward or backwards
+    CalculatorStateEnum   m_previousState;    // Tracks the previous motor state value so can identify when a state change happens
+    StateObserverPtrType  m_observerPtr;      // Who to notify for state changes
+    unsigned int          m_zonesRequired;    // What zones are required for the calculations
 };
 
 #endif /* DRIVE_MOTOR_CALCULATOR_H_ */
+
+// //////////////////////////////////////  EOF ////////////////////////////////////////////////////
