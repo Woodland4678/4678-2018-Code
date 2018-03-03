@@ -10,6 +10,7 @@
 
 // PROJECT INCLUDES
 #include "../../Robot.h"
+#include "../DriveTrain/DriveMotorCalculator.h"
 #include "AutoScenarioHelpers.h"
 
 // ////////////////////////////////////  PUBLIC ///////////////////////////////////////////////////
@@ -30,7 +31,7 @@ bool  moveRobot(bool &calculatorInit, DriveCalculatorPtrType calculatorPtr) {
 	float left_motor_power;
 	float right_motor_power;
 
-	const bool  done(calculatorPtr->getMotorSpeeds(left_motor_power, right_motor_power, left_encoder, right_encoder));
+	bool  done(calculatorPtr->getMotorSpeeds(left_motor_power, right_motor_power, left_encoder, right_encoder));
 
 //	printf("done=%d, leftPW: %f, leftEncGet: %i, rightPW: %f, rightEnc: %i\n",
 //			done, left_motor_power, left_encoder, right_motor_power, right_encoder);

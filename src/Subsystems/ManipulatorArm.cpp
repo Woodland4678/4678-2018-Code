@@ -201,53 +201,53 @@ void ManipulatorArm::initMovement(){
     shTime2 = 0;
 }
 
-bool ManipulatorArm::fineMovement(int yDirection, int xDirection)
-	{
-	//Get current end point
-	updateArm();
-	double currX = endEffectorX;
-	double currY = endEffectorY;
-	//Calculate Target Position
-	double tarX = abs(currX);
-	double tarY = abs(currY);
-
-	tarX += xDirection;
-	tarY += yDirection;
-
-	//Check limits
-	if((tarX > 27)||(tarX < -27))
-		return;
-	if((tarY > 77)||(tarY < 50))
-		return;
-	if((tarX < 1)&&(tarY > -1))
-		return;
-
-	//Inverse Kitematics
-	//Elbow
-	double casBrakets = ((pow(tarX,2) + pow(tarY,2)) - pow(37,2) - pow(40,2))/(-2*(37)*(40));
-	//Check value incase it is too far
-	if((casBrakets < -1)||(casBrakets > 1))
-		casBrakets = round(casBrakets);
-	double angElbow = PI - acos(casBrakets);
-	//Shoulder
-	double angShoulder =  atan(tarY / tarX) - atan((40 * sin(-angElbow))/(37 + 40 * cos(-angElbow)));
-
-	//Convert radians to degrees
-	double elbowDeg = (angElbow * 180) / PI;
-	double ShoulderDeg = (angShoulder * 180) / PI;
-
-	//Check for negative
-	if((currX + transAmount) < 0)
-		{
-		ShoulderDeg = (90 - abs(ShoulderDeg)) + 90;
-		elbowDeg *= -1;
-		}
-
-	frc::SmartDashboard::PutNumber("Shoulder Degree", ShoulderDeg);
-	frc::SmartDashboard::PutNumber("Elbow Degree", elbowDeg);
-	//setShoulderAbsAngle(ShoulderDeg);
-	//setElbowAbsAngle(elbowDeg);
-	}
+//bool ManipulatorArm::fineMovement(int yDirection, int xDirection)
+//	{
+//	//Get current end point
+//	updateArm();
+//	double currX = endEffectorX;
+//	double currY = endEffectorY;
+//	//Calculate Target Position
+//	double tarX = abs(currX);
+//	double tarY = abs(currY);
+//
+//	tarX += xDirection;
+//	tarY += yDirection;
+//
+//	//Check limits
+//	if((tarX > 27)||(tarX < -27))
+//		return;
+//	if((tarY > 77)||(tarY < 50))
+//		return;
+//	if((tarX < 1)&&(tarY > -1))
+//		return;
+//
+//	//Inverse Kitematics
+//	//Elbow
+//	double casBrakets = ((pow(tarX,2) + pow(tarY,2)) - pow(37,2) - pow(40,2))/(-2*(37)*(40));
+//	//Check value incase it is too far
+//	if((casBrakets < -1)||(casBrakets > 1))
+//		casBrakets = round(casBrakets);
+//	double angElbow = PI - acos(casBrakets);
+//	//Shoulder
+//	double angShoulder =  atan(tarY / tarX) - atan((40 * sin(-angElbow))/(37 + 40 * cos(-angElbow)));
+//
+//	//Convert radians to degrees
+//	double elbowDeg = (angElbow * 180) / PI;
+//	double ShoulderDeg = (angShoulder * 180) / PI;
+//
+//	//Check for negative
+//	if((currX + transAmount) < 0)
+//		{
+//		ShoulderDeg = (90 - abs(ShoulderDeg)) + 90;
+//		elbowDeg *= -1;
+//		}
+//
+//	frc::SmartDashboard::PutNumber("Shoulder Degree", ShoulderDeg);
+//	frc::SmartDashboard::PutNumber("Elbow Degree", elbowDeg);
+//	//setShoulderAbsAngle(ShoulderDeg);
+//	//setElbowAbsAngle(elbowDeg);
+//	}
 
 bool ManipulatorArm::moveTo(int pos)
 	{

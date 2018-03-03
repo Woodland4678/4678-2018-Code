@@ -17,13 +17,13 @@
 Station1ScaleRight::Station1ScaleRight() :
     AutoScenario(),
 	m_calculator1_Ptr(),
-	m_calculator2_Ptr(),
-	m_calculator3_Ptr(),
-	m_stateObserverPtr(),
-	m_currentState(ScenarioStateUnknown),
 	m_calculator1_init(false),
+	m_calculator2_Ptr(),
 	m_calculator2_init(false),
-	m_calculator3_init(false)
+	m_calculator3_Ptr(),
+	m_calculator3_init(false),
+	m_stateObserverPtr(),
+	m_currentState(ScenarioStateUnknown)
 { }
 
 Station1ScaleRight::~Station1ScaleRight() {
@@ -40,14 +40,15 @@ void  Station1ScaleRight::initialize() {
 	int  encoder_pulses_cm(getEncoderPulsesPerCm());
 
 	m_calculator1_Ptr.reset(new DriveMotorCalculator(0, 0, 425, 425, encoder_pulses_cm));
+	m_calculator1_init = false;
+
 	m_calculator2_Ptr.reset(new DriveMotorCalculator(0, 0, 300, 153, encoder_pulses_cm));
+	m_calculator2_init = false;
+
 	m_calculator3_Ptr.reset(new DriveMotorCalculator(0, 0, 300, 300, encoder_pulses_cm));
+	m_calculator2_init = false;
 
 	m_stateObserverPtr.reset(new DriveStateObserver);
-
-	m_calculator1_init = false;
-	m_calculator2_init = false;
-	m_calculator3_init = false;
 	m_currentState     = ScenarioState1;
 
 	m_calculator1_Ptr->setRampUpDistance(50);
