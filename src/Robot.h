@@ -53,10 +53,10 @@ public:
 	void TeleopPeriodic() override;
 
 	//FILE *data;
-	frc::Relay boundaryCheck;
+	frc::Relay *boundaryCheck;
 	bool done;
 	int caseThing;
 	int cnt;
-	AHRS *ahrs;
+	 AHRS *ahrs;
 };
 #endif

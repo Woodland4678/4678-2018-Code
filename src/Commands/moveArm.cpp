@@ -59,6 +59,7 @@ void moveArm::Execute() {
 				done = Robot::manipulatorArm->moveTo(1);
 			break;
 		case 6:
+			Robot::manipulatorArm->release();
 			done = Robot::manipulatorArm->moveTo(5);
 			break;
 		case 9:

@@ -25,22 +25,13 @@ LowerIntake::LowerIntake(): frc::Command() {
 // Called just before this Command runs the first time
 void LowerIntake::Initialize() {
 	done = false;
+	Robot::intake->initMovement();
+
 }
 
 // Called repeatedly when this Command is scheduled to run
 void LowerIntake::Execute() {
-	Robot::manipulatorArm->updateArm();
-	if((Robot::manipulatorArm->endEffectorX > 0) && (Robot::manipulatorArm->endEffectorY < 14))
-		{
-		done = true;
-		return;
-		}
-	Robot::intake->lowerIntake();
-//	if (Robot::oi->getdriver()->GetRawButton(1)) {
-//		Robot::intake->grab();
-//	} else if (Robot::oi->getdriver()->GetRawButton(2)) {
-//		Robot::intake->release();
-//	}
+	done = Robot::intake->lowerIntake();
 }
 
 // Make this return true when this Command no longer needs to run execute()
@@ -50,6 +41,7 @@ bool LowerIntake::IsFinished() {
 
 // Called once after isFinished returns true
 void LowerIntake::End() {
+	Robot::intake->upPos = false;
 
 }
 

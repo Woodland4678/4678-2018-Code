@@ -50,6 +50,9 @@ Intake::Intake() : frc::Subsystem("Intake") {
 	lifter->GetSensorCollection().SetQuadraturePosition(startPosition, 0);
 
 	upPos = true;
+
+	posOffset = 4.25;
+	multOffset = (12 + (posOffset - 4)) * 1000;
 }
 
 void Intake::InitDefaultCommand() {
@@ -87,8 +90,96 @@ int Intake::getLifterAngular()
 
 void Intake::setLifterPosition(double position)
 	{
+	Robot::manipulatorArm->updateArm();
+	if((Robot::manipulatorArm->endEffectorX > 0) && (Robot::manipulatorArm->endEffectorY < 14)){
+		return;
+		}
 	lifter->Set(ControlMode::Position, position);
 	}
+
+bool Intake::lowerIntake(){
+	switch(moveCase)
+		{
+		case 0:
+			upPos = false;
+			moveCase++;
+			break;
+		case 1:
+			{
+			double currTime = frc::Timer::GetFPGATimestamp() - origTimeStampintake;
+			if(!moveDone)
+				moveDone = lifterGoToPosition(lifterStartPos,6000,currTime,1);
+			if(moveDone)
+				{
+				moveCase++;
+				}
+			stopWheels();
+			break;
+			}
+		case 2:
+			spinForward(0.7);
+			moveCase++;
+			return true;
+			break;
+		}
+	return false;
+}
+bool Intake::raiseIntake(){
+	switch(moveCase)
+		{
+		case 0:
+			upPos = false;
+			stopWheels();
+			moveCase++;
+			break;
+		case 1:
+			double currTime = frc::Timer::GetFPGATimestamp() - origTimeStampintake;
+			if(!moveDone)
+				moveDone = lifterGoToPosition(lifterStartPos,572,currTime,1);
+			if(moveDone)
+				{
+				moveCase++;
+				return true;
+				}
+			break;
+		}
+	return false;
+}
+
+void Intake::initMovement()
+	{
+	origTimeStampintake = frc::Timer::GetFPGATimestamp();
+	lifterStartPos = lifter->GetSensorCollection().GetPulseWidthPosition();
+	moveDone = false;
+	moveCase = 0;
+	}
+
+bool Intake::lifterGoToPosition(double start, double position, double current, double time)
+	{
+	//multOffset = (Sharpness + (offset - 4)) * 1000;
+	double multiplier = (multOffset / (time*1000));
+	//Calculate the new set point
+	double NewSet = sigmod(position, start, multiplier, posOffset, current);
+
+	frc::SmartDashboard::PutNumber("lifter Setpoint", NewSet);
+	//shoulderNewSet = (position - start) * current / time + start;
+	setLifterPosition(NewSet);
+
+	//Return true if the elapse time is complete
+	if (current > time)
+		return true;
+	return false;
+	}
+
+double Intake::sigmod(double end, double start, double mult, double offset, double x)
+	{
+	return (((end-start)/(1+exp((-(mult*x))+offset)))+start);
+	}
+
+double Intake::invSigmod(double end, double start, double mult, double offset, double pnt)
+    {
+    return ((std::log(((end-start)/(pnt-start)) - 1) - offset)/(-mult));
+    }
 
 void Intake::release(){
 	releaser->Set(false);
@@ -117,15 +208,6 @@ int Intake::getLifterError(){
 void Intake::stopWheels(){
 	setRightSpeed(0);
 	setLeftSpeed(0);
-}
-void Intake::lowerIntake(){
-	upPos = false;
-	setLifterPosition(6431);
-	if (lifter->GetClosedLoopError(0) < 100) {
-		spinForward(0.7);
-	} else {
-		stopWheels();
-	}
 }
 
 void Intake::spinForward(double power) {

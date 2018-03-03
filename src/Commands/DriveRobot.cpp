@@ -63,8 +63,17 @@ void DriveRobot::Execute() {
 	JoyX = Robot::oi->getdriver()->GetX();
 	JoyY = Robot::oi->getdriver()->GetY();
 
-	Robot::driveTrain->SetLeftPower(-JoyY + JoyX);
-	Robot::driveTrain->SetRightPower(-JoyY - JoyX);
+	if (!Robot::driveTrain->highGear)
+		JoyX *= 0.5;
+
+	if(JoyX < 0.05 && JoyX > -0.05)
+		JoyX = 0;
+
+	double leftPower = -(JoyY - 0.75 * JoyX);
+	double rightPower = -(JoyY + 0.75 * JoyX);
+
+	Robot::driveTrain->SetLeftPower(leftPower);
+	Robot::driveTrain->SetRightPower(rightPower);
 #endif
 }
 

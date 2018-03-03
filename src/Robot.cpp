@@ -85,8 +85,8 @@ void Robot::TeleopInit() {
 	// these lines or comment it out.
 
 	ahrs = new AHRS(SPI::Port::kMXP);
-	boundaryCheck = new frc::Relay(0);
-	boundaryCheck.Set(frc::Relay::Value::kOff);
+	//boundaryCheck = new frc::Relay(0);
+	//boundaryCheck->Set(frc::Relay::Value::kOff);
 	cnt = 0;
 
 	/*data = fopen("/tmp/dataCollect.txt","a");
@@ -108,7 +108,7 @@ void Robot::TeleopPeriodic() {
 	cnt++;
 	//Robot Checks
 	manipulatorArm->updateArm();
-	if ((manipulatorArm->endEffectorX > 32)||(manipulatorArm->endEffectorX < -32))
+	/*if ((manipulatorArm->endEffectorX > 32))
 		{
 		//std::stringstream  text_stream;
 		//text_stream << "Position: " << manipulatorArm->targetPos << "\n";
@@ -116,12 +116,17 @@ void Robot::TeleopPeriodic() {
 		//fwrite(text_stream.str().c_str(),1, text_stream.str().length(), data);
 
 		//Turn on relay
-		boundaryCheck.Set(frc::Relay::Value::kOn);
+		boundaryCheck->Set(frc::Relay::Value::kForward);
 		cnt = 0;
 		}
+	if (manipulatorArm->endEffectorX < -32)
+	{
+		boundaryCheck->Set(frc::Relay::Value::kReverse);
+		cnt = 0;
+	}
 	if(cnt > 50)
-		boundaryCheck.Set(frc::Relay::Value::kOff);
-
+		boundaryCheck->Set(frc::Relay::Value::kOff);
+	*/
 
 //	if (oi->getdriver()->GetRawButton(1)) {
 //

@@ -73,7 +73,7 @@ public:
 	std::shared_ptr<frc::Joystick> getAutoSwitch();
 
 	void driverRumble(double power);
-	std::shared_ptr<frc::Joystick> getAutoSwitch();
+
 
 };
 

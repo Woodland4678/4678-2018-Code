@@ -314,9 +314,9 @@ bool ManipulatorArm::moveTo(int pos)
 					{
 					twoZones = true;
 					//add a second to each?
-					shTime += 0.7;
-					elTime += 0.5;
-					wrTime += 0.7;
+					shTime += 0.9;
+					elTime += 0.7;
+					wrTime += 0.9;
 					shoulderMovement2 = false;
 					}
 				if(currentZone != 1)
