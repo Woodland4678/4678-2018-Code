@@ -47,6 +47,7 @@ private:
 // METHODS
 	void  getConsoleValues(int &autoSide, int &autoMode) const;
 	void  getFmsValues(unsigned char &switchFms, unsigned char &scaleFms) const;
+	void  getInputsFromDriverStation(int &auto_side, int &auto_mode, unsigned char &switch_fms, unsigned char &scale_fms);
 
 // MEMBERS
 	AutoScenarioPtrType     m_autoScenarioPtr;

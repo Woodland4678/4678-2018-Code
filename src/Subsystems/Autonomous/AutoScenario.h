@@ -9,7 +9,7 @@
 #define AUTO_SCENARIO_H_
 
 // SYSTEM INCLUDES
-// #include <boost/shared_ptr.hpp>         // test harness version
+//#include <boost/shared_ptr.hpp>         // test harness version
 #include <memory>                     // robot code version
 
 // FORWARD DECLARATION

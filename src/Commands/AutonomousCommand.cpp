@@ -36,16 +36,15 @@ void AutonomousCommand::Initialize() {
 	int  auto_side(0);
 	int  auto_mode(0);
 
-	getConsoleValues(auto_side, auto_mode);
-
-	frc::SmartDashboard::PutNumber("autoSide", auto_side);
-	frc::SmartDashboard::PutNumber("autoMode", auto_mode);
+//	getConsoleValues(auto_side, auto_mode);
 
 	// Get values from FMS for switch side and scale side
 	unsigned char  switch_fms('L');
 	unsigned char  scale_fms('L');
 
-	getFmsValues(switch_fms, scale_fms);
+//	getFmsValues(switch_fms, scale_fms);
+
+	getInputsFromDriverStation(auto_side, auto_mode, switch_fms, scale_fms);
 
 	// Transform inputs into enums autoScenarioFinder understands
 	StartStationEnum   station(transformConsoleSide(auto_side));
@@ -125,6 +124,8 @@ void  AutonomousCommand::getConsoleValues(int &autoSide, int &autoMode) const  {
 	if (Robot::oi->getAutoSwitch()->GetRawButton(11)) {
 		autoMode += 4;
 	}
+	frc::SmartDashboard::PutNumber("Auto Mode", autoMode);
+	frc::SmartDashboard::PutNumber("Auto Side", autoSide);
 }
 
 
@@ -136,3 +137,51 @@ void  AutonomousCommand::getFmsValues(unsigned char &switchFms, unsigned char &s
 	switchFms = 'L';
 	scaleFms  = 'L';
 }
+
+
+void  AutonomousCommand::getInputsFromDriverStation(int &auto_side, int &auto_mode,
+										unsigned char &switch_fms, unsigned char &scale_fms) {
+
+	std::string   inputs_str(frc::DriverStation::GetInstance().GetGameSpecificMessage());
+
+	if (inputs_str.length() > 0) {
+		// First char defines the robot starting location - side button on box
+		switch (inputs_str[0]) {
+		case 1: auto_side = 0;    break;
+		case 2: auto_side = 1;    break;
+		case 3: auto_side = 2;    break;
+		default:  break;
+		}
+
+		// Second char defines the game objective - mode button on box
+		switch (inputs_str[1]) {
+		case 1: auto_mode = 0;    break;
+		case 2: auto_mode = 1;    break;
+		case 3: auto_mode = 2;    break;
+		case 4: auto_mode = 3;    break;
+		case 5: auto_mode = 4;    break;
+		default:  break;
+		}
+
+		// Third char defines the switch ownership - first value from fms
+		switch (inputs_str[2]) {
+		case 'l':
+		case 'L': switch_fms = 'L';    break;
+		case 'r':
+		case 'R': switch_fms = 'R';    break;
+		default:  break;
+		}
+
+		// Fourth char defines the scale ownership - second value from fms
+		switch (inputs_str[3]) {
+		case 'l':
+		case 'L': scale_fms = 'L';    break;
+		case 'r':
+		case 'R': scale_fms = 'R';    break;
+		default:  break;
+		}
+
+		// Don't care about anything else
+	}
+}
+
