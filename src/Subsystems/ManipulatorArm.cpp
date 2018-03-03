@@ -135,9 +135,9 @@ ManipulatorArm::ManipulatorArm() : frc::Subsystem("ManipulatorArm") {
     positions[5][1] = -54;   //e:2478    r:-154
     positions[5][2] = -90;   //e:754     r:-28
     
-    positions[6][0] = 86;    //e:-2784   r:86
-    positions[6][1] = -60;   //e:2134    r:-146
-    positions[6][2] = -89;   //e:728     r:-29
+    positions[6][0] = 98;    //e:-2784   r:86
+    positions[6][1] = -50;   //e:2134    r:-146
+    positions[6][2] = 21;    //e:728     r:-29
     
     positions[7][0] = 123;   //e:2697    r:123
     positions[7][1] = -11;   //e:1614    r:-134
@@ -161,6 +161,7 @@ ManipulatorArm::ManipulatorArm() : frc::Subsystem("ManipulatorArm") {
 
     currPos = 0;
     targetPos = 0;
+    prevPos = 0;
 }
 
 void ManipulatorArm::InitDefaultCommand() {
@@ -208,45 +209,62 @@ bool ManipulatorArm::fineMovement(int yDirection, int xDirection)
 	double currX = endEffectorX;
 	double currY = endEffectorY;
 	//Calculate Target Position
-	double tarX = abs(currX);
-	double tarY = abs(currY);
+	double tarX = std::abs(currX);
+	double tarY = std::abs(currY);
 
 	tarX += xDirection;
 	tarY += yDirection;
 
+	frc::SmartDashboard::PutNumber("Target X", tarX);
+	frc::SmartDashboard::PutNumber("Target Y", tarY);
+
 	//Check limits
 	if((tarX > 27)||(tarX < -27))
-		return;
-	if((tarY > 77)||(tarY < 50))
-		return;
+		return false;
+	if((tarY > 77)||(currY < 0))
+		return false;
 	if((tarX < 1)&&(tarY > -1))
-		return;
+		return false;
 
 	//Inverse Kitematics
 	//Elbow
-	double casBrakets = ((pow(tarX,2) + pow(tarY,2)) - pow(37,2) - pow(40,2))/(-2*(37)*(40));
+	double casBrakets = ((std::pow(tarX,2) + std::pow(tarY,2)) - std::pow(37,2) - std::pow(40,2))/(-2*(37)*(40));
 	//Check value incase it is too far
 	if((casBrakets < -1)||(casBrakets > 1))
-		casBrakets = round(casBrakets);
-	double angElbow = PI - acos(casBrakets);
+		casBrakets = std::round(casBrakets);
+	frc::SmartDashboard::PutNumber("El cos Braket", casBrakets);
+	double angElbow = M_PI - std::acos(casBrakets);
+	frc::SmartDashboard::PutNumber("El radians", angElbow);
 	//Shoulder
-	double angShoulder =  atan(tarY / tarX) - atan((40 * sin(-angElbow))/(37 + 40 * cos(-angElbow)));
-
+	double angShoulder = std::atan(tarY / tarX) - std::atan((40 * std::sin(-angElbow))/(37 + 40 * std::cos(-angElbow)));
+	frc::SmartDashboard::PutNumber("Sh radians", angShoulder);
 	//Convert radians to degrees
-	double elbowDeg = (angElbow * 180) / PI;
-	double ShoulderDeg = (angShoulder * 180) / PI;
+	double elbowDeg = (angElbow * 180) / M_PI;
+	double ShoulderDeg = (angShoulder * 180) / M_PI;
 
 	//Check for negative
-	if((currX + transAmount) < 0)
+	if((currX + xDirection) < 0)
 		{
-		ShoulderDeg = (90 - abs(ShoulderDeg)) + 90;
+		ShoulderDeg = (90 - std::abs(ShoulderDeg)) + 90;
 		elbowDeg *= -1;
 		}
 
+	if(ShoulderDeg > 127)
+		ShoulderDeg = 127;
+	if(ShoulderDeg < 48)
+		ShoulderDeg = 48;
+	if(elbowDeg > 164)
+		elbowDeg = 164;
+	if(elbowDeg < -164)
+		elbowDeg = -164;
+
+	elbowDeg -= ShoulderDeg;
+	elbowDeg *= -1;
 	frc::SmartDashboard::PutNumber("Shoulder Degree", ShoulderDeg);
 	frc::SmartDashboard::PutNumber("Elbow Degree", elbowDeg);
 	//setShoulderAbsAngle(ShoulderDeg);
 	//setElbowAbsAngle(elbowDeg);
+	return true;
 	}
 
 bool ManipulatorArm::moveTo(int pos)
@@ -261,10 +279,6 @@ bool ManipulatorArm::moveTo(int pos)
 			wrTime = (std::abs(wristStartPos - positions[pos][2])) / wrDegreePerSecond;
 			elTime = (std::abs(elbowStartPos - positions[pos][1])) / elDegreePerSecond;
 			shTime = (std::abs(shoulderStartPos - positions[pos][0])) / shDegreePerSecond;
-
-			frc::SmartDashboard::PutNumber("Sh Time", shTime);
-			frc::SmartDashboard::PutNumber("El Time", elTime);
-			frc::SmartDashboard::PutNumber("Wr Time", wrTime);
 
 			if(shTime < shMinTime)
 				shTime = shMinTime;
@@ -288,9 +302,6 @@ bool ManipulatorArm::moveTo(int pos)
 				targetZone = 0;
 			if(positions[pos][1] >= 180)
 				targetZone = 2;
-
-			frc::SmartDashboard::PutNumber("El currZone", currentZone);
-			frc::SmartDashboard::PutNumber("El tarZone", targetZone);
 
 			if(currentZone != targetZone)
 				{
@@ -393,11 +404,6 @@ bool ManipulatorArm::moveTo(int pos)
 				shoulderMovement3 = true;
 				}
 
-			frc::SmartDashboard::PutNumber("Sh target 1", shTarget1);
-			frc::SmartDashboard::PutNumber("Sh Time 1", shTime1);
-			frc::SmartDashboard::PutNumber("Sh target 2", shTarget2);
-			frc::SmartDashboard::PutNumber("Sh Time 2", shTime2);
-
 			moveCase += 1;
 			}
 			break;
@@ -429,6 +435,7 @@ bool ManipulatorArm::moveTo(int pos)
 			if(shoulderMovement && elbowMovement && wristMovement)
 				{
 				moveCase++;
+				prevPos = currPos;
 				currPos = pos;
 				return true;
 				}
@@ -437,43 +444,6 @@ bool ManipulatorArm::moveTo(int pos)
 		}
 	return false;
 	}
-
-bool ManipulatorArm::pickUpCube() {
-	double currTime = frc::Timer::GetFPGATimestamp() - origTimeStamp;
-
-	//For how time you want the motion to take
-	//	we will need to use the current position and calculate the amount of time from that
-
-	if (!shoulderMovement)
-		shoulderMovement = shoulderGoToPosition(shoulderStartPos, -2227, currTime, 1.5); //-1155
-
-	if (!elbowMovement)
-		elbowMovement = elbowGoToPosition(elbowStartPos, 1910, currTime, 1.5);
-
-	if (!wristMovement)
-		wristMovement = wristGoToPosition(wristStartPos, 600, currTime, 1);
-
-	if (shoulderMovement && elbowMovement && wristMovement)
-		return true;
-	return false;
-}
-bool ManipulatorArm::raiseCube() {
-	double currTime = frc::Timer::GetFPGATimestamp() - origTimeStamp;
-
-	//For how time you want the motion to take
-	//	we will need to use the current position and calculate the amount of time from that
-
-	if (!shoulderMovement)
-		shoulderMovement = shoulderGoToPosition(shoulderStartPos, -698, currTime, 1.5);
-	if (!elbowMovement)
-		elbowMovement = elbowGoToPosition(elbowStartPos, -3057, currTime, 1.5);
-	if (!wristMovement)
-		wristMovement = wristGoToPosition(wristStartPos, -240, currTime, 1.5);
-
-	if (shoulderMovement && elbowMovement && wristMovement)
-		return true;
-	return false;
-}
 
 //***Set PID values***
 void ManipulatorArm::setShoulderPID(double p, double i, double d, int zone, double f)
@@ -506,8 +476,6 @@ void ManipulatorArm::setWristPID(double p, double i, double d, int zone, double 
 //***Get Encoder Values From Talons***
 int ManipulatorArm::getShoulderAngular()
 	{
-	frc::SmartDashboard::PutNumber("Shoulder Current", shoulder->GetOutputCurrent());
-	frc::SmartDashboard::PutNumber("Shoulder Voltage", shoulder->GetMotorOutputVoltage());
 	return shoulder->GetSelectedSensorPosition(0);
 	}
 

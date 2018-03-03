@@ -65,7 +65,7 @@ void moveArm::Execute() {
 			done = Robot::manipulatorArm->moveTo(0);
 			break;
 		case 10:
-			//TODO: Position needed for portal!
+			done = Robot::manipulatorArm->moveTo(6);
 			break;
 		case 11:
 			done = Robot::manipulatorArm->moveTo(9);

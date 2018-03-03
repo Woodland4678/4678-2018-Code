@@ -119,9 +119,6 @@ void Intake::stopWheels(){
 	setLeftSpeed(0);
 }
 void Intake::lowerIntake(){
-	Robot::manipulatorArm->updateArm();
-	if((Robot::manipulatorArm->endEffectorX > 0) && (Robot::manipulatorArm->endEffectorY < 14))
-		return;
 	upPos = false;
 	setLifterPosition(6431);
 	if (lifter->GetClosedLoopError(0) < 100) {

@@ -25,14 +25,17 @@ RaiseIntake::RaiseIntake(): frc::Command() {
 // Called just before this Command runs the first time
 void RaiseIntake::Initialize() {
 	Robot::intake->release();
-
+	done = false;
 }
 
 // Called repeatedly when this Command is scheduled to run
 void RaiseIntake::Execute() {
 	Robot::manipulatorArm->updateArm();
 	if((Robot::manipulatorArm->endEffectorX > 0) && (Robot::manipulatorArm->endEffectorY < 14))
+		{
+		done = true;
 		return;
+		}
 	Robot::intake->stopWheels();
 	Robot::intake->setLifterPosition(572);
 	Robot::intake->upPos = true;
@@ -40,7 +43,7 @@ void RaiseIntake::Execute() {
 
 // Make this return true when this Command no longer needs to run execute()
 bool RaiseIntake::IsFinished() {
-    return false;
+    return done;
 }
 
 // Called once after isFinished returns true

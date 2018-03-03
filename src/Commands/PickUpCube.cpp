@@ -31,7 +31,6 @@ void PickUpCube::Initialize() {
 // Called repeatedly when this Command is scheduled to run
 void PickUpCube::Execute() { //this is commented out cause if you raise cube up then do this it slams down badly
 	//done = true;
-	done = Robot::manipulatorArm->pickUpCube();
 }
 
 // Make this return true when this Command no longer needs to run execute()
