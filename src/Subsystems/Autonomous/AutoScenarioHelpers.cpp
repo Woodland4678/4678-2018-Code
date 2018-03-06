@@ -10,8 +10,8 @@
 #include "AutoScenarioHelpers.h"
 
 // MAGIC VALUES
-static const int  s_encoderPulsesPerCm(30);   // Value to use for Clyde
-// static const int  s_encoderPulsesPerCm(24);   // Value to use for Chevron-7
+// static const int  s_encoderPulsesPerCm(30);   // Value to use for Clyde
+static const int  s_encoderPulsesPerCm(33);   // Value to use for Chevron-7
 
 // FUNCTIONS
 

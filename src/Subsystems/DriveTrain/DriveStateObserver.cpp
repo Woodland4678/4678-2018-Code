@@ -26,29 +26,30 @@ DriveStateObserver::~DriveStateObserver() {
 void  DriveStateObserver::startStartUpState() {
 //    Robot::driveTrain->shiftDown();
 
-    std::cout << "DriveStateObserver::startStartUpState() called" << std::endl;
+//    std::cout << "DriveStateObserver::startStartUpState() called" << std::endl;
 }
 
 void  DriveStateObserver::startRampUpState() {
 
-    std::cout << "DriveStateObserver::startRampUpState() called" << std::endl;
+//    std::cout << "DriveStateObserver::startRampUpState() called" << std::endl;
 }
 
 void  DriveStateObserver::startTravelState() {
-    Robot::driveTrain->shiftUp();
+//    Robot::driveTrain->shiftUp();
 
-    std::cout << "DriveStateObserver::startTravelState() called" << std::endl;
+//    std::cout << "DriveStateObserver::startTravelState() called" << std::endl;
 }
 
 void  DriveStateObserver::startRampDownState() {
     Robot::driveTrain->shiftDown();
 
-    std::cout << "DriveStateObserver::startRampDownState() called" << std::endl;
+
+//    std::cout << "DriveStateObserver::startRampDownState() called" << std::endl;
 }
 
 void  DriveStateObserver::startFinishState() {
 
-    std::cout << "DriveStateObserver::startFinishState() called" << std::endl;
+//    std::cout << "DriveStateObserver::startFinishState() called" << std::endl;
 }
 
 // //////////////////////////////////////  EOF ////////////////////////////////////////////////////

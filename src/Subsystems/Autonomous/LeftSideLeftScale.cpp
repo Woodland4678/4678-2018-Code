@@ -1,21 +1,22 @@
 /*
- * Station1ScaleRight.cpp
+ * Station1SwitchLeft.cpp
  *
- *  Created on: Feb 24, 2018
+ *  Created on: Mar 2, 2018
  *      Author: wchs
  */
 
 // SYSTEM INCLUDES
 // PROJECT INCLUDES
 #include "AutoScenarioHelpers.h"
+#include "Robot.h"
 #include "RobotHelpers.h"
-#include "Station1ScaleRight.h"		// class declaration
+#include "LeftSideLeftScale.h"		// class declaration
 
 // //////////////////////////////////  PUBLIC ////////////////////////////////////////////////
 // ********************************  LIFECYCLE  *********************************************
 
-Station1ScaleRight::Station1ScaleRight() :
-    AutoScenario(),
+LeftSideLeftScale::LeftSideLeftScale() :
+	AutoScenario(),
 	m_calculator1_Ptr(),
 	m_calculator1_init(false),
 	m_calculator2_Ptr(),
@@ -23,71 +24,80 @@ Station1ScaleRight::Station1ScaleRight() :
 	m_calculator3_Ptr(),
 	m_calculator3_init(false),
 	m_stateObserverPtr(),
-	m_currentState(ScenarioStateUnknown)
+	m_currentState(ScenarioStateUnknown),
+	m_armMovement(false)
 { }
 
-Station1ScaleRight::~Station1ScaleRight() {
-
+LeftSideLeftScale::~LeftSideLeftScale() {
 	m_calculator1_Ptr.reset();
+	m_calculator2_Ptr.reset();
 	m_calculator2_Ptr.reset();
 }
 
 // **********************************  METHODS  **********************************************
 
-void  Station1ScaleRight::initialize() {
+void  LeftSideLeftScale::initialize() {
 
 	int  encoder_pulses_cm(getEncoderPulsesPerCm());
 
-	m_calculator1_Ptr.reset(new DriveMotorCalculator(0, 0, 425, 425, encoder_pulses_cm));
+	m_calculator1_Ptr.reset(new DriveMotorCalculator(0, 0, 316, 316, encoder_pulses_cm)); //distance to middle of switch, then we want to s-turn
 	m_calculator1_init = false;
 
-	m_calculator2_Ptr.reset(new DriveMotorCalculator(0, 0, 300, 153, encoder_pulses_cm));
+	m_calculator2_Ptr.reset(new DriveMotorCalculator(0, 0, 355, 305, encoder_pulses_cm));
 	m_calculator2_init = false;
 
-	m_calculator3_Ptr.reset(new DriveMotorCalculator(0, 0, 300, 300, encoder_pulses_cm));
+	m_calculator3_Ptr.reset(new DriveMotorCalculator(0, 0, 175, 227, encoder_pulses_cm));
 	m_calculator3_init = false;
 
-	m_stateObserverPtr.reset(new DriveStateObserver);
 	m_currentState     = ScenarioState1;
+	m_stateObserverPtr.reset(new DriveStateObserver);
 
-	m_calculator1_Ptr->setRampUpDistance(50);
-	m_calculator1_Ptr->setRampDownDistance(100);
+	m_calculator1_Ptr->setTravelPower(0.7);
 	m_calculator1_Ptr->setFinalPower(0.7);
-	m_calculator1_Ptr->setObserver(m_stateObserverPtr);
 
     m_calculator2_Ptr->removeStartUpZone();
     m_calculator2_Ptr->removeRampUpZone();
-    m_calculator2_Ptr->removeRampDownZone();
 	m_calculator2_Ptr->setTravelPower(0.7);
-	m_calculator2_Ptr->setFinalPower(0.7);
+	m_calculator2_Ptr->setRampDownPower(0.5);
 
     m_calculator3_Ptr->removeStartUpZone();
-	m_calculator3_Ptr->setRampUpDistance(50);
-	m_calculator3_Ptr->setRampDownDistance(100);
-	m_calculator3_Ptr->setStartUpPower(0.7);
+	m_calculator3_Ptr->removeRampUpZone();
+	m_calculator3_Ptr->setTravelPower(0.7);
 	m_calculator3_Ptr->setObserver(m_stateObserverPtr);
+
+	Robot::manipulatorArm->initMovement();
+	m_armMovement = false;
 }
 
-void  Station1ScaleRight::execute() {
+void  LeftSideLeftScale::execute() {
 
 	switch (m_currentState) {
 	case ScenarioState1:
 		if (moveRobot(m_calculator1_init, m_calculator1_Ptr) == true) {
 			m_currentState = ScenarioState2;
+			Robot::manipulatorArm->initMovement();
 		}
+		if (!m_armMovement)
+			m_armMovement = Robot::manipulatorArm->moveTo(11);
 		break;
 
 	case ScenarioState2:
 		if (moveRobot(m_calculator2_init, m_calculator2_Ptr) == true) {
 			m_currentState = ScenarioState3;
 		}
+
+		if (!m_armMovement)
+			m_armMovement = Robot::manipulatorArm->moveTo(1);
 		break;
 
 	case ScenarioState3:
 		if (moveRobot(m_calculator3_init, m_calculator3_Ptr) == true) {
-			m_currentState = ScenarioStateMax;
+//			m_currentState = ScenarioState4;
+			Robot::manipulatorArm->release();
 			setFinished();
 		}
+		if (!m_armMovement)
+			m_armMovement = Robot::manipulatorArm->moveTo(1);
 		break;
 
 	default:

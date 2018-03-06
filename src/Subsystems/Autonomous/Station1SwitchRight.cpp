@@ -1,5 +1,5 @@
 /*
- * Station1SwitchLeft.cpp
+ * Station1SwitchRight.cpp
  *
  *  Created on: Mar 2, 2018
  *      Author: wchs
@@ -8,14 +8,14 @@
 // SYSTEM INCLUDES
 // PROJECT INCLUDES
 #include "AutoScenarioHelpers.h"
-#include "Robot.h"
 #include "RobotHelpers.h"
-#include "Station1SwitchLeft.h"		// class declaration
+#include "Robot.h"
+#include "Station1SwitchRight.h"		// class declaration
 
 // //////////////////////////////////  PUBLIC ////////////////////////////////////////////////
 // ********************************  LIFECYCLE  *********************************************
 
-Station1SwitchLeft::Station1SwitchLeft() :
+Station1SwitchRight::Station1SwitchRight() :
 	AutoScenario(),
 	m_calculator1_Ptr(),
 	m_calculator1_init(false),
@@ -26,7 +26,7 @@ Station1SwitchLeft::Station1SwitchLeft() :
 	m_armMovement(false)
 { }
 
-Station1SwitchLeft::~Station1SwitchLeft() {
+Station1SwitchRight::~Station1SwitchRight() {
 	m_calculator1_Ptr.reset();
 	m_calculator2_Ptr.reset();
 	m_calculator2_Ptr.reset();
@@ -34,19 +34,18 @@ Station1SwitchLeft::~Station1SwitchLeft() {
 
 // **********************************  METHODS  **********************************************
 
-void  Station1SwitchLeft::initialize() {
+void  Station1SwitchRight::initialize() {
 
 	int  encoder_pulses_cm(getEncoderPulsesPerCm());
 
-	m_calculator1_Ptr.reset(new DriveMotorCalculator(0, 0, 90, 150, encoder_pulses_cm));
+	m_calculator1_Ptr.reset(new DriveMotorCalculator(0, 0, 150, 100, encoder_pulses_cm));
 	m_calculator1_init = false;
 
-	m_calculator2_Ptr.reset(new DriveMotorCalculator(0, 0, 280, 220, encoder_pulses_cm));
+	m_calculator2_Ptr.reset(new DriveMotorCalculator(0, 0, 180, 225, encoder_pulses_cm));
 	m_calculator2_init = false;
 
 	m_currentState     = ScenarioState1;
 	m_stateObserverPtr.reset(new DriveStateObserver);
-
 //	m_calculator1_Ptr->setStartUpPower(0.25);
 	m_calculator1_Ptr->setTravelPower(0.9);
 	m_calculator1_Ptr->setFinalPower(0.7);
@@ -61,7 +60,7 @@ void  Station1SwitchLeft::initialize() {
 	m_armMovement = false;
 }
 
-void  Station1SwitchLeft::execute() {
+void  Station1SwitchRight::execute() {
 
 	switch (m_currentState) {
 	case ScenarioState1:

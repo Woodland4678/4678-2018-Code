@@ -12,10 +12,13 @@
 // PROJECT INCLUDES
 #include "AutoScenarioHelpers.h"
 #include "Station1CrossLine.h"
-//#include "Station1SwitchLeft.h"
-//#include "Station1SwitchRight.h"
+#include "Station1SwitchLeft.h"
+#include "Station1SwitchRight.h"
+#include "LeftSideLeftScale.h"
+#include "LeftSideLeftSwitch.h"
 //#include "Station1ScaleLeft.h"
 #include "Station1ScaleRight.h"
+
 //#include "Station1SwitchLeftScaleLeft.h"
 //#include "Station1SwitchLeftScaleRight.h"
 //#include "Station1SwitchRightScaleLeft.h"
@@ -52,12 +55,20 @@ AutoScenarioPtrType   autoScenarioFactory(AutoScenarioEnum autoScenario)  {
         break;
 
     case AutoScenario_Station1_SwitchLeft:
-//        scenario_ptr.reset(new XXX);
+        scenario_ptr.reset(new Station1SwitchLeft);
         break;
 
     case AutoScenario_Station1_SwitchRight:
-//        scenario_ptr.reset(new XXX);
+        scenario_ptr.reset(new Station1SwitchRight);
         break;
+
+    case AutoScenario_LeftSide_LeftScale:
+        scenario_ptr.reset(new LeftSideLeftScale);
+        break;
+
+    case AutoScenario_LeftSide_LeftSwitch:
+		scenario_ptr.reset(new LeftSideLeftSwitch);
+		break;
 
     case AutoScenario_Station1_ScaleLeft:
 //        scenario_ptr.reset(new XXX);

@@ -32,6 +32,9 @@ AutonomousCommand::AutonomousCommand() :
 // Called just before this Command runs the first time
 void AutonomousCommand::Initialize() {
 
+
+	printf("AutonomousCommand::Initialize(), start\n");
+
 	// Get values from console buttons for station location and game objective
 	int  auto_side(0);
 	int  auto_mode(0);
@@ -44,14 +47,18 @@ void AutonomousCommand::Initialize() {
 
 //	getFmsValues(switch_fms, scale_fms);
 
-	getInputsFromDriverStation(auto_side, auto_mode, switch_fms, scale_fms);
+//	getInputsFromDriverStation(auto_side, auto_mode, switch_fms, scale_fms);
 
 	// Transform inputs into enums autoScenarioFinder understands
-	StartStationEnum   station(transformConsoleSide(auto_side));
-	AutoObjectiveEnum  objective(transformConsoleMode(auto_mode));
-	SwitchSideEnum     switch_side(transformSwitchFms(switch_fms));
-	ScaleSideEnum      scale_side(transformScaleFms(scale_fms));
-	AutoScenarioEnum   scenario_select(autoScenarioFinder(station, switch_side, scale_side, objective));
+//	StartStationEnum   station(transformConsoleSide(auto_side));
+//	AutoObjectiveEnum  objective(transformConsoleMode(auto_mode));
+//	SwitchSideEnum     switch_side(transformSwitchFms(switch_fms));
+//	ScaleSideEnum      scale_side(transformScaleFms(scale_fms));
+//	AutoScenarioEnum   scenario_select(autoScenarioFinder(station, switch_side, scale_side, objective));
+
+	Robot::driveTrain->shiftUp();
+
+	AutoScenarioEnum scenario_select = AutoScenario_LeftSide_LeftSwitch;
 
 //	printf("AutonomousCommand::Initialize(), station=%d, switch_side=%d, scale_side=%d, objective=%d, scenario_select=%d\n",
 //			station, switch_side, scale_side, objective, scenario_select);
@@ -68,6 +75,8 @@ void AutonomousCommand::Initialize() {
 
 // Called repeatedly when this Command is scheduled to run
 void AutonomousCommand::Execute() {
+
+	printf("AutonomousCommand::Execute()\n");
 
 	if (m_autoScenarioPtr) {
 		m_autoScenarioPtr->execute();

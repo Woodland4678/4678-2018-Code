@@ -1,12 +1,12 @@
 /*
- * Station1SwitchLeft.h
+ * Station1SwitchRight.h
  *
  *  Created on: Mar 2, 2018
  *      Author: wchs
  */
 
-#ifndef STATION_1_SWITCH_LEFT_H_
-#define STATION_1_SWITCH_LEFT_H_
+#ifndef LEFT_SIDE_LEFT_SWITCH_H_
+#define LEFT_SIDE_LEFT_SWITCH_H_
 
 // SYSTEM INCLUDES
 // PROJECT INCLUDES
@@ -14,12 +14,12 @@
 #include "AutoScenario.h"
 
 // CLASS DECLARATION
-class Station1SwitchLeft : public AutoScenario
+class LeftSideLeftSwitch : public AutoScenario
 {
 public:
 // LIFECYCLE
-	Station1SwitchLeft();
-    virtual ~Station1SwitchLeft();
+	LeftSideLeftSwitch();
+    virtual ~LeftSideLeftSwitch();
 
 // METHODS
     void  initialize() override;
@@ -27,10 +27,10 @@ public:
 
 private:
 // LIFECYCLE
-    Station1SwitchLeft(const Station1SwitchLeft &);		// Hide the copy constructor
+    LeftSideLeftSwitch(const LeftSideLeftSwitch &);		// Hide the copy constructor
 
 // OPERATORS
-    Station1SwitchLeft & operator=(const Station1SwitchLeft &);  // Hide the assignment operator
+    LeftSideLeftSwitch & operator=(const LeftSideLeftSwitch &);  // Hide the assignment operator
 
 // MEMBERS
     DriveCalculatorPtrType   m_calculator1_Ptr;
@@ -39,12 +39,14 @@ private:
     DriveCalculatorPtrType   m_calculator2_Ptr;
 	bool  				     m_calculator2_init;
 
+    DriveCalculatorPtrType   m_calculator3_Ptr;
+	bool  				     m_calculator3_init;
+
     StateObserverPtrType     m_stateObserverPtr;
     AutoScenarioStateEnum    m_currentState;
-
     bool					 m_armMovement;
 };
 
-#endif // STATION_1_SWITCH_LEFT_H_
+#endif // LEFT_SIDE_LEFT_SCALE_H_
 
 // //////////////////////////////////////  EOF ////////////////////////////////////////////////////
