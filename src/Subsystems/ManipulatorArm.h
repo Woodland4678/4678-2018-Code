@@ -109,7 +109,7 @@ public:
 	
 	double convertEncoderToRelAngle(tpArmSegment *Seg, double encoder);
 	double convertRelAngleToEncoder(tpArmSegment *Seg, double angle);
-	bool fineMovement(int yDirection, int xDirection);
+	bool fineMovement(double yDirection, double xDirection);
 
 	void squeeze();
 	void release();

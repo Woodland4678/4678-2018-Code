@@ -41,7 +41,6 @@ bool LowerIntake::IsFinished() {
 
 // Called once after isFinished returns true
 void LowerIntake::End() {
-	Robot::intake->upPos = false;
 
 }
 

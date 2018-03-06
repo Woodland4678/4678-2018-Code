@@ -37,41 +37,103 @@ void moveArm::Initialize() {
 // Called repeatedly when this Command is scheduled to run
 void moveArm::Execute() {
 	switch(m_sender){
-		case 1:
+		case 0: //No button pressed, POV and Joystick controls here
+			povValue = Robot::oi->getoperate()->GetPOV();
+			//Check if there is a value
+			if(povValue != -1)
+				{
+				frc::SmartDashboard::PutNumber("pov Value", povValue);
+				int xMult = 0, yMult = 0;
+				switch (povValue)
+					{
+					case 0:
+						yMult = 1;
+						break;
+					case 45:
+						xMult = 1;
+						yMult = 1;
+						break;
+					case 90:
+						xMult = 1;
+						break;
+					case 135:
+						xMult = 1;
+						yMult = -1;
+						break;
+					case 180:
+						yMult = -1;
+						break;
+					case 225:
+						xMult = -1;
+						yMult = -1;
+						break;
+					case 270:
+						xMult = -1;
+						break;
+					case 315:
+						xMult = -1;
+						yMult = 1;
+						break;
+					}
+				xMovement += (0.1 * xMult);
+				yMovement += (0.1 * yMult);
+				bool result = Robot::manipulatorArm->fineMovement(yMovement,xMovement);
+				moveInit = false;
+				frc::SmartDashboard::PutBoolean("Fine Movement Result", result);
+				}
+			else
+				{
+				//Move back to current position
+				if((xMovement != 0)||(yMovement != 0))
+					{
+					if (!moveInit)
+						{
+						Robot::manipulatorArm->initMovement();
+						moveInit = true;
+						}
+					if(Robot::manipulatorArm->moveTo(Robot::manipulatorArm->currPos))
+						{
+						xMovement = 0;
+						yMovement = 0;
+						}
+					}
+				}
+			break;
+		case 1: //Carry Position
 			done = Robot::manipulatorArm->moveTo(11);
 			break;
-		case 2:
+		case 2: //Scale Low
 			if(back)
 				done = Robot::manipulatorArm->moveTo(4);
 			else
 				done = Robot::manipulatorArm->moveTo(2);
 			break;
-		case 3:
+		case 3: //Switch High
 			if(back)
 				done = Robot::manipulatorArm->moveTo(8);
 			else
 				done = Robot::manipulatorArm->moveTo(7);
 			break;
-		case 4:
+		case 4: //Scale High
 			if(back)
 				done = Robot::manipulatorArm->moveTo(3);
 			else
 				done = Robot::manipulatorArm->moveTo(1);
 			break;
-		case 6:
+		case 6: //Pick up Cube
 			Robot::manipulatorArm->release();
 			done = Robot::manipulatorArm->moveTo(5);
 			break;
-		case 9:
+		case 9: //Home
 			done = Robot::manipulatorArm->moveTo(0);
 			break;
-		case 10:
+		case 10: //Portal
 			done = Robot::manipulatorArm->moveTo(6);
 			break;
-		case 11:
+		case 11: //Climber
 			done = Robot::manipulatorArm->moveTo(9);
 			break;
-		case 12:
+		case 12: //Place Climber
 			done = Robot::manipulatorArm->moveTo(10);
 			break;
 	}

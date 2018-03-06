@@ -42,7 +42,7 @@ bool RaiseIntake::IsFinished() {
 
 // Called once after isFinished returns true
 void RaiseIntake::End() {
-	Robot::intake->upPos = true;
+	//Robot::intake->upPos = true;
 
 }
 

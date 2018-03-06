@@ -127,7 +127,6 @@ void Robot::TeleopPeriodic() {
 	if(cnt > 50)
 		boundaryCheck->Set(frc::Relay::Value::kOff);
 	*/
-
 //	if (oi->getdriver()->GetRawButton(1)) {
 //
 //		//driveTrain->goToDistance(548, 548, 1);

@@ -42,7 +42,7 @@ OI::OI() {
     operatorBtn12_RJoy_PlaceHook.reset(new frc::JoystickButton(operate.get(), 12));
     operatorBtn12_RJoy_PlaceHook->WhenPressed(new moveArm(12));
     operatorBtn11_LJoy_GrabHook.reset(new frc::JoystickButton(operate.get(), 11));
-    operatorBtn11_LJoy_GrabHook->WhenPressed(new moveArm(0));
+    operatorBtn11_LJoy_GrabHook->WhenPressed(new moveArm(11));
     operatorBtn10_Start_Portal.reset(new frc::JoystickButton(operate.get(), 10));
     operatorBtn10_Start_Portal->WhenPressed(new moveArm(10));
     operatorBtn9_Back_Home.reset(new frc::JoystickButton(operate.get(), 9));

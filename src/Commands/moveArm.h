@@ -43,6 +43,9 @@ private:
 	bool done;
 	bool back;
 	int pos;
+	int povValue;
+	double xMovement, yMovement;
+	bool moveInit;
 };
 
 #endif

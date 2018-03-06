@@ -49,10 +49,21 @@ Intake::Intake() : frc::Subsystem("Intake") {
 	lifter->GetSensorCollection().SetPulseWidthPosition(startPosition, 0);
 	lifter->GetSensorCollection().SetQuadraturePosition(startPosition, 0);
 
-	upPos = true;
-
 	posOffset = 4.25;
 	multOffset = (12 + (posOffset - 4)) * 1000;
+
+	//TODO:: Change the x,y to be relative to the shoulder location
+	lifterSeg.posX = 0;
+	lifterSeg.posY = 0;
+	lifterSeg.length = 16; //inches
+	lifterSeg.convSlope = 0.027388923;
+	lifterSeg.convIntercept = 164.335362;
+
+	//Status
+	Status.position = IntakePositions::InRobot;
+	Status.Gribber = IntakeGribber::Open;
+	Status.WheelDirection = IntakeWheelDirection::DirectionStopped;
+	Status.WheelSpeed = WHEELSPEEDSTOPPED;
 }
 
 void Intake::InitDefaultCommand() {
@@ -91,7 +102,14 @@ int Intake::getLifterAngular()
 void Intake::setLifterPosition(double position)
 	{
 	Robot::manipulatorArm->updateArm();
-	if((Robot::manipulatorArm->endEffectorX > 0) && (Robot::manipulatorArm->endEffectorY < 14)){
+	if((Robot::manipulatorArm->wristSeg.posX > 0) && (Robot::manipulatorArm->wristSeg.posX < 14))
+		{
+		//-3370 is about the area where the lifter will most likely hit the arm
+		//I need to check whether or not we need to continue or stop
+		//	If the lifter is passed where the arm is then it can continue
+		//	If not then we must stop! and probably bring the lifter back
+		updateEndEffector();
+		//if()
 		return;
 		}
 	lifter->Set(ControlMode::Position, position);
@@ -101,23 +119,24 @@ bool Intake::lowerIntake(){
 	switch(moveCase)
 		{
 		case 0:
-			upPos = false;
+			//upPos = false;
+			stopWheels();
 			moveCase++;
 			break;
 		case 1:
 			{
 			double currTime = frc::Timer::GetFPGATimestamp() - origTimeStampintake;
-			if(!moveDone)
-				moveDone = lifterGoToPosition(lifterStartPos,6000,currTime,1);
-			if(moveDone)
-				{
+			if(lifterGoToPosition(lifterStartPos,6000,currTime,1))
 				moveCase++;
-				}
-			stopWheels();
 			break;
 			}
 		case 2:
-			spinForward(0.7);
+			//Get position
+			if((abs(lifter->GetSensorCollection().GetPulseWidthPosition()-6000)) < 200)
+				{
+				Status.position = IntakePositions::GetCube;
+				spinForward(0.7); //Spin wheels
+				}
 			moveCase++;
 			return true;
 			break;
@@ -128,19 +147,24 @@ bool Intake::raiseIntake(){
 	switch(moveCase)
 		{
 		case 0:
-			upPos = false;
+			//upPos = false;
 			stopWheels();
 			moveCase++;
 			break;
 		case 1:
+			{
 			double currTime = frc::Timer::GetFPGATimestamp() - origTimeStampintake;
 			if(!moveDone)
 				moveDone = lifterGoToPosition(lifterStartPos,572,currTime,1);
 			if(moveDone)
 				{
+				Status.position = IntakePositions::InRobot;
 				moveCase++;
 				return true;
 				}
+			break;
+			}
+		case 2:
 			break;
 		}
 	return false;
@@ -181,41 +205,69 @@ double Intake::invSigmod(double end, double start, double mult, double offset, d
     return ((std::log(((end-start)/(pnt-start)) - 1) - offset)/(-mult));
     }
 
+void Intake::updateEndEffector()
+	{
+	lifterSeg.encValue = lifter->GetSensorCollection().GetPulseWidthPosition();
+	lifterSeg.relAngle = convertEncoderToRelAngle(&lifterSeg, lifterSeg.encValue);
+	lifterSeg.absAngle = lifterSeg.relAngle;
+
+	endEffectorX = lifterSeg.posX + lifterSeg.length * cos(lifterSeg.absAngle * (180/M_PI));
+	endEffectorY = lifterSeg.posY + lifterSeg.length * sin(lifterSeg.absAngle * (180/M_PI));
+	}
+
+double Intake::convertEncoderToRelAngle(tpArmSegment *Seg, double encoder)
+	{
+	return (encoder * Seg->convSlope + Seg->convIntercept);
+	}
+double Intake::convertRelAngleToEncoder(tpArmSegment *Seg, double angle)
+	{
+	return (((angle) - (Seg->convIntercept))/(Seg->convSlope));
+	}
+
+
 void Intake::release(){
+	Status.Gribber = IntakeGribber::Open;
 	releaser->Set(false);
 }
 
 void Intake::grab(){
-	if (lifter->GetSensorCollection().GetPulseWidthPosition() < 3370)
+	if (Status.position != IntakePositions::GetCube)
 		return;
+	Status.Gribber = IntakeGribber::Close;
 	releaser->Set(true);
 }
 
 void Intake::setRightSpeed(double power){
-	if(upPos)
-		return;
 	rightWheels->Set(power);
 }
 
 void Intake::setLeftSpeed(double power){
-	if(upPos)
-		return;
 	leftWheels->Set(power);
 }
 int Intake::getLifterError(){
 	return lifter->GetClosedLoopError(0);
 }
 void Intake::stopWheels(){
+	Status.WheelSpeed = IntakeWheelSpeed::SpeedStopped;
+	Status.WheelDirection = IntakeWheelDirection::DirectionStopped;
 	setRightSpeed(0);
 	setLeftSpeed(0);
 }
 
 void Intake::spinForward(double power) {
+	if(Status.position != IntakePositions::GetCube)
+		return;
+	Status.WheelSpeed = power;
+	Status.WheelDirection = IntakeWheelDirection::DirectionIn;
 	setRightSpeed(-power);
 	setLeftSpeed(-power);
 }
 
 void Intake::spinReverse(double power) {
+	if(Status.position != IntakePositions::GetCube)
+		return;
+	Status.WheelSpeed = power;
+	Status.WheelDirection = IntakeWheelDirection::DirectionOut;
 	setRightSpeed(power);
 	setLeftSpeed(power);
 }
