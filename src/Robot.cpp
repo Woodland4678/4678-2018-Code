@@ -86,8 +86,6 @@ void Robot::TeleopInit() {
 	// these lines or comment it out.
 
 	ahrs = new AHRS(SPI::Port::kMXP);
-	//boundaryCheck = new frc::Relay(0);
-	//boundaryCheck->Set(frc::Relay::Value::kOff);
 	cnt = 0;
 
 	/*data = fopen("/tmp/dataCollect.txt","a");
@@ -109,6 +107,7 @@ void Robot::TeleopPeriodic() {
 	cnt++;
 	//Robot Checks
 	manipulatorArm->updateArm();
+	//scaleDetection->GetScalePosition();
 	/*if ((manipulatorArm->endEffectorX > 32))
 		{
 		//std::stringstream  text_stream;

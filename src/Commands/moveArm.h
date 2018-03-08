@@ -44,7 +44,7 @@ private:
 	bool back;
 	int pos;
 	int povValue;
-	double xMovement, yMovement;
+	double prevJoyX, prevJoyY;
 	bool moveInit;
 };
 

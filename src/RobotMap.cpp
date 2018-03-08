@@ -24,13 +24,13 @@ std::shared_ptr<frc::Encoder> RobotMap::driveTrainleftEncoderDrive;
 std::shared_ptr<frc::Compressor> RobotMap::driveTrainCompressor;
 std::shared_ptr<frc::DoubleSolenoid> RobotMap::driveTrainshoulderClimber;
 std::shared_ptr<frc::Solenoid> RobotMap::driveTrainshifter;
-std::shared_ptr<frc::PowerDistributionPanel> RobotMap::driveTrainpdp;
 std::shared_ptr<WPI_TalonSRX> RobotMap::manipulatorArmshoulder;
 std::shared_ptr<WPI_TalonSRX> RobotMap::manipulatorArmelbow;
 std::shared_ptr<WPI_TalonSRX> RobotMap::manipulatorArmwrist;
 std::shared_ptr<WPI_VictorSPX> RobotMap::manipulatorArmshoulderSlave;
 std::shared_ptr<WPI_VictorSPX> RobotMap::manipulatorArmelbowSlave;
 std::shared_ptr<frc::DoubleSolenoid> RobotMap::manipulatorArmclaw;
+std::shared_ptr<frc::Relay> RobotMap::manipulatorArmindicator;
 std::shared_ptr<WPI_TalonSRX> RobotMap::intakelifter;
 std::shared_ptr<frc::SpeedController> RobotMap::intakerightWheels;
 std::shared_ptr<frc::SpeedController> RobotMap::intakeleftWheels;
@@ -65,9 +65,6 @@ void RobotMap::init() {
     driveTrainshifter.reset(new frc::Solenoid(0, 5));
     lw->AddActuator("DriveTrain", "shifter", driveTrainshifter);
     
-    driveTrainpdp.reset(new frc::PowerDistributionPanel(8));
-    lw->AddSensor("DriveTrain", "pdp", driveTrainpdp);
-    
     manipulatorArmshoulder.reset(new WPI_TalonSRX(3));
     
     
@@ -85,6 +82,9 @@ void RobotMap::init() {
     
     manipulatorArmclaw.reset(new frc::DoubleSolenoid(0, 0, 1));
     lw->AddActuator("ManipulatorArm", "claw", manipulatorArmclaw);
+    
+    manipulatorArmindicator.reset(new frc::Relay(0));
+    lw->AddActuator("ManipulatorArm", "indicator", manipulatorArmindicator);
     
     intakelifter.reset(new WPI_TalonSRX(1));
     

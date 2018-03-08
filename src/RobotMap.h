@@ -34,13 +34,13 @@ public:
 	static std::shared_ptr<frc::Compressor> driveTrainCompressor;
 	static std::shared_ptr<frc::DoubleSolenoid> driveTrainshoulderClimber;
 	static std::shared_ptr<frc::Solenoid> driveTrainshifter;
-	static std::shared_ptr<frc::PowerDistributionPanel> driveTrainpdp;
 	static std::shared_ptr<WPI_TalonSRX> manipulatorArmshoulder;
 	static std::shared_ptr<WPI_TalonSRX> manipulatorArmelbow;
 	static std::shared_ptr<WPI_TalonSRX> manipulatorArmwrist;
 	static std::shared_ptr<WPI_VictorSPX> manipulatorArmshoulderSlave;
 	static std::shared_ptr<WPI_VictorSPX> manipulatorArmelbowSlave;
 	static std::shared_ptr<frc::DoubleSolenoid> manipulatorArmclaw;
+	static std::shared_ptr<frc::Relay> manipulatorArmindicator;
 	static std::shared_ptr<WPI_TalonSRX> intakelifter;
 	static std::shared_ptr<frc::SpeedController> intakerightWheels;
 	static std::shared_ptr<frc::SpeedController> intakeleftWheels;

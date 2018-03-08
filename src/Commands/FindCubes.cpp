@@ -39,8 +39,13 @@ void FindCubes::Initialize() {
 
 void FindCubes::Search() {
 	size_t cnt = Robot::lidar->GetRawData(Nodes);
-	printf("Data: %i\n",cnt);
-	size_t filteredcnt = Robot::lidar->FilterRaw(Nodes, Filtered, cnt, 60,60,50,3000);
+	printf("Count: %i\n", cnt);
+	Robot::lidar->ConvertToXY(Nodes, Data, cnt);
+	for(int i = 0; i<cnt; i++)
+		printf("%i,%i ",Data->x,Data->y);
+
+	/*printf("\nData: %i\n",cnt);
+	filteredcnt = Robot::lidar->FilterRaw(Nodes, Filtered, cnt, 60,60,50,3000);
 	printf("Filtered: %i\n",filteredcnt);
 	filteredcnt = Robot::lidar->ConvertToXY(Filtered, Data, filteredcnt);
 	printf("Converted: %i\n",filteredcnt);
@@ -55,6 +60,8 @@ void FindCubes::Search() {
 
 	for(int i = 0; i<cubeCount; i++)
 		printf("Cube %i: Loca(%i, %i) dist=%i angle=%f\n",i, cubes[i].location.x,cubes[i].location.y, cubes[i].distance,cubes[i].angle);
+	*/
+	cubeCount = 0;
 }
 
 void FindCubes::FindPath() {
