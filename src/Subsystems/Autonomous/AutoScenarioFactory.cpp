@@ -18,6 +18,7 @@
 #include "LeftSideLeftSwitch.h"
 //#include "Station1ScaleLeft.h"
 #include "Station1ScaleRight.h"
+#include "LeftSideLeftScaleRightSwitch.h"
 
 //#include "Station1SwitchLeftScaleLeft.h"
 //#include "Station1SwitchLeftScaleRight.h"
@@ -68,6 +69,10 @@ AutoScenarioPtrType   autoScenarioFactory(AutoScenarioEnum autoScenario)  {
 
     case AutoScenario_LeftSide_LeftSwitch:
 		scenario_ptr.reset(new LeftSideLeftSwitch);
+		break;
+
+    case AutoScenario_LeftSide_LeftScale_RightSwitch:
+		scenario_ptr.reset(new LeftSideLeftScaleRightSwitch);
 		break;
 
     case AutoScenario_Station1_ScaleLeft:

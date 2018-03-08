@@ -32,9 +32,6 @@ AutonomousCommand::AutonomousCommand() :
 // Called just before this Command runs the first time
 void AutonomousCommand::Initialize() {
 
-
-	printf("AutonomousCommand::Initialize(), start\n");
-
 	// Get values from console buttons for station location and game objective
 	int  auto_side(0);
 	int  auto_mode(0);
@@ -58,7 +55,7 @@ void AutonomousCommand::Initialize() {
 
 	Robot::driveTrain->shiftUp();
 
-	AutoScenarioEnum scenario_select = AutoScenario_LeftSide_LeftSwitch;
+	AutoScenarioEnum scenario_select = AutoScenario_LeftSide_LeftScale;
 
 //	printf("AutonomousCommand::Initialize(), station=%d, switch_side=%d, scale_side=%d, objective=%d, scenario_select=%d\n",
 //			station, switch_side, scale_side, objective, scenario_select);

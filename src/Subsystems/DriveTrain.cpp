@@ -79,8 +79,9 @@ bool DriveTrain::goToDistance(double rightCentimeters, double leftCentimeters, d
 	static int  s_init_right_encoder(0);
 
 	if (goToDistanceState == 0) {
-		calculator.reset(new DriveMotorCalculator(getLeftEncoder()->Get(), getRightEncoder()->Get(), leftCentimeters, rightCentimeters, encoderClicksPerCentimeter));
+		calculator.reset(new DriveMotorCalculator(leftCentimeters, rightCentimeters, encoderClicksPerCentimeter));
 
+		calculator->setStartingEncoders(getLeftEncoder()->Get(), getRightEncoder()->Get());
 		calculator->setStartUpPower(0.25);
 		calculator->setTravelPower(0.9);
 		calculator->setRampDownPower(0.15);

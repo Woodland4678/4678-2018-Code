@@ -38,13 +38,13 @@ void  Station1ScaleRight::initialize() {
 
 	int  encoder_pulses_cm(getEncoderPulsesPerCm());
 
-	m_calculator1_Ptr.reset(new DriveMotorCalculator(0, 0, 425, 425, encoder_pulses_cm));
+	m_calculator1_Ptr.reset(new DriveMotorCalculator(425, 425, encoder_pulses_cm));
 	m_calculator1_init = false;
 
-	m_calculator2_Ptr.reset(new DriveMotorCalculator(0, 0, 300, 153, encoder_pulses_cm));
+	m_calculator2_Ptr.reset(new DriveMotorCalculator(300, 153, encoder_pulses_cm));
 	m_calculator2_init = false;
 
-	m_calculator3_Ptr.reset(new DriveMotorCalculator(0, 0, 300, 300, encoder_pulses_cm));
+	m_calculator3_Ptr.reset(new DriveMotorCalculator(300, 300, encoder_pulses_cm));
 	m_calculator3_init = false;
 
 	m_stateObserverPtr.reset(new DriveStateObserver);

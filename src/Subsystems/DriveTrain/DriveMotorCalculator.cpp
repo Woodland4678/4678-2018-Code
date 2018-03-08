@@ -69,10 +69,9 @@ static const int   s_CalcZoneAll(s_CalcZoneStartUp | s_CalcZoneRampUp | s_CalcZo
 // //////////////////////////////////  PUBLIC ////////////////////////////////////////////////
 // ********************************  LIFECYCLE  *********************************************
 
-DriveMotorCalculator::DriveMotorCalculator(int leftEncoder, int rightEncoder, int leftDistanceCm,
-							int rightDistanceCm, int encoderPulsesPerCm) :
-    m_startingLeftEncoder(leftEncoder),
-    m_startingRightEncoder(rightEncoder),
+DriveMotorCalculator::DriveMotorCalculator(int leftDistanceCm, int rightDistanceCm, int encoderPulsesPerCm) :
+    m_startingLeftEncoder(0),
+    m_startingRightEncoder(0),
 	m_encoderPulsesPerCm(encoderPulsesPerCm),
 
     m_leftTotalDistanceCm(0),
@@ -92,7 +91,8 @@ DriveMotorCalculator::DriveMotorCalculator(int leftEncoder, int rightEncoder, in
     m_goingBackwards(false),
     m_previousState(CalculatorStateUnknown),
     m_observerPtr(),
-    m_zonesRequired(s_CalcZoneAll)
+    m_zonesRequired(s_CalcZoneAll),
+	m_percentDone(0.0)
 {
     setTotalDistances(leftDistanceCm, rightDistanceCm);
     setDefaultZonePowers();
@@ -303,6 +303,7 @@ bool  DriveMotorCalculator::getMotorSpeeds(float &leftMotorPower, float &rightMo
 	}
 
     correctPowers(leftMotorPower, rightMotorPower);
+    calculatePercentDone(left_travel_cm, right_travel_cm);
 
     // Check if need to notify the state observer
     notifyObserver(motor_state);
@@ -410,6 +411,11 @@ std::string  DriveMotorCalculator::dumpObject() const {
     stream << std::endl;
 
     return stream.str();
+}
+
+float  DriveMotorCalculator::getPerentDone() const {
+
+	return m_percentDone;
 }
 
 // /////////////////////////////////  PRIVATE ////////////////////////////////////////////////
@@ -730,6 +736,23 @@ void   DriveMotorCalculator::correctPowers(float &leftMotorPower, float &rightMo
 		}
 	}
 }
+
+void   DriveMotorCalculator::calculatePercentDone(float leftTravelCm, float rightTravelCm)  {
+
+	if (leftTravelCm == 0.0 && rightTravelCm == 0.0) {
+		m_percentDone = 0.0;
+	}
+	else if (m_leftTotalDistanceCm == 0.0 && m_rightTotalDistanceCm == 0.0) {
+		m_percentDone = 0.0;
+	}
+	else if (m_leftTotalDistanceCm > m_rightTotalDistanceCm) {
+		m_percentDone = leftTravelCm / static_cast<float>(m_leftTotalDistanceCm);
+	}
+	else {
+		m_percentDone = rightTravelCm / static_cast<float>(m_rightTotalDistanceCm);
+    }
+}
+
 
 void  DriveMotorCalculator::notifyObserver(CalculatorStateEnum  motorState) {
     if (m_observerPtr && m_previousState != motorState) {

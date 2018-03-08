@@ -30,7 +30,7 @@ void  Station3CrossLine::initialize() {
 
 	int  encoder_pulses_cm(getEncoderPulsesPerCm());
 
-    m_calculatorPtr.reset(new DriveMotorCalculator(0, 0, 425, 425, encoder_pulses_cm));
+    m_calculatorPtr.reset(new DriveMotorCalculator(425, 425, encoder_pulses_cm));
 
 	m_calculatorInit = false;
 }

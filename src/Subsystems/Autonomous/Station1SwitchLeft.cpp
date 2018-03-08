@@ -38,10 +38,10 @@ void  Station1SwitchLeft::initialize() {
 
 	int  encoder_pulses_cm(getEncoderPulsesPerCm());
 
-	m_calculator1_Ptr.reset(new DriveMotorCalculator(0, 0, 90, 150, encoder_pulses_cm));
+	m_calculator1_Ptr.reset(new DriveMotorCalculator(90, 150, encoder_pulses_cm));
 	m_calculator1_init = false;
 
-	m_calculator2_Ptr.reset(new DriveMotorCalculator(0, 0, 280, 220, encoder_pulses_cm));
+	m_calculator2_Ptr.reset(new DriveMotorCalculator(280, 220, encoder_pulses_cm));
 	m_calculator2_init = false;
 
 	m_currentState     = ScenarioState1;

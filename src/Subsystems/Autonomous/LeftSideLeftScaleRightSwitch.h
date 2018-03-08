@@ -1,12 +1,12 @@
 /*
- * LeftSideLeftSwitch.h
+ * LeftSideLeftScaleRightSwitch.h
  *
  *  Created on: Mar 2, 2018
  *      Author: wchs
  */
 
-#ifndef LEFT_SIDE_LEFT_SWITCH_H_
-#define LEFT_SIDE_LEFT_SWITCH_H_
+#ifndef LEFT_SIDE_LEFT_SCALE_RIGHT_SWITCH_H_
+#define LEFT_SIDE_LEFT_SCALE_RIGHT_SWITCH_H_
 
 // SYSTEM INCLUDES
 // PROJECT INCLUDES
@@ -14,12 +14,12 @@
 #include "AutoScenario.h"
 
 // CLASS DECLARATION
-class LeftSideLeftSwitch : public AutoScenario
+class LeftSideLeftScaleRightSwitch : public AutoScenario
 {
 public:
 // LIFECYCLE
-	LeftSideLeftSwitch();
-    virtual ~LeftSideLeftSwitch();
+	LeftSideLeftScaleRightSwitch();
+    virtual ~LeftSideLeftScaleRightSwitch();
 
 // METHODS
     void  initialize() override;
@@ -27,10 +27,10 @@ public:
 
 private:
 // LIFECYCLE
-    LeftSideLeftSwitch(const LeftSideLeftSwitch &);		// Hide the copy constructor
+    LeftSideLeftScaleRightSwitch(const LeftSideLeftScaleRightSwitch &);		// Hide the copy constructor
 
 // OPERATORS
-    LeftSideLeftSwitch & operator=(const LeftSideLeftSwitch &);  // Hide the assignment operator
+    LeftSideLeftScaleRightSwitch & operator=(const LeftSideLeftScaleRightSwitch &);  // Hide the assignment operator
 
 // MEMBERS
     DriveCalculatorPtrType   m_calculator1_Ptr;
@@ -45,18 +45,14 @@ private:
 	DriveCalculatorPtrType   m_calculator4_Ptr;
 	bool  				     m_calculator4_init;
 
-	DriveCalculatorPtrType   m_calculator5_Ptr;
-	bool  				     m_calculator5_init;
+//	DriveCalculatorPtrType   m_calculator5_Ptr; //will be PID turn
+//	bool  				     m_calculator5_init;
 
 	DriveCalculatorPtrType   m_calculator6_Ptr;
 	bool  				     m_calculator6_init;
 
-	DriveCalculatorPtrType   m_calculator7_Ptr;
+	DriveCalculatorPtrType   m_calculator7_Ptr; //will be PID turn
 	bool  				     m_calculator7_init;
-
-	DriveCalculatorPtrType   m_calculator8_Ptr;
-	bool  				     m_calculator8_init;
-
 
     StateObserverPtrType     m_stateObserverPtr;
     AutoScenarioStateEnum    m_currentState;
