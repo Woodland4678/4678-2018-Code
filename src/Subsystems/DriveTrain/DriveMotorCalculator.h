@@ -41,7 +41,7 @@ class DriveMotorCalculator
 {
 public:
 // LIFECYCLE
-    DriveMotorCalculator(int leftEncoder, int rightEncoder, int leftDistanceCm, int rightDistanceCm, int encoderPulsesPerCm);
+    DriveMotorCalculator(int leftDistanceCm, int rightDistanceCm, int encoderPulsesPerCm);
     ~DriveMotorCalculator();
 
 // METHODS
@@ -68,6 +68,7 @@ public:
     bool  getMotorSpeeds(float &leftMotorPower, float &rightMotorPower, int leftEncoder, int rightEncoder);
 
     std::string  dumpObject() const;
+    float  getPerentDone() const;
 
 private:
     // TODO: change the constructors and operators to c11
@@ -94,6 +95,7 @@ private:
     void   calculateRampDownSpeeds(float &leftMotorPower, float &rightMotorPower, float leftTravelCm, float rightTravelCm) const;
     void   calculateCorrection(float &leftMultiplier, float &rightMultiplier, float leftTravelCm, float rightTravelCm) const;
     void   correctPowers(float &leftMotorPower, float &rightMotorPower) const;
+    void   calculatePercentDone(float leftTravelCm, float rightTravelCm);
     void   notifyObserver(CalculatorStateEnum  motorState);
     void   validateIntegerity() const;
 
@@ -120,6 +122,9 @@ private:
     CalculatorStateEnum   m_previousState;    // Tracks the previous motor state value so can identify when a state change happens
     StateObserverPtrType  m_observerPtr;      // Who to notify for state changes
     unsigned int          m_zonesRequired;    // What zones are required for the calculations
+
+    float  m_percentDone;				// what percent of the total distance the robot has gone
+
 };
 
 #endif /* DRIVE_MOTOR_CALCULATOR_H_ */

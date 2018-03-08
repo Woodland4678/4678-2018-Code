@@ -1,5 +1,5 @@
 /*
- * Station1SwitchRight.h
+ * LeftSideLeftScale.h
  *
  *  Created on: Mar 2, 2018
  *      Author: wchs
@@ -44,7 +44,11 @@ private:
 
     StateObserverPtrType     m_stateObserverPtr;
     AutoScenarioStateEnum    m_currentState;
-    bool					 m_armMovement;
+
+    bool					 m_armMovement1;
+    bool					 m_armMovement2;
+    bool                     m_armInitMovement2;
+    int                      m_cnt;
 };
 
 #endif // LEFT_SIDE_LEFT_SCALE_H_

@@ -85,6 +85,7 @@ enum AutoScenarioEnum  {
 
 	AutoScenario_LeftSide_LeftScale,
 	AutoScenario_LeftSide_LeftSwitch,
+	AutoScenario_LeftSide_LeftScale_RightSwitch,
 
     AutoScenarioMax
 };
