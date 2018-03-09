@@ -75,6 +75,9 @@ ManipulatorArm::ManipulatorArm() : frc::Subsystem("ManipulatorArm") {
 
 		frc::SmartDashboard::PutBoolean("Shoulder Angle", false);
 		}
+
+	ShoulderDeg = shoulderSeg.absAngle;
+
     //Elbow
 	elbowSlave->Follow(*elbow);
 	elbow->SelectProfileSlot(0,0);
@@ -104,6 +107,8 @@ ManipulatorArm::ManipulatorArm() : frc::Subsystem("ManipulatorArm") {
 	else
 		frc::SmartDashboard::PutBoolean("Elbow Angle", false);
 
+	elbowDeg = elbowSeg.absAngle;
+
     //Wrist
 	wrist->EnableCurrentLimit(false);
 	wrist->ConfigVoltageCompSaturation(12, 0);
@@ -127,9 +132,9 @@ ManipulatorArm::ManipulatorArm() : frc::Subsystem("ManipulatorArm") {
 	updateWrist();
 	
 	if(std::abs(wristSeg.absAngle - 0) < 15)
-			frc::SmartDashboard::PutBoolean("Wrist Angle", true);
-		else
-			frc::SmartDashboard::PutBoolean("Wrist Angle", false);
+		frc::SmartDashboard::PutBoolean("Wrist Angle", true);
+	else
+		frc::SmartDashboard::PutBoolean("Wrist Angle", false);
 
 	posOffset = 4.25;
 	multOffset = (12 + (posOffset - 4)) * 1000;
@@ -203,6 +208,9 @@ ManipulatorArm::ManipulatorArm() : frc::Subsystem("ManipulatorArm") {
     currPos = 0;
     targetPos = 0;
     prevPos = 0;
+
+    frc::SmartDashboard::PutNumber("Shoulder Degree", ShoulderDeg);
+    frc::SmartDashboard::PutNumber("Elbow Degree", elbowDeg);
 }
 
 void ManipulatorArm::InitDefaultCommand() {
@@ -298,15 +306,15 @@ bool ManipulatorArm::fineMovement(double joyX, double joyY)
 			frc::SmartDashboard::PutNumber("Target Y", tarY);
 
 			//Check limits
-			if(tarX > 27)
-				tarX = 27;
-			if(tarX < -27)
-				tarX = -27;
+			if(tarX > 26)
+				tarX = 26;
+			if(tarX < -26)
+				tarX = -26;
 			if(tarY > 77)
 				tarY = 77;
-			if(tarY < 0)
-				tarY = 0;
-			if((tarX < 1)&&(tarY > 0))
+			if(tarY < 50)
+				tarY = 50;
+			if((tarX < 1)&&(tarY > 50))
 				tarX = 1;
 
 			//Inverse Kitematics
@@ -343,8 +351,6 @@ bool ManipulatorArm::fineMovement(double joyX, double joyY)
 
 			elbowDeg -= ShoulderDeg;
 			elbowDeg *= -1;
-			frc::SmartDashboard::PutNumber("Shoulder Degree", ShoulderDeg);
-			frc::SmartDashboard::PutNumber("Elbow Degree", elbowDeg);
 
 			//Lets just do some quick tests to make sure we aren't attempting to move
 			//	too far too quickly
@@ -357,13 +363,18 @@ bool ManipulatorArm::fineMovement(double joyX, double joyY)
 			shTime = 1;
 			elTime = 1;
 
+			initMovement();
+
+			frc::SmartDashboard::PutNumber("Shoulder Degree", ShoulderDeg);
+			frc::SmartDashboard::PutNumber("Elbow Degree", elbowDeg);
+
 			fineMoveCase++;
 			break;
 			}
 		case 1:
 			{
-			//updateArm();
-			/*double currTime = frc::Timer::GetFPGATimestamp() - origTimeStamp;
+			updateArm();
+			double currTime = frc::Timer::GetFPGATimestamp() - origTimeStamp;
 
 			if (!shoulderMovement)
 				shoulderMovement = shoulderGoToPosition(shoulderStartPos,ShoulderDeg,currTime,shTime);
@@ -377,7 +388,7 @@ bool ManipulatorArm::fineMovement(double joyX, double joyY)
 				{
 				fineMoveCase++;
 				return true;
-				}*/
+				}
 			}
 			break;
 		}

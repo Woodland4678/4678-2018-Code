@@ -38,29 +38,7 @@ void FindCubes::Initialize() {
 }
 
 void FindCubes::Search() {
-	size_t cnt = Robot::lidar->GetRawData(Nodes);
-	printf("Count: %i\n", cnt);
-	Robot::lidar->ConvertToXY(Nodes, Data, cnt);
-	for(int i = 0; i<cnt; i++)
-		printf("%i,%i ",Data->x,Data->y);
 
-	/*printf("\nData: %i\n",cnt);
-	filteredcnt = Robot::lidar->FilterRaw(Nodes, Filtered, cnt, 60,60,50,3000);
-	printf("Filtered: %i\n",filteredcnt);
-	filteredcnt = Robot::lidar->ConvertToXY(Filtered, Data, filteredcnt);
-	printf("Converted: %i\n",filteredcnt);
-	int lineCount = Robot::lidar->FindLines(Data, lines, filteredcnt);
-	printf("Lines: %i\n",lineCount);
-	cubeCount = Robot::lidar->FindCubes(lines, cubes,lineCount);
-
-	printf("Cubes %i\n",cubeCount);
-
-	for(int i = 0; i<lineCount; i++)
-		printf("Line %i: start(%i, %i) end(%i, %i) angle=%f length=%i \n",i, lines[i].start.x,lines[i].start.y, lines[i].end.x,lines[i].end.y,lines[i].angle,lines[i].length);
-
-	for(int i = 0; i<cubeCount; i++)
-		printf("Cube %i: Loca(%i, %i) dist=%i angle=%f\n",i, cubes[i].location.x,cubes[i].location.y, cubes[i].distance,cubes[i].angle);
-	*/
 	cubeCount = 0;
 }
 
@@ -71,7 +49,7 @@ void FindCubes::FindPath() {
 		doneGo = true;
 		return;
 	}
-	unsigned int idx = 0;
+	/*unsigned int idx = 0;
 	int shortestdist = 6000;
 	for (int i = 0; i < cubeCount; i++){
 		if(cubes[i].distance < shortestdist){
@@ -87,7 +65,7 @@ void FindCubes::FindPath() {
 	rightcm = (theta * rRight)/5;
 	leftcm = (theta * rLeft)/5;
 
-	printf("rightcm = %f   leftcm = %f\n", rightcm, leftcm);
+	printf("rightcm = %f   leftcm = %f\n", rightcm, leftcm);*/
 }
 
 // Called repeatedly when this Command is scheduled to run
@@ -117,11 +95,6 @@ bool FindCubes::IsFinished() {
 // Called once after isFinished returns true
 void FindCubes::End() {
 	Robot::oi->driverRumble(0);
-	memset(cubes,0,sizeof(tpCube)*5);
-	memset(lines,0,sizeof(tpLine)*100);
-	memset(Data,0,sizeof(tpPoint)*720);
-	memset(Filtered,0,sizeof(rplidar_response_measurement_node_t)*720);
-	memset(Nodes,0,sizeof(rplidar_response_measurement_node_t)*720);
 }
 
 // Called when another command which requires one or more of the same

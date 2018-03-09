@@ -796,6 +796,8 @@ u_result RPlidarDriverSerialImpl::_sendCommand(_u8 cmd, const void * payload, si
     header->syncByte = RPLIDAR_CMD_SYNC_BYTE;
     header->cmd_flag = cmd;
 
+    printf("Sending Lidar Data [%02x,%02x",header->syncByte,header->cmd_flag);
+
     // send header first
     _rxtx->senddata(pkt_header, 2) ;
 
@@ -812,12 +814,17 @@ u_result RPlidarDriverSerialImpl::_sendCommand(_u8 cmd, const void * payload, si
         // send size
         _u8 sizebyte = payloadsize;
         _rxtx->senddata(&sizebyte, 1);
+        printf(" %02x",sizebyte);
 
         // send payload
         _rxtx->senddata((const _u8 *)payload, sizebyte);
+        for(int pos2=0;pos2<payloadsize;pos2++) {
+        	printf(" %02x",((_u8 *)payload)[pos2]);
+        }
 
         // send checksum
         _rxtx->senddata(&checksum, 1);
+        printf(" %02x]\n",checksum);
     }
 
     return RESULT_OK;

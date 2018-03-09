@@ -61,7 +61,6 @@ void Robot::RobotInit() {
  */
 void Robot::DisabledInit(){
 	//fclose(data);
-	lidar->Stop();
 }
 
 void Robot::DisabledPeriodic() {
@@ -99,7 +98,6 @@ void Robot::TeleopInit() {
 	if (autonomousCommand != nullptr)
 		autonomousCommand->Cancel();
 
-	Robot::lidar->Start();
 }
 
 void Robot::TeleopPeriodic() {
@@ -107,6 +105,7 @@ void Robot::TeleopPeriodic() {
 	cnt++;
 	//Robot Checks
 	manipulatorArm->updateArm();
+
 	//scaleDetection->GetScalePosition();
 	/*if ((manipulatorArm->endEffectorX > 32))
 		{
