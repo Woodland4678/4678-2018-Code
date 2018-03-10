@@ -108,10 +108,13 @@ void Intake::setLifterPosition(double position)
 		//I need to check whether or not we need to continue or stop
 		//	If the lifter is passed where the arm is then it can continue
 		//	If not then we must stop! and probably bring the lifter back
+		frc::SmartDashboard::PutBoolean("Intake moveable", false);
 		updateEndEffector();
 		//if()
 		return;
 		}
+	else
+		frc::SmartDashboard::PutBoolean("Intake moveable", true);
 	lifter->Set(ControlMode::Position, position);
 	}
 

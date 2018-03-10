@@ -208,6 +208,7 @@ ManipulatorArm::ManipulatorArm() : frc::Subsystem("ManipulatorArm") {
     currPos = 0;
     targetPos = 0;
     prevPos = 0;
+    fineMovingGoing = 0;
 
     frc::SmartDashboard::PutNumber("Shoulder Degree", ShoulderDeg);
     frc::SmartDashboard::PutNumber("Elbow Degree", elbowDeg);
@@ -397,6 +398,8 @@ bool ManipulatorArm::fineMovement(double joyX, double joyY)
 
 bool ManipulatorArm::moveTo(int pos, double addShTime, double addElTime)
 	{
+	if(fineMovingGoing)
+		return true;
 	switch(moveCase)
 		{
 		case 0:
