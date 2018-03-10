@@ -43,8 +43,13 @@ private:
     DriveCalculatorPtrType   m_calculator3_Ptr;
 	bool  				     m_calculator3_init;
 
+    DriveCalculatorPtrType   m_calculator4_Ptr;
+	bool                     m_calculator4_init;
+
     StateObserverPtrType     m_stateObserverPtr;
     AutoScenarioStateEnum    m_currentState;
+
+    bool                     m_armMovement;
 };
 
 #endif // STATION_1_SCALE_RIGHT_H_

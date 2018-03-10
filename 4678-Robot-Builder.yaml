@@ -527,7 +527,7 @@ Children:
           name: Command
           type: Command
           validators: *id028
-          value: ShiftUp
+          value: ShiftDown
         When to Run: !!robotbuilder.data.properties.ChoicesProperty
           choices: *id029
           default: whileHeld
@@ -535,7 +535,7 @@ Children:
           validators: null
           value: whenPressed
       Base: Joystick Button
-      Name: DriverBtn5_LBump_ShiftUp
+      Name: DriverBtn5_LBump_ShiftDown
     - Children: []
       Properties:
         Joystick: !!robotbuilder.data.properties.ParentProperty {default: parent,
@@ -556,7 +556,7 @@ Children:
           name: Command
           type: Command
           validators: *id028
-          value: ShiftDown
+          value: ShiftUp
         When to Run: !!robotbuilder.data.properties.ChoicesProperty
           choices: *id029
           default: whileHeld
@@ -564,7 +564,7 @@ Children:
           validators: null
           value: whenPressed
       Base: Joystick Button
-      Name: DriverBtn6_RBump_ShiftDown
+      Name: DriverBtn6_RBump_ShiftUp
     - Children: []
       Properties:
         Joystick: !!robotbuilder.data.properties.ParentProperty {default: parent,
@@ -1376,7 +1376,7 @@ Children:
   Base: Commands
   Name: Commands
 Properties:
-  Eclipse Workspace: !!robotbuilder.data.properties.FileProperty {default: 'C:\Users\Dell1\workspace',
+  Eclipse Workspace: !!robotbuilder.data.properties.FileProperty {default: 'C:\Users\Cybercavs\workspace',
     extension: null, folder: true, name: Eclipse Workspace, validators: null, value: 'C:\Users\Dell1\workspace'}
   Export Commands: !!robotbuilder.data.properties.BooleanProperty {default: true,
     name: Export Commands, validators: null, value: true}
@@ -1395,7 +1395,7 @@ Properties:
     name: Export Subsystems, validators: null, value: true}
   Simulation World File: !!robotbuilder.data.properties.StringProperty {default: /usr/share/frcsim/worlds/GearsBotDemo.world,
     name: Simulation World File, validators: null, value: /usr/share/frcsim/worlds/GearsBotDemo.world}
-  Wiring file location: !!robotbuilder.data.properties.FileProperty {default: 'C:\Users\Dell1\',
+  Wiring file location: !!robotbuilder.data.properties.FileProperty {default: 'C:\Users\Cybercavs\',
     extension: null, folder: true, name: Wiring file location, validators: null, value: 'C:\Users\Cybercavs\'}
   Autonomous Command: !!robotbuilder.data.properties.TypeSelectionProperty {default: None,
     name: Autonomous Command, type: Command, validators: null, value: Autonomous Command}

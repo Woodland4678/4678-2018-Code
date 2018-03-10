@@ -69,9 +69,9 @@ OI::OI() {
     driverBtn12_RJoy_InTakeWheelsOut->WhileHeld(new IntakeWheelsOut());
     driverBtn1_X_IntakeWheelsIn.reset(new frc::JoystickButton(driver.get(), 1));
     driverBtn1_X_IntakeWheelsIn->WhenPressed(new IntakeWheelsIn());
-    driverBtn6_RBump_ShiftDown.reset(new frc::JoystickButton(driver.get(), 6));
+    driverBtn6_RBump_ShiftDown.reset(new frc::JoystickButton(driver.get(), 5));
     driverBtn6_RBump_ShiftDown->WhenPressed(new ShiftDown());
-    driverBtn5_LBump_ShiftUp.reset(new frc::JoystickButton(driver.get(), 5));
+    driverBtn5_LBump_ShiftUp.reset(new frc::JoystickButton(driver.get(), 6));
     driverBtn5_LBump_ShiftUp->WhenPressed(new ShiftUp());
     driverBtn2_A_LowerIntake.reset(new frc::JoystickButton(driver.get(), 2));
     driverBtn2_A_LowerIntake->WhenPressed(new LowerIntake());
