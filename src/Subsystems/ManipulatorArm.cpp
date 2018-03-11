@@ -291,11 +291,11 @@ bool ManipulatorArm::fineMovement(double joyX, double joyY)
 		case 0:
 			{
 			//Get current end point
-			double elbPosX = shoulderSeg.length * std::cos(positions[currPos][0] * (M_PI/180));
-			double elbPosY = shoulderSeg.length * std::sin(positions[currPos][0] * (M_PI/180));
+			double elbPosX = shoulderSeg.length * std::cos(positions[targetPos][0] * (M_PI/180));
+			double elbPosY = shoulderSeg.length * std::sin(positions[targetPos][0] * (M_PI/180));
 
-			double currX = elbPosX + elbowSeg.length * std::cos(positions[currPos][1] * (M_PI/180));
-			double currY = elbPosY + elbowSeg.length * std::sin(positions[currPos][1] * (M_PI/180));
+			double currX = elbPosX + elbowSeg.length * std::cos(positions[targetPos][1] * (M_PI/180));
+			double currY = elbPosY + elbowSeg.length * std::sin(positions[targetPos][1] * (M_PI/180));
 			//Calculate Target Position
 			double tarX = std::abs(currX);
 			double tarY = std::abs(currY);
@@ -820,6 +820,12 @@ void ManipulatorArm::updateEndEffector()
 	frc::SmartDashboard::PutNumber("End Effector X", endEffectorX);
 	endEffectorY = wristSeg.posY + wristSeg.length * std::sin(wristSeg.absAngle * (M_PI/180));
 	frc::SmartDashboard::PutNumber("End Effector Y", endEffectorY);
+
+	//Check intake
+	if((wristSeg.posX > 0) && (wristSeg.posX < 14))
+		frc::SmartDashboard::PutBoolean("Intake moveable", false);
+	else
+		frc::SmartDashboard::PutBoolean("Intake moveable", true);
 
 	//Lights
 	if ((endEffectorX > 28) || (endEffectorX < -28))

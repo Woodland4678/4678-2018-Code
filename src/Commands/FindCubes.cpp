@@ -24,67 +24,53 @@ FindCubes::FindCubes(): frc::Command() {
 
 // Called just before this Command runs the first time
 void FindCubes::Initialize() {
-	cubeCount = 0;
-	leftcm = 0;
-	rightcm = 0;
-	theta = 0;
-	r = 0;
-	rLeft = 0;
-	rRight = 0;
-	rumbleCount = 0;
 	doneGo = false;
-	Search();
-	FindPath();
-}
-
-void FindCubes::Search() {
-
-	cubeCount = 0;
-}
-
-void FindCubes::FindPath() {
-	if (cubeCount == 0) {
-		rightcm = 0;
-		leftcm = 0;
-		doneGo = true;
-		return;
-	}
-	/*unsigned int idx = 0;
-	int shortestdist = 6000;
-	for (int i = 0; i < cubeCount; i++){
-		if(cubes[i].distance < shortestdist){
-			shortestdist = cubes[i].distance;
-			idx = i;
-		}
-	}
-	theta = (M_PI * cubes[idx].angle)/180;
-	theta = std::abs(theta);
-	r = (cubes[idx].distance * sin((M_PI/2) - theta))/(sin(2 * theta));
-	rRight = ((cubes[idx].angle > 0) ? (r - 368) : (r + 368));
-	rLeft = ((cubes[idx].angle > 0) ? (r + 368) : (r - 368));
-	rightcm = (theta * rRight)/5;
-	leftcm = (theta * rLeft)/5;
-
-	printf("rightcm = %f   leftcm = %f\n", rightcm, leftcm);*/
+	getCubeCase = 0;
+	printf("Here!");
 }
 
 // Called repeatedly when this Command is scheduled to run
 void FindCubes::Execute() {
-	//Check if there are any cubes
-	if (cubeCount == 0)
+
+	if (Robot::lidar->findCubes() == 1)
 		doneGo = true;
-	//Check if button released
-	if(!Robot::oi->getdriver()->GetRawButton(6))
-		doneGo = true;
-	if (rumbleCount < 25)
+	/*switch(getCubeCase)
 		{
-		Robot::oi->driverRumble(0.2);
-		rumbleCount++;
-		}
-	else
-		Robot::oi->driverRumble(0);
-	if(!doneGo)
-		doneGo = Robot::driveTrain->goToDistance(rightcm, leftcm, 0.75);
+		case 0:
+			//Is the arm in the way? Is the intake already out?
+			//	If so, initialize the arm movement
+			break;
+		case 1:
+			//Move arm out of the way
+			break;
+		case 2:
+			//Move intake out of the robot
+			break;
+		case 3:
+			//Find the nearest cube
+			break;
+		case 4:
+			//Move to the cube if one is found
+			//Clamp the cube
+			break;
+		case 5:
+			//Use the lidar to ensure the cube is lined up correctly
+			//	against the robot
+			break;
+		case 6:
+			//Move arm into pickup location
+			//Clamp cube
+			//Stop intake wheels
+			//Open intake
+			break;
+		case 7:
+			//Move cube to carry position
+			//Use lidar to make sure the cube is gone
+			break;
+		case 8:
+			//Bring in the intake
+			break;
+		}*/
 }
 
 // Make this return true when this Command no longer needs to run execute()

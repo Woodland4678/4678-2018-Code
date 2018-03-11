@@ -60,7 +60,7 @@ void Robot::RobotInit() {
  * You can use it to reset subsystems before shutting down.
  */
 void Robot::DisabledInit(){
-	//fclose(data);
+	lidar->stopLidar();
 }
 
 void Robot::DisabledPeriodic() {
@@ -97,6 +97,7 @@ void Robot::TeleopInit() {
 
 	if (autonomousCommand != nullptr)
 		autonomousCommand->Cancel();
+	lidar->startLidar();
 
 }
 
@@ -105,7 +106,12 @@ void Robot::TeleopPeriodic() {
 	cnt++;
 	//Robot Checks
 	manipulatorArm->updateArm();
-
+	/*if(!done)
+		{
+		done = lidar->findCubes();
+		if(done == 2)
+			frc::SmartDashboard::PutBoolean("Cube Found", false);
+		}*/
 	//scaleDetection->GetScalePosition();
 	/*if ((manipulatorArm->endEffectorX > 32))
 		{

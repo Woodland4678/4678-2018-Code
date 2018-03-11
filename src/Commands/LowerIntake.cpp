@@ -31,7 +31,7 @@ void LowerIntake::Initialize() {
 
 // Called repeatedly when this Command is scheduled to run
 void LowerIntake::Execute() {
-	done = Robot::intake->lowerIntake();
+	done = Robot::intake->moveTo(Robot::intake->IntakePositions::GetCube);
 }
 
 // Make this return true when this Command no longer needs to run execute()

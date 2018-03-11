@@ -32,7 +32,7 @@ void RaiseIntake::Initialize() {
 
 // Called repeatedly when this Command is scheduled to run
 void RaiseIntake::Execute() {
-	done = Robot::intake->raiseIntake();
+	done = Robot::intake->moveTo(Robot::intake->IntakePositions::InRobot);
 }
 
 // Make this return true when this Command no longer needs to run execute()
@@ -42,7 +42,6 @@ bool RaiseIntake::IsFinished() {
 
 // Called once after isFinished returns true
 void RaiseIntake::End() {
-	//Robot::intake->upPos = true;
 
 }
 

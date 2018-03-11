@@ -49,8 +49,8 @@ private:
 	std::shared_ptr<frc::JoystickButton> driverBtn10_Start_IntakeWheelsStop;
 	std::shared_ptr<frc::JoystickButton> driverBtn12_RJoy_InTakeWheelsOut;
 	std::shared_ptr<frc::JoystickButton> driverBtn1_X_IntakeWheelsIn;
-	std::shared_ptr<frc::JoystickButton> driverBtn6_RBump_ShiftDown;
-	std::shared_ptr<frc::JoystickButton> driverBtn5_LBump_ShiftUp;
+	std::shared_ptr<frc::JoystickButton> driverBtn6_RBump_ShiftUp;
+	std::shared_ptr<frc::JoystickButton> driverBtn5_LBump_ShiftDown;
 	std::shared_ptr<frc::JoystickButton> driverBtn2_A_LowerIntake;
 	std::shared_ptr<frc::JoystickButton> driverBtn3_B_RaiseIntake;
 	std::shared_ptr<frc::JoystickButton> driverBtn8;

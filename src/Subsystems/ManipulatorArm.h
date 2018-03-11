@@ -14,7 +14,7 @@
 #include "Commands/Subsystem.h"
 #include "WPILib.h"
 
-#define FINECONTROLBOXSIZE	12.0f
+#define FINECONTROLBOXSIZE	10.0f
 
 /**
  *
