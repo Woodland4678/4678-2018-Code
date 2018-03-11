@@ -156,6 +156,9 @@ void DriveTrain::shiftDown() {
 	highGear = false;
 	shifter->Set(false);
 }
+double DriveTrain::getLeftSpeed() {
+	return leftEncoderDrive->GetRate();
+}
 
 // Put methods for controlling this subsystem
 // here. Call these from Commands.

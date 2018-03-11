@@ -126,7 +126,7 @@ bool Intake::moveTo(int position)
 			if(moveCase != 4) //Has this issue been dealt with already?
 				{
 				Robot::manipulatorArm->updateArm();
-				if((Robot::manipulatorArm->wristSeg.posX > 0) && (Robot::manipulatorArm->wristSeg.posX < 14))
+				if((Robot::manipulatorArm->wristSeg.posX > 0) && (Robot::manipulatorArm->wristSeg.posY < 14))
 					{
 					moveCase = 3;
 					return false;

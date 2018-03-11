@@ -25,13 +25,16 @@ moveArm::moveArm(int sender): frc::Command() {
 
 // Called just before this Command runs the first time
 void moveArm::Initialize() {
+	if (Robot::isAuto) {
+		done = true;
+		return;
+	}
 	done = false;
 	Robot::manipulatorArm->initMovement();
 	if(Robot::oi->getoperate()->GetRawButton(5))
 		back = true;
 	else
 		back = false;
-
 }
 
 // Called repeatedly when this Command is scheduled to run

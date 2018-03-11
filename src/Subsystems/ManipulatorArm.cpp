@@ -269,6 +269,11 @@ void ManipulatorArm::initMovement(){
 	shoulderStartPos = shoulderSeg.absAngle;
 	elbowStartPos = elbowSeg.absAngle;
 	wristStartPos = wristSeg.absAngle;
+
+	frc::SmartDashboard::PutNumber("Shoulder Start", shoulderStartPos);
+	frc::SmartDashboard::PutNumber("Elbow Start", elbowStartPos);
+	frc::SmartDashboard::PutNumber("Wrist Start", wristStartPos);
+
 	shoulderMovement = false;
 	shoulderMovement2 = false;
 	shoulderMovement3 = false;
@@ -398,6 +403,7 @@ bool ManipulatorArm::fineMovement(double joyX, double joyY)
 
 bool ManipulatorArm::moveTo(int pos, double addShTime, double addElTime)
 	{
+	frc::SmartDashboard::PutNumber("Arm Case", moveCase);
 	if(fineMovingGoing)
 		return true;
 	switch(moveCase)
@@ -572,6 +578,10 @@ bool ManipulatorArm::moveTo(int pos, double addShTime, double addElTime)
 			if (!wristMovement)
 				wristMovement = wristGoToPosition(wristStartPos,positions[pos][2],currTime,wrTime);
 			
+			frc::SmartDashboard::PutNumber("Shoulder Complete", shoulderMovement);
+			frc::SmartDashboard::PutNumber("Elbow Complete", elbowMovement);
+			frc::SmartDashboard::PutNumber("Wrist Complete", wristMovement);
+
 			//Movement Check
 			if(shoulderMovement && elbowMovement && wristMovement)
 				{

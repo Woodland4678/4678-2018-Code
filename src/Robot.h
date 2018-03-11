@@ -58,5 +58,7 @@ public:
 	int caseThing;
 	int cnt;
 	 AHRS *ahrs;
+
+	static bool isAuto;
 };
 #endif

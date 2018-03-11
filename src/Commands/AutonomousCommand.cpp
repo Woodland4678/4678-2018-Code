@@ -28,7 +28,7 @@ AutonomousCommand::AutonomousCommand(): frc::Command() {
 
 // Called just before this Command runs the first time
 void AutonomousCommand::Initialize() {
-
+	Robot::isAuto = true;
 	// Get values from console buttons for station location and game objective
 	int  auto_side(0);
 	int  auto_mode(0);
@@ -52,7 +52,7 @@ void AutonomousCommand::Initialize() {
 
 	Robot::driveTrain->shiftUp();
 
-	AutoScenarioEnum scenario_select = AutoScenario_Station1_ScaleRight;
+	AutoScenarioEnum scenario_select = AutoScenario_LeftSide_LeftScale;
 
 //	printf("AutonomousCommand::Initialize(), station=%d, switch_side=%d, scale_side=%d, objective=%d, scenario_select=%d\n",
 //			station, switch_side, scale_side, objective, scenario_select);
@@ -91,6 +91,7 @@ void AutonomousCommand::End() {
 	if (m_autoScenarioPtr) {
 		m_autoScenarioPtr->end();
 	}
+	Robot::isAuto = false;
 }
 
 // Called when another command which requires one or more of the same
@@ -99,6 +100,7 @@ void AutonomousCommand::Interrupted() {
 	if (m_autoScenarioPtr) {
 		m_autoScenarioPtr->interrupted();
 	}
+	Robot::isAuto = false;
 }
 
 // /////////////////////////////////  PRIVATE ///////////////////////////////////////////////
@@ -127,6 +129,7 @@ void  AutonomousCommand::getConsoleValues(int &autoSide, int &autoMode) const  {
 	if (Robot::oi->getAutoSwitch()->GetRawButton(11)) {
 		autoMode += 4;
 	}
+
 	frc::SmartDashboard::PutNumber("Auto Mode", autoMode);
 	frc::SmartDashboard::PutNumber("Auto Side", autoSide);
 }
