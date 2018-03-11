@@ -291,11 +291,11 @@ bool ManipulatorArm::fineMovement(double joyX, double joyY)
 		case 0:
 			{
 			//Get current end point
-			double elbPosX = shoulderSeg.length * std::cos(positions[currPos][0] * (M_PI/180));
-			double elbPosY = shoulderSeg.length * std::sin(positions[currPos][0] * (M_PI/180));
+			double elbPosX = shoulderSeg.length * std::cos(positions[targetPos][0] * (M_PI/180));
+			double elbPosY = shoulderSeg.length * std::sin(positions[targetPos][0] * (M_PI/180));
 
-			double currX = elbPosX + elbowSeg.length * std::cos(positions[currPos][1] * (M_PI/180));
-			double currY = elbPosY + elbowSeg.length * std::sin(positions[currPos][1] * (M_PI/180));
+			double currX = elbPosX + elbowSeg.length * std::cos(positions[targetPos][1] * (M_PI/180));
+			double currY = elbPosY + elbowSeg.length * std::sin(positions[targetPos][1] * (M_PI/180));
 			//Calculate Target Position
 			double tarX = std::abs(currX);
 			double tarY = std::abs(currY);
@@ -303,8 +303,8 @@ bool ManipulatorArm::fineMovement(double joyX, double joyY)
 			tarX += FINECONTROLBOXSIZE * joyX;
 			tarY += FINECONTROLBOXSIZE * joyY;
 
-			frc::SmartDashboard::PutNumber("Target X", tarX);
-			frc::SmartDashboard::PutNumber("Target Y", tarY);
+			frc::SmartDashboard::PutNumber("Target X", currX);
+			frc::SmartDashboard::PutNumber("Target Y", currY);
 
 			//Check limits
 			if(tarX > 26)
@@ -335,7 +335,7 @@ bool ManipulatorArm::fineMovement(double joyX, double joyY)
 			ShoulderDeg = (angShoulder * 180) / M_PI;
 
 			//Check for negative
-			if((tarX) < 0)
+			if((currX) < 0)
 				{
 				ShoulderDeg = (90 - std::abs(ShoulderDeg)) + 90;
 				elbowDeg *= -1;
@@ -824,7 +824,7 @@ void ManipulatorArm::updateEndEffector()
 	//Lights
 	if ((endEffectorX > 28) || (endEffectorX < -28))
 		{
-		if ((endEffectorX > 32) || (endEffectorX < -32))
+		if ((endEffectorX > 34) || (endEffectorX < -34))
 			{
 			lightShowType = 1; //Outside boundary
 			posOutTar = targetPos;

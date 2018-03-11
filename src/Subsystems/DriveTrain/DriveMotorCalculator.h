@@ -9,7 +9,6 @@
 #define DRIVE_MOTOR_CALCULATOR_H_
 
 // SYSTEM INCLUDES
-//#include <boost/shared_ptr.hpp>         // test harness version
 #include <memory>                     // robot code version
 #include <string>
 
@@ -33,7 +32,6 @@ enum CalculatorStateEnum
 class DriveMotorCalculator;
 
 // TYPEDEFS
-//typedef boost::shared_ptr<DriveMotorCalculator>     DriveCalculatorPtrType;     // test harness version
 typedef std::shared_ptr<DriveMotorCalculator>    DriveCalculatorPtrType;     // robot code version
 
 // CLASS DECLARATION

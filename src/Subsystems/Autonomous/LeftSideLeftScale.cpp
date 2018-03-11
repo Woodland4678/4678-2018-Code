@@ -63,7 +63,7 @@ void  LeftSideLeftScale::initialize() {
 	m_armMovement2 = false;
 	m_armInitMovement2 = false;
 
-	m_calculator3_Ptr.reset(new DriveMotorCalculator(-50, -130, encoder_pulses_cm));
+	m_calculator3_Ptr.reset(new DriveMotorCalculator(-50, -100, encoder_pulses_cm));
 	m_calculator3_init = false;
 
 }
@@ -128,6 +128,20 @@ void  LeftSideLeftScale::execute() {
 //			m_currentState = ScenarioState3;
 			setFinished();
 		}
+		break;
+	case ScenarioState4: //find cube stuff
+
+//		if (moveRobot(m_calculator3_init, m_calculator3_Ptr) == true) {
+////			m_currentState = ScenarioState3;
+//			setFinished();
+//		}
+		break;
+	case ScenarioState5: //backup stuff
+
+//		if (moveRobot(m_calculator3_init, m_calculator3_Ptr) == true) {
+////			m_currentState = ScenarioState3;
+//			setFinished();
+//		}
 		break;
 
 	default:

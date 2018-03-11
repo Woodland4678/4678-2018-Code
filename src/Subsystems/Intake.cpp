@@ -102,7 +102,7 @@ int Intake::getLifterAngular()
 void Intake::setLifterPosition(double position)
 	{
 	Robot::manipulatorArm->updateArm();
-	if((Robot::manipulatorArm->wristSeg.posX > 0) && (Robot::manipulatorArm->wristSeg.posX < 14))
+	if((Robot::manipulatorArm->wristSeg.posX > 0) && (Robot::manipulatorArm->wristSeg.posY < 14))
 		{
 		//-3370 is about the area where the lifter will most likely hit the arm
 		//I need to check whether or not we need to continue or stop
@@ -135,7 +135,7 @@ bool Intake::lowerIntake(){
 			}
 		case 2:
 			//Get position
-			if((abs(lifter->GetSensorCollection().GetPulseWidthPosition()-6000)) < 200)
+			if((abs(lifter->GetSensorCollection().GetPulseWidthPosition()-6000)) < 300)
 				{
 				Status.position = IntakePositions::GetCube;
 				spinForward(0.7); //Spin wheels

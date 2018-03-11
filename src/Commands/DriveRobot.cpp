@@ -64,7 +64,7 @@ void DriveRobot::Execute() {
 	JoyY = Robot::oi->getdriver()->GetY();
 
 	if (Robot::driveTrain->highGear)
-		JoyX *= 0.5;
+		JoyX *= 0.8;
 
 	if(JoyX < 0.05 && JoyX > -0.05)
 		JoyX = 0;
