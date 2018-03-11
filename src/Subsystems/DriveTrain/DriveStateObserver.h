@@ -9,12 +9,14 @@
 #define DRIVE_STATE_OBSERVER_H_
 
 // SYSTEM INCLUDES
+// #include <boost/shared_ptr.hpp>         // test harness version
 #include <memory>                     // robot code version
 
 // FORWARD DECLARATION
 class DriveStateObserver;
 
 // TYPEDEFS
+// typedef boost::shared_ptr<DriveStateObserver>     StateObserverPtrType;     // test harness version
 typedef std::shared_ptr<DriveStateObserver>    StateObserverPtrType;     // robot code version
 
 // CLASS DECLARATION

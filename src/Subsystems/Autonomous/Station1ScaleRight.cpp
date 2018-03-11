@@ -122,7 +122,6 @@ void  Station1ScaleRight::execute() {
 	case ScenarioState4:
 		if (moveRobot(m_calculator4_init, m_calculator4_Ptr) == true) {
 //			m_currentState = ScenarioStateMax;
-			Robot::manipulatorArm->release();
 			setFinished();
 		}
 		if (!m_armMovement) {

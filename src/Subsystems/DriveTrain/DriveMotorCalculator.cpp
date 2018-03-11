@@ -1,5 +1,5 @@
 /*
-f * DriveMotorCalculator.cpp
+ * DriveMotorCalculator.cpp
  *
  *  Created on: Jan 24, 2018
  *      Author: wchs
@@ -517,24 +517,6 @@ void  DriveMotorCalculator::setDefaultZoneStartPoints() {
         tmp_float     = m_maxTotalDistanceCm * s_DefaultStraightMultiplier;
         tmp_int       = static_cast<int>(ceil(tmp_float));
         m_turnStartCm = std::min(tmp_int, s_MaxStraightDistanceCm);
-
-        if (m_turnStartCm == 0) {
-            m_turnStartCm = 1;
-        }
-
-        // With short distances the above calculations can be screwed up
-        // e.g. travelStart ends up being after rampDownStart
-        if ((m_maxTotalDistanceCm < s_MinPowerDistanceCm) &&
-            ((m_rampUpStartCm >= m_travelStartCm) || (m_travelStartCm >= m_rampDownStartCm) ||
-            (m_rampDownStartCm >= m_maxTotalDistanceCm))) {
-            const int start_up_dist(static_cast<int>(m_maxTotalDistanceCm * 0.30));
-            const int ramp_up_dist(static_cast<int>(m_maxTotalDistanceCm * 0.20));
-            const int ramp_down_dist(static_cast<int>(m_maxTotalDistanceCm * 0.30));
-
-            m_rampUpStartCm   = std::min(start_up_dist, s_StartUpDistanceCm);
-            m_travelStartCm   = m_rampUpStartCm + ramp_up_dist;
-            m_rampDownStartCm = m_maxTotalDistanceCm - ramp_down_dist;
-        }
     }
 }
 
@@ -827,7 +809,7 @@ void   DriveMotorCalculator::validateIntegerity() const {
             assert(m_rampUpStartCm <= m_travelStartCm);
 
             if ((m_zonesRequired & s_CalcZoneStartUp) == s_CalcZoneStartUp) {
-                assert(m_rampUpStartCm <= s_StartUpDistanceCm);
+                assert(m_rampUpStartCm == s_StartUpDistanceCm);
             }
             else {
                 assert(m_rampUpStartCm == 0);
