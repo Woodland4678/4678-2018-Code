@@ -303,8 +303,8 @@ bool ManipulatorArm::fineMovement(double joyX, double joyY)
 			tarX += FINECONTROLBOXSIZE * joyX;
 			tarY += FINECONTROLBOXSIZE * joyY;
 
-			frc::SmartDashboard::PutNumber("Target X", tarX);
-			frc::SmartDashboard::PutNumber("Target Y", tarY);
+			frc::SmartDashboard::PutNumber("Target X", currX);
+			frc::SmartDashboard::PutNumber("Target Y", currY);
 
 			//Check limits
 			if(tarX > 26)
@@ -335,7 +335,7 @@ bool ManipulatorArm::fineMovement(double joyX, double joyY)
 			ShoulderDeg = (angShoulder * 180) / M_PI;
 
 			//Check for negative
-			if((tarX) < 0)
+			if((currX) < 0)
 				{
 				ShoulderDeg = (90 - std::abs(ShoulderDeg)) + 90;
 				elbowDeg *= -1;
@@ -830,7 +830,7 @@ void ManipulatorArm::updateEndEffector()
 	//Lights
 	if ((endEffectorX > 28) || (endEffectorX < -28))
 		{
-		if ((endEffectorX > 32) || (endEffectorX < -32))
+		if ((endEffectorX > 34) || (endEffectorX < -34))
 			{
 			lightShowType = 1; //Outside boundary
 			posOutTar = targetPos;

@@ -36,11 +36,14 @@ void moveArm::Initialize() {
 
 // Called repeatedly when this Command is scheduled to run
 void moveArm::Execute() {
+	frc::SmartDashboard::PutNumber("current", Robot::manipulatorArm->currPos);
+					frc::SmartDashboard::PutNumber("target", Robot::manipulatorArm->targetPos);
 	switch(m_sender){
 		case 0: //No button pressed, POV and Joystick controls here
 			{
 			//What positions are we allowing?
-			if((Robot::manipulatorArm->currPos < 1)||(Robot::manipulatorArm->currPos > 4))
+
+			if((Robot::manipulatorArm->targetPos < 1)||(Robot::manipulatorArm->targetPos > 4))
 				{
 				frc::SmartDashboard::PutBoolean("Fine Motion Control", false);
 				return;
@@ -72,6 +75,7 @@ void moveArm::Execute() {
 			done = Robot::manipulatorArm->moveTo(11);
 			break;
 		case 2: //Scale Low
+
 			if(back)
 				done = Robot::manipulatorArm->moveTo(4);
 			else
