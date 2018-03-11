@@ -52,7 +52,7 @@ void AutonomousCommand::Initialize() {
 
 	Robot::driveTrain->shiftUp();
 
-	AutoScenarioEnum scenario_select = AutoScenario_Station1_SwitchLeft;
+	AutoScenarioEnum scenario_select = AutoScenario_Station1_ScaleRight;
 
 //	printf("AutonomousCommand::Initialize(), station=%d, switch_side=%d, scale_side=%d, objective=%d, scenario_select=%d\n",
 //			station, switch_side, scale_side, objective, scenario_select);

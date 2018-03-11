@@ -47,6 +47,8 @@ OI::OI() {
     operatorBtn9_Back_Home->WhenPressed(new moveArm(9));
     operatorBtn8_RTrigger_GrabCube.reset(new frc::JoystickButton(operate.get(), 8));
     operatorBtn8_RTrigger_GrabCube->WhenPressed(new GrabCube());
+    operatorBtn7_LTrigger_Release.reset(new frc::JoystickButton(operate.get(), 7));
+    operatorBtn7_LTrigger_Release->WhenPressed(new ReleaseCube());
     operatorBtn6_RBump_Pickup.reset(new frc::JoystickButton(operate.get(), 6));
     operatorBtn6_RBump_Pickup->WhenPressed(new moveArm(6));
     operatorBtn4_Y_ScaleHigh.reset(new frc::JoystickButton(operate.get(), 4));
@@ -59,10 +61,6 @@ OI::OI() {
     operatorBtn1_X_Carry->WhenPressed(new moveArm(1));
     driver.reset(new frc::Joystick(0));
     
-    driverBtn8_RTrigger_GrabCube.reset(new frc::JoystickButton(driver.get(), 8));
-    driverBtn8_RTrigger_GrabCube->WhenPressed(new GrabCube());
-    driverBtn7_LTrigger_Release.reset(new frc::JoystickButton(driver.get(), 7));
-    driverBtn7_LTrigger_Release->WhenPressed(new ReleaseCube());
     driverBtn4_Y_ToggleIntakeClamp.reset(new frc::JoystickButton(driver.get(), 4));
     driverBtn4_Y_ToggleIntakeClamp->WhenPressed(new ToggleIntakeClamp());
     driverBtn10_Start_IntakeWheelsStop.reset(new frc::JoystickButton(driver.get(), 10));
@@ -79,6 +77,8 @@ OI::OI() {
     driverBtn2_A_LowerIntake->WhenPressed(new LowerIntake());
     driverBtn3_B_RaiseIntake.reset(new frc::JoystickButton(driver.get(), 3));
     driverBtn3_B_RaiseIntake->WhenPressed(new RaiseIntake());
+    driverBtn8.reset(new frc::JoystickButton(driver.get(), 8));
+    driverBtn8->WhenPressed(new FindCubes());
 
     // SmartDashboard Buttons
     frc::SmartDashboard::PutData("GrabCube", new GrabCube());
