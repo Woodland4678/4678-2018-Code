@@ -293,7 +293,7 @@ void Lidar::Periodic() {
 									for(cabins = 0;cabins < 16;cabins++)
 										{ // process the 16 cabins
 										caboff = 4+cabins * 5; // offset to data start for this cabin
-										dist1 = (payload[caboff] >> 2) + ((int)payload[caboff+1] << 8); // distance value
+										dist1 = (payload[caboff] >> 2) + ((int)payload[caboff+1] << 6); // distance value
 										// Documentation on angle data is not correct.  [caboff] may be msbit, may be lsbits.  Not sure.
 										// going with the assumption that they're bits 4 and 5 and that [caboff + 4] is bits 0-3
 										// Note that these are signed 5 bit values. 0b11111 = -1, 0x10000 = -16.
@@ -302,7 +302,7 @@ void Lidar::Periodic() {
 										delta1 = ((payload[caboff+1] & 0x03) << 4) + (payload[caboff+4] & 0x0F); // 5 bits of angle delta
 										if (delta1 >= 16)
 											delta1-=32; // these are negative values 0b11111 (31) is actually -1.
-										dist2 = (payload[caboff + 2] >> 2) + ((int)payload[caboff+3] << 8); // distance value
+										dist2 = (payload[caboff + 2] >> 2) + ((int)payload[caboff+3] << 6); // distance value
 										delta2 = ((payload[caboff+3] & 0x03) << 4) + ((payload[caboff+4] & 0xF0) >> 4); // 5 bits of angle delta
 										if (delta2 >= 16)
 											delta2-=32;
@@ -793,6 +793,43 @@ int Lidar::findCubes()
 				printf("Done\n");
 				return 1;
 				}
+			break;
+		}
+	return 0;
+	}
+
+int Lidar::squareUpCube()
+	{
+	switch(cubeSquaringCase)
+		{
+		case 0:
+			//Check if the intake is in position
+			if(Robot::intake->Status.position != Robot::intake->IntakePositions::GetCube)
+				return 2;
+			//Get readings
+			readLidar();
+			cubeSquaringCase++;
+			break;
+		case 1:
+			//Check for completion
+			if(readComplete())
+				{
+				cubeSquaringCase++;
+				}
+			break;
+		case 2:
+			filterData(true, 80,80,50,500);
+			FindLines();
+			//Other then the first and last line, what else do we have?
+			//	If there is no large line in front
+			//		or if there isn't enough lines then there is no cube
+			//	If there is one really large line then it is most likely
+			//		flush with the robot
+			//	If there is many lines
+			//		Find the closest one
+			//		Which ever side of the x axis its one is
+			break;
+		case 3:
 			break;
 		}
 	return 0;

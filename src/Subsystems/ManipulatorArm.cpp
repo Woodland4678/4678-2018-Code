@@ -409,6 +409,10 @@ bool ManipulatorArm::moveTo(int pos, double addShTime, double addElTime)
 	switch(moveCase)
 		{
 		case 0:
+			initMovement();
+			moveCase = 1;
+			break;
+		case 1:
 			{
 			targetPos = pos;
 			//Pre calculations here, timing and shoulder movements
@@ -544,10 +548,10 @@ bool ManipulatorArm::moveTo(int pos, double addShTime, double addElTime)
 				shoulderMovement3 = true;
 				}
 
-			moveCase += 1;
+			moveCase = 2;
 			}
 			break;
-		case 1:
+		case 2:
 			{
 			updateArm();
 			double currTime = frc::Timer::GetFPGATimestamp() - origTimeStamp;
@@ -585,7 +589,7 @@ bool ManipulatorArm::moveTo(int pos, double addShTime, double addElTime)
 			//Movement Check
 			if(shoulderMovement && elbowMovement && wristMovement)
 				{
-				moveCase++;
+				moveCase = 0;
 				prevPos = currPos;
 				currPos = pos;
 				return true;

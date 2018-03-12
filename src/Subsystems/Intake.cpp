@@ -114,6 +114,7 @@ bool Intake::moveTo(int position)
 		{
 		case 0:
 			stopWheels();
+			initMovement();
 			Status.position = 2; //means we are moving
 			moveCase=1;
 			break;
@@ -147,6 +148,7 @@ bool Intake::moveTo(int position)
 			Status.position = position;
 			if(position == IntakePositions::GetCube)
 				spinForward(WHEELSPEEDHIGH);
+			moveCase = 0;
 			return true;
 			break;
 		case 3:
