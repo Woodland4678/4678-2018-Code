@@ -42,20 +42,10 @@ void moveArm::Execute() {
 	switch(m_sender){
 		case 0: //No button pressed, POV and Joystick controls here
 			{
-			//What positions are we allowing?
-			if((Robot::manipulatorArm->targetPos < 1)||(Robot::manipulatorArm->targetPos > 4))
-				{
-				frc::SmartDashboard::PutBoolean("Fine Motion Control", false);
-				return;
-				}
-			frc::SmartDashboard::PutBoolean("Fine Motion Control", true);
-
 			double joyX = Robot::oi->getdriver()->GetRawAxis(2);
 			double joyY = Robot::oi->getdriver()->GetRawAxis(3);
 
-			//Check if there was enough of a change in the joystick to move the arm
-			//	we don't want to be constantly telling the arm to be moving
-			if((std::abs(joyX-0) < 0.05)&&(std::abs(joyY-0) < 0.05))
+			if((std::abs(joyX-0) < 0.07)&&(std::abs(joyY-0) < 0.07))
 				{
 				frc::SmartDashboard::PutBoolean("Fine Motion Override", false);
 				Robot::manipulatorArm->fineMovingGoing = 0;
@@ -65,6 +55,18 @@ void moveArm::Execute() {
 				frc::SmartDashboard::PutBoolean("Fine Motion Override", true);
 				Robot::manipulatorArm->fineMovingGoing = 1;
 				}
+
+			//What positions are we allowing?
+			if((Robot::manipulatorArm->targetPos < 1)||(Robot::manipulatorArm->targetPos > 4))
+				{
+				frc::SmartDashboard::PutBoolean("Fine Motion Control", false);
+				return;
+				}
+			frc::SmartDashboard::PutBoolean("Fine Motion Control", true);
+
+			//Check if there was enough of a change in the joystick to move the arm
+			//	we don't want to be constantly telling the arm to be moving
+
 			Robot::manipulatorArm->fineMoveCase = 0;
 			moveInit = Robot::manipulatorArm->fineMovement(joyX,-joyY);
 			Robot::manipulatorArm->fineMoveCase = 1;

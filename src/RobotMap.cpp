@@ -31,6 +31,7 @@ std::shared_ptr<WPI_VictorSPX> RobotMap::manipulatorArmshoulderSlave;
 std::shared_ptr<WPI_VictorSPX> RobotMap::manipulatorArmelbowSlave;
 std::shared_ptr<frc::DoubleSolenoid> RobotMap::manipulatorArmclaw;
 std::shared_ptr<frc::Relay> RobotMap::manipulatorArmindicator;
+std::shared_ptr<frc::DigitalInput> RobotMap::manipulatorArmcubeDetector;
 std::shared_ptr<WPI_TalonSRX> RobotMap::intakelifter;
 std::shared_ptr<frc::SpeedController> RobotMap::intakerightWheels;
 std::shared_ptr<frc::SpeedController> RobotMap::intakeleftWheels;
@@ -85,6 +86,9 @@ void RobotMap::init() {
     
     manipulatorArmindicator.reset(new frc::Relay(0));
     lw->AddActuator("ManipulatorArm", "indicator", manipulatorArmindicator);
+    
+    manipulatorArmcubeDetector.reset(new frc::DigitalInput(4));
+    lw->AddSensor("ManipulatorArm", "cubeDetector", manipulatorArmcubeDetector);
     
     intakelifter.reset(new WPI_TalonSRX(1));
     

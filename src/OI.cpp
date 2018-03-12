@@ -88,7 +88,6 @@ OI::OI() {
     frc::SmartDashboard::PutData("ShiftUp", new ShiftUp());
     frc::SmartDashboard::PutData("LowerIntake", new LowerIntake());
     frc::SmartDashboard::PutData("RaiseIntake", new RaiseIntake());
-    frc::SmartDashboard::PutData("FindCubes", new FindCubes());
     frc::SmartDashboard::PutData("Autonomous Command", new AutonomousCommand());
     frc::SmartDashboard::PutData("IntakeWheelsIn", new IntakeWheelsIn());
     frc::SmartDashboard::PutData("IntakeWheelsOut", new IntakeWheelsOut());

@@ -41,6 +41,7 @@ public:
 	static std::shared_ptr<WPI_VictorSPX> manipulatorArmelbowSlave;
 	static std::shared_ptr<frc::DoubleSolenoid> manipulatorArmclaw;
 	static std::shared_ptr<frc::Relay> manipulatorArmindicator;
+	static std::shared_ptr<frc::DigitalInput> manipulatorArmcubeDetector;
 	static std::shared_ptr<WPI_TalonSRX> intakelifter;
 	static std::shared_ptr<frc::SpeedController> intakerightWheels;
 	static std::shared_ptr<frc::SpeedController> intakeleftWheels;
