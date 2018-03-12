@@ -113,6 +113,7 @@ void Robot::TeleopPeriodic() {
 	frc::SmartDashboard::PutNumber("leftSpeed", Robot::driveTrain->getLeftSpeed());
 
 	manipulatorArm->updateArm();
+	intake->updateEndEffector();
 	/*if(!done)
 		{
 		done = lidar->findCubes();

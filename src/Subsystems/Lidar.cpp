@@ -293,7 +293,7 @@ void Lidar::Periodic() {
 									for(cabins = 0;cabins < 16;cabins++)
 										{ // process the 16 cabins
 										caboff = 4+cabins * 5; // offset to data start for this cabin
-										dist1 = (payload[caboff] >> 2) + ((int)payload[caboff+1] << 8); // distance value
+										dist1 = (payload[caboff] >> 2) + ((int)payload[caboff+1] << 6); // distance value
 										// Documentation on angle data is not correct.  [caboff] may be msbit, may be lsbits.  Not sure.
 										// going with the assumption that they're bits 4 and 5 and that [caboff + 4] is bits 0-3
 										// Note that these are signed 5 bit values. 0b11111 = -1, 0x10000 = -16.
@@ -302,7 +302,7 @@ void Lidar::Periodic() {
 										delta1 = ((payload[caboff+1] & 0x03) << 4) + (payload[caboff+4] & 0x0F); // 5 bits of angle delta
 										if (delta1 >= 16)
 											delta1-=32; // these are negative values 0b11111 (31) is actually -1.
-										dist2 = (payload[caboff + 2] >> 2) + ((int)payload[caboff+3] << 8); // distance value
+										dist2 = (payload[caboff + 2] >> 2) + ((int)payload[caboff+3] << 6); // distance value
 										delta2 = ((payload[caboff+3] & 0x03) << 4) + ((payload[caboff+4] & 0xF0) >> 4); // 5 bits of angle delta
 										if (delta2 >= 16)
 											delta2-=32;
@@ -445,8 +445,8 @@ void Lidar::convertToXY()
 		if(!lidat[i].dist)
 			continue;
 		double rad = M_PI * ((double)lidat[i].angle / 64.0) / 180;
-		lidatXY[j].x = ((((double)lidat[i].dist / 4.0) * std::sin(rad)));
-		lidatXY[j].y = -((((double)lidat[i].dist / 4.0) * std::cos(rad)));
+		lidatXY[j].x = ((((double)lidat[i].dist) * std::sin(rad)));
+		lidatXY[j].y = -((((double)lidat[i].dist) * std::cos(rad)));
 		printf(" %i,%i",lidatXY[j].x,lidatXY[j].y);
 		j++;
 		}
@@ -477,8 +477,8 @@ void Lidar::filterData(bool convertXY, double leftLimit, double rightLimit, doub
 		if(convertXY)
 			{
 			double rad = M_PI * (lidat[i].angle / 64.0) / 180;
-			lidatXY[n].x = (std::round((lidat[i].dist / 4.0) * std::sin(rad)));
-			lidatXY[n].y = -(std::round((lidat[i].dist / 4.0) * std::cos(rad)));
+			lidatXY[n].x = (std::round((lidat[i].dist) * std::sin(rad)));
+			lidatXY[n].y = -(std::round((lidat[i].dist) * std::cos(rad)));
 			}
 		n++;
 		}

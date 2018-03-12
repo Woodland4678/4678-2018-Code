@@ -156,8 +156,8 @@ ManipulatorArm::ManipulatorArm() : frc::Subsystem("ManipulatorArm") {
     positions[1][2] = 15;    //e:-99     r:-60
     
     //Scale front Min
-    positions[2][0] = 116;   //e:1660    r:116
-    positions[2][1] = 44.5;  //e:-1096   r:-71
+    positions[2][0] = 122;   //e:1660    r:116
+    positions[2][1] = 36;  //e:-1096   r:-71
     positions[2][2] = 14;    //e:687     r:-30
     
     //Scale back Max
@@ -166,8 +166,8 @@ ManipulatorArm::ManipulatorArm() : frc::Subsystem("ManipulatorArm") {
     positions[3][2] = 165;   //e:3103    r:60
     
     //scale back min
-    positions[4][0] = 64;    //e:-6042   r:64
-    positions[4][1] = 135;   //e:-7272   r:71 
+    positions[4][0] = 57;    //e:-6042   r:64
+    positions[4][1] = 142;   //e:-7272   r:71
     positions[4][2] = 165;   //e:2303    r:30
     
     //Pick up cube
@@ -340,7 +340,7 @@ bool ManipulatorArm::fineMovement(double joyX, double joyY)
 			ShoulderDeg = (angShoulder * 180) / M_PI;
 
 			//Check for negative
-			if((tarX) < 0)
+			if((currX) < 0)
 				{
 				ShoulderDeg = (90 - std::abs(ShoulderDeg)) + 90;
 				elbowDeg *= -1;
@@ -366,8 +366,8 @@ bool ManipulatorArm::fineMovement(double joyX, double joyY)
 				moveCase = 2;
 
 			//How much time?
-			shTime = 1;
-			elTime = 1;
+			shTime = 1.5;
+			elTime = 1.5;
 
 			initMovement();
 
@@ -832,7 +832,7 @@ void ManipulatorArm::updateEndEffector()
 	frc::SmartDashboard::PutNumber("End Effector Y", endEffectorY);
 
 	//Check intake
-	if((wristSeg.posX > 0) && (wristSeg.posX < 14))
+	if((wristSeg.posX > 0) && (wristSeg.posY < 14))
 		frc::SmartDashboard::PutBoolean("Intake moveable", false);
 	else
 		frc::SmartDashboard::PutBoolean("Intake moveable", true);
@@ -840,7 +840,7 @@ void ManipulatorArm::updateEndEffector()
 	//Lights
 	if ((endEffectorX > 28) || (endEffectorX < -28))
 		{
-		if ((endEffectorX > 32) || (endEffectorX < -32))
+		if ((endEffectorX > 34) || (endEffectorX < -34))
 			{
 			lightShowType = 1; //Outside boundary
 			posOutTar = targetPos;

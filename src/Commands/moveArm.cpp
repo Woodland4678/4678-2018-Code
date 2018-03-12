@@ -43,7 +43,7 @@ void moveArm::Execute() {
 		case 0: //No button pressed, POV and Joystick controls here
 			{
 			//What positions are we allowing?
-			if((Robot::manipulatorArm->currPos < 1)||(Robot::manipulatorArm->currPos > 4))
+			if((Robot::manipulatorArm->targetPos < 1)||(Robot::manipulatorArm->targetPos > 4))
 				{
 				frc::SmartDashboard::PutBoolean("Fine Motion Control", false);
 				return;
