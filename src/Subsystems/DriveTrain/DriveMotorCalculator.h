@@ -9,7 +9,6 @@
 #define DRIVE_MOTOR_CALCULATOR_H_
 
 // SYSTEM INCLUDES
-//#include <boost/shared_ptr.hpp>         // test harness version
 #include <memory>                     // robot code version
 #include <string>
 
@@ -33,7 +32,6 @@ enum CalculatorStateEnum
 class DriveMotorCalculator;
 
 // TYPEDEFS
-//typedef boost::shared_ptr<DriveMotorCalculator>     DriveCalculatorPtrType;     // test harness version
 typedef std::shared_ptr<DriveMotorCalculator>    DriveCalculatorPtrType;     // robot code version
 
 // CLASS DECLARATION
@@ -85,6 +83,8 @@ private:
 
     void  setDefaultZonePowers();
     void  setDefaultZoneStartPoints();
+
+    bool  checkIfStopped(int leftEncoder, int rightEncoder);
     void  calculateTravelDistance(float &leftTravelCm, float &rightTravelCm, int leftEncoder, int rightEncoder) const;
 
     CalculatorStateEnum  getMotorState(float leftTravelCm, float rightTravelCm) const;
@@ -122,9 +122,11 @@ private:
     CalculatorStateEnum   m_previousState;    // Tracks the previous motor state value so can identify when a state change happens
     StateObserverPtrType  m_observerPtr;      // Who to notify for state changes
     unsigned int          m_zonesRequired;    // What zones are required for the calculations
+    float  m_percentDone;				// what percent of the total distance the robot has covered
 
-    float  m_percentDone;				// what percent of the total distance the robot has gone
-
+    int    m_prevLeftEncoder;           // value of the left encoder last time getMotorSpeeds was called
+    int    m_prevRightEncoder;          // value of the right encoder last time getMotorSpeeds was called
+    int    m_stoppedCnt;                // counter to track when encoder values don't change
 };
 
 #endif /* DRIVE_MOTOR_CALCULATOR_H_ */
