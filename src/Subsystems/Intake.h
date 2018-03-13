@@ -67,6 +67,7 @@ private:
 	int intakeState;
 	int positions[2];
 	int moveOverridePos;
+	bool moveOverride;
 public:
 
 	enum IntakeWheelSpeed {
@@ -106,6 +107,7 @@ public:
 	double convertRelAngleToEncoder(tpArmSegment *Seg, double angle);
 	void updateEndEffector();
 	bool moveTo(int position);
+	int checkPosition();
 
 	tpStatus Status;
 	tpArmSegment lifterSeg;

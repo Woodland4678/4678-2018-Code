@@ -56,8 +56,8 @@ Intake::Intake() : frc::Subsystem("Intake") {
 	lifterSeg.posX = 12.5;
 	lifterSeg.posY = -4.875;
 	lifterSeg.length = 18.68; //inches
-	lifterSeg.convSlope = 0.027388923;
-	lifterSeg.convIntercept = 164.335362;
+	lifterSeg.convSlope = -0.033161385;
+	lifterSeg.convIntercept = 198.96831245;
 
 	//Status
 	Status.position = IntakePositions::InRobot;
@@ -113,29 +113,22 @@ bool Intake::moveTo(int position)
 	switch(moveCase)
 		{
 		case 0:
-			stopWheels();
 			initMovement();
+			stopWheels();
 			Status.position = 2; //means we are moving
 			moveCase=1;
 			break;
 		case 1:
-		case 4:
 			{
 			double currTime = frc::Timer::GetFPGATimestamp() - origTimeStampintake;
 
 			//Check if safe!
-			if(moveCase != 4) //Has this issue been dealt with already?
+			Robot::manipulatorArm->updateArm();
+			if((Robot::manipulatorArm->wristSeg.posX > 0) && (Robot::manipulatorArm->wristSeg.posY < 14))
 				{
-				Robot::manipulatorArm->updateArm();
-				if((Robot::manipulatorArm->wristSeg.posX > 0) && (Robot::manipulatorArm->wristSeg.posY < 14))
-					{
-					moveCase = 3;
-					return false;
-					}
-
+				moveCase = 2; //Lets just not move until the arm is out of the way
+				return false;
 				}
-			else
-				position = moveOverridePos;
 
 			if(lifterGoToPosition(lifterStartPos,positions[position],currTime,1))
 				moveCase = 2;
@@ -143,34 +136,11 @@ bool Intake::moveTo(int position)
 			break;
 			}
 		case 2:
-			if(moveCase == 4)
-				position = moveOverridePos;
 			Status.position = position;
 			if(position == IntakePositions::GetCube)
 				spinForward(WHEELSPEEDHIGH);
 			moveCase = 0;
 			return true;
-			break;
-		case 3:
-			//This is called when it is determined that the arm is in danger of being hit
-			updateEndEffector();
-			//What side of the arm are we?
-			if(endEffectorX > Robot::manipulatorArm->wristSeg.posX)
-				{
-				//Outside
-				moveCase = 4;
-				if(position == IntakePositions::InRobot)
-					moveOverridePos = IntakePositions::GetCube; //We need to go back out to avoid the arm
-				}
-			else
-				{
-				//Inside
-				moveCase = 4;
-				if(position == IntakePositions::GetCube)
-					moveOverridePos = IntakePositions::InRobot; //We need to go back in to avoid the arm
-				}
-			//Re-initialize? we may not need to
-			//initMovement();
 			break;
 		}
 	return false;
@@ -183,6 +153,7 @@ void Intake::initMovement()
 	moveDone = false;
 	moveCase = 0;
 	moveOverridePos = 0;
+	moveOverride = false;
 	}
 
 bool Intake::lifterGoToPosition(double start, double position, double current, double time)
@@ -210,14 +181,26 @@ double Intake::invSigmod(double end, double start, double mult, double offset, d
     return ((std::log(((end-start)/(pnt-start)) - 1) - offset)/(-mult));
     }
 
+int Intake::checkPosition()
+	{
+	Status.position = 2; //Unknown
+	if(std::abs(getLifterAngular() - 6000) < 500)
+		Status.position = IntakePositions::GetCube;
+	if(std::abs(getLifterAngular() - 572) < 500)
+		Status.position = IntakePositions::InRobot;
+	return Status.position;
+	}
+
 void Intake::updateEndEffector()
 	{
 	lifterSeg.encValue = lifter->GetSensorCollection().GetPulseWidthPosition();
+	frc::SmartDashboard::PutNumber("Intake Encoder", lifterSeg.encValue);
 	lifterSeg.relAngle = convertEncoderToRelAngle(&lifterSeg, lifterSeg.encValue);
 	lifterSeg.absAngle = lifterSeg.relAngle;
+	frc::SmartDashboard::PutNumber("Intake Angle", lifterSeg.absAngle);
 
-	endEffectorX = lifterSeg.posX + lifterSeg.length * cos(lifterSeg.absAngle * (180/M_PI));
-	endEffectorY = lifterSeg.posY + lifterSeg.length * sin(lifterSeg.absAngle * (180/M_PI));
+	endEffectorX = lifterSeg.posX + lifterSeg.length * cos(lifterSeg.absAngle * (M_PI/180));
+	endEffectorY = lifterSeg.posY + lifterSeg.length * sin(lifterSeg.absAngle * (M_PI/180));
 
 	frc::SmartDashboard::PutNumber("Intake End X", endEffectorX);
 	frc::SmartDashboard::PutNumber("Intake End Y", endEffectorY);
@@ -240,7 +223,7 @@ bool Intake::release(){
 }
 
 bool Intake::grab(){
-	if (Status.position != IntakePositions::GetCube)
+	if(checkPosition() != IntakePositions::GetCube)
 		return false;
 	Status.Gribber = IntakeGribber::Close;
 	releaser->Set(true);
@@ -265,7 +248,7 @@ void Intake::stopWheels(){
 }
 
 bool Intake::spinForward(double power) {
-	if(Status.position != IntakePositions::GetCube)
+	if(checkPosition() != IntakePositions::GetCube)
 		return false;
 	Status.WheelSpeed = power;
 	Status.WheelDirection = IntakeWheelDirection::DirectionIn;

@@ -30,7 +30,7 @@ void moveArm::Initialize() {
 		return;
 	}
 	done = false;
-	Robot::manipulatorArm->initMovement();
+	//Robot::manipulatorArm->initMovement();
 	if(Robot::oi->getoperate()->GetRawButton(5))
 		back = true;
 	else
@@ -50,8 +50,9 @@ void moveArm::Execute() {
 				}
 			frc::SmartDashboard::PutBoolean("Fine Motion Control", true);
 
-			double joyX = Robot::oi->getdriver()->GetRawAxis(2);
-			double joyY = Robot::oi->getdriver()->GetRawAxis(3);
+			double joyX = Robot::oi->getoperate()->GetRawAxis(2);
+			double joyY = Robot::oi->getoperate()->GetRawAxis(3);
+			double wristMove = Robot::oi->getoperate()->GetRawAxis(1);
 
 			//Check if there was enough of a change in the joystick to move the arm
 			//	we don't want to be constantly telling the arm to be moving
@@ -65,10 +66,9 @@ void moveArm::Execute() {
 				frc::SmartDashboard::PutBoolean("Fine Motion Override", true);
 				Robot::manipulatorArm->fineMovingGoing = 1;
 				}
-			Robot::manipulatorArm->fineMoveCase = 0;
 			moveInit = Robot::manipulatorArm->fineMovement(joyX,-joyY);
-			Robot::manipulatorArm->fineMoveCase = 1;
-			moveInit = Robot::manipulatorArm->fineMovement(joyX,-joyY);
+			if(std::abs(wristMove-0) > 0.05)
+				Robot::manipulatorArm->moveWrist(wristMove);
 			break;
 			}
 		case 1: //Carry Position

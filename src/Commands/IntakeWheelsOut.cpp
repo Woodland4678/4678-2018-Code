@@ -29,7 +29,7 @@ void IntakeWheelsOut::Initialize() {
 
 // Called repeatedly when this Command is scheduled to run
 void IntakeWheelsOut::Execute() {
-	Robot::intake->spinReverse(0.5);
+	Robot::intake->spinReverse(0.7);
 	done = true;
 }
 

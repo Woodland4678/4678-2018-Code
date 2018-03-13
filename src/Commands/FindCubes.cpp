@@ -35,23 +35,36 @@ void FindCubes::Execute() {
 		{
 		Robot::lidar->cubeFindCase = 0;
 		doneGo = true;
+		return;
 		}
-	if (Robot::lidar->findCubes() == 1)
-		doneGo = true;
-	/*switch(getCubeCase)
+	switch(getCubeCase)
 		{
 		case 0:
+			getCubeCase = 3;
 			//Is the arm in the way? Is the intake already out?
+			if(Robot::intake->checkPosition() != Robot::intake->IntakePositions::GetCube)
+				getCubeCase = 2; //Move intake out
+
 			//	If so, initialize the arm movement
+			if((Robot::manipulatorArm->wristSeg.posX > 0) && (Robot::manipulatorArm->wristSeg.posY < 14))
+				getCubeCase = 1; //Move arm out of the way
 			break;
 		case 1:
 			//Move arm out of the way
+			if(Robot::manipulatorArm->moveTo(11))
+				getCubeCase = 0; //Go back to case 0 to check intake
 			break;
 		case 2:
 			//Move intake out of the robot
+			if(Robot::intake->moveTo(Robot::intake->IntakePositions::GetCube))
+				getCubeCase = 0;
 			break;
 		case 3:
+			{
+			//At this point we know that the intake is out and the arm is out of the way
 			//Find the nearest cube
+			//int value =
+			}
 			break;
 		case 4:
 			//Move to the cube if one is found
@@ -74,7 +87,7 @@ void FindCubes::Execute() {
 		case 8:
 			//Bring in the intake
 			break;
-		}*/
+		}
 }
 
 // Make this return true when this Command no longer needs to run execute()
