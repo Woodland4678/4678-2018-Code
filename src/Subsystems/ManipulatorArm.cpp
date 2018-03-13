@@ -346,8 +346,115 @@ bool ManipulatorArm::fineMovement(double joyX, double joyY)
 	//Check for negative
 	if((currX) < 0)
 		{
+<<<<<<< HEAD
 		ShoulderDeg = (90 - std::abs(ShoulderDeg)) + 90;
 		elbowDeg *= -1;
+=======
+		case 0:
+			{
+			//Get current end point
+			double elbPosX = shoulderSeg.length * std::cos(positions[targetPos][0] * (M_PI/180));
+			double elbPosY = shoulderSeg.length * std::sin(positions[targetPos][0] * (M_PI/180));
+
+			double currX = elbPosX + elbowSeg.length * std::cos(positions[targetPos][1] * (M_PI/180));
+			double currY = elbPosY + elbowSeg.length * std::sin(positions[targetPos][1] * (M_PI/180));
+			//Calculate Target Position
+			double tarX = std::abs(currX);
+			double tarY = std::abs(currY);
+
+			tarX += FINECONTROLBOXSIZE * joyX;
+			tarY += FINECONTROLBOXSIZE * joyY;
+
+			frc::SmartDashboard::PutNumber("Target X", tarX);
+			frc::SmartDashboard::PutNumber("Target Y", tarY);
+
+			//Check limits
+			if(tarX > 26)
+				tarX = 26;
+			if(tarX < -26)
+				tarX = -26;
+			if(tarY > 77)
+				tarY = 77;
+			if(tarY < 50)
+				tarY = 50;
+			if((tarX < 1)&&(tarY > 50))
+				tarX = 1;
+
+			//Inverse Kitematics
+			//Elbow
+			double casBrakets = ((std::pow(tarX,2) + std::pow(tarY,2)) - std::pow(37,2) - std::pow(40,2))/(-2*(37)*(40));
+			//Check value incase it is too far
+			if((casBrakets < -1)||(casBrakets > 1))
+				casBrakets = std::round(casBrakets);
+			frc::SmartDashboard::PutNumber("El cos Braket", casBrakets);
+			double angElbow = M_PI - std::acos(casBrakets);
+			frc::SmartDashboard::PutNumber("El radians", angElbow);
+			//Shoulder
+			double angShoulder = std::atan(tarY / tarX) - std::atan((40 * std::sin(-angElbow))/(37 + 40 * std::cos(-angElbow)));
+			frc::SmartDashboard::PutNumber("Sh radians", angShoulder);
+			//Convert radians to degrees
+			elbowDeg = (angElbow * 180) / M_PI;
+			ShoulderDeg = (angShoulder * 180) / M_PI;
+
+			//Check for negative
+			if((currX) < 0)
+				{
+				ShoulderDeg = (90 - std::abs(ShoulderDeg)) + 90;
+				elbowDeg *= -1;
+				}
+
+			if(ShoulderDeg > 127)
+				ShoulderDeg = 127;
+			if(ShoulderDeg < 48)
+				ShoulderDeg = 48;
+			if(elbowDeg > 164)
+				elbowDeg = 164;
+			if(elbowDeg < -164)
+				elbowDeg = -164;
+
+			elbowDeg -= ShoulderDeg;
+			elbowDeg *= -1;
+
+			//Lets just do some quick tests to make sure we aren't attempting to move
+			//	too far too quickly
+			if (std::abs(ShoulderDeg - shoulderSeg.absAngle) > 20)
+				moveCase = 2;
+			if (std::abs(elbowDeg - elbowSeg.absAngle) > 20)
+				moveCase = 2;
+
+			//How much time?
+			shTime = 1.5;
+			elTime = 1.5;
+
+			initMovement();
+
+			frc::SmartDashboard::PutNumber("Shoulder Degree", ShoulderDeg);
+			frc::SmartDashboard::PutNumber("Elbow Degree", elbowDeg);
+
+			fineMoveCase++;
+			break;
+			}
+		case 1:
+			{
+			updateArm();
+			double currTime = frc::Timer::GetFPGATimestamp() - origTimeStamp;
+
+			if (!shoulderMovement)
+				shoulderMovement = shoulderGoToPosition(shoulderStartPos,ShoulderDeg,currTime,shTime);
+			if (!elbowMovement)
+				elbowMovement = elbowGoToPosition(elbowStartPos,elbowDeg,currTime,elTime);
+			//if (!wristMovement)
+			//	wristMovement = wristGoToPosition(wristStartPos,positions[pos][2],currTime,wrTime);
+
+			//Movement Check
+			if(shoulderMovement && elbowMovement)
+				{
+				fineMoveCase++;
+				return true;
+				}
+			}
+			break;
+>>>>>>> fb786887f6437816797b8d423ce4be2f7600107a
 		}
 
 	if(ShoulderDeg > 127)
@@ -387,11 +494,14 @@ bool ManipulatorArm::moveTo(int pos, double addShTime, double addElTime)
 	switch(moveCase)
 		{
 		case 0:
+<<<<<<< HEAD
 			initMovement();
 			targetPos = pos;
 			moveCase = 1;
 			break;
 		case 1:
+=======
+>>>>>>> fb786887f6437816797b8d423ce4be2f7600107a
 			{
 			//Pre calculations here, timing and shoulder movements
 			//Timing
@@ -443,9 +553,15 @@ bool ManipulatorArm::moveTo(int pos, double addShTime, double addElTime)
 					}
 				if((std::abs(targetZone - currentZone)) == 1)
 					{
+<<<<<<< HEAD
 					//shTime += 0.3;
 					//elTime += 0.3;
 					//wrTime += 0.3;
+=======
+					shTime += 0.3;
+					elTime += 0.3;
+					wrTime += 0.3;
+>>>>>>> fb786887f6437816797b8d423ce4be2f7600107a
 					}
 				if(currentZone != 1)
 					{
@@ -532,10 +648,10 @@ bool ManipulatorArm::moveTo(int pos, double addShTime, double addElTime)
 				shoulderMovement3 = true;
 				}
 
-			moveCase = 2;
+			moveCase += 1;
 			}
 			break;
-		case 2:
+		case 1:
 			{
 			updateArm();
 			double currTime = frc::Timer::GetFPGATimestamp() - origTimeStamp;
@@ -573,6 +689,10 @@ bool ManipulatorArm::moveTo(int pos, double addShTime, double addElTime)
 			//Movement Check
 			if(shoulderMovement && elbowMovement && wristMovement)
 				{
+<<<<<<< HEAD
+=======
+				moveCase++;
+>>>>>>> fb786887f6437816797b8d423ce4be2f7600107a
 				prevPos = currPos;
 				currPos = pos;
 				pickupCount = 0;

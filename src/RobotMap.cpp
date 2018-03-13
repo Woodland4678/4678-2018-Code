@@ -89,7 +89,11 @@ void RobotMap::init() {
     
     manipulatorArmcubeDetector.reset(new frc::DigitalInput(4));
     lw->AddSensor("ManipulatorArm", "cubeDetector", manipulatorArmcubeDetector);
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> fb786887f6437816797b8d423ce4be2f7600107a
     intakelifter.reset(new WPI_TalonSRX(1));
     
     

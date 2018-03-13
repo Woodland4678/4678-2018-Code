@@ -48,6 +48,7 @@ Lidar::Lidar() : frc::Subsystem("Lidar") {
 	cubeSquaringCase = 0;
 	glob_lidar_may_run = 0;
 	doneGo = false;
+	prevtstamp = (int)(Timer::GetFPGATimestamp()*1000000); // get value in microseconds.
 
 }
 
@@ -364,11 +365,19 @@ void Lidar::Periodic() {
 					 // txcmd = 0;
 					 skcnt = 0; // use this to delay for a 100 count (2 seconds) to allow lidar to spin up.
 					 if (!logfile.is_open())
+<<<<<<< HEAD
 						 {
 						 now = localtime(&t);
 						 sprintf(buf,"/media/sdb1/LL%02d%02d%02d%02d%02d.txt",now->tm_year,now->tm_mon,now->tm_mday,now->tm_hour,now->tm_min);
 						 logfile.open(buf,std::ios::out | std::ios::binary);
 						 }
+=======
+					 	 {
+						 now = localtime(&t);
+						 sprintf(buf,"/media/sdb1/LL%02d%02d%02d%02d%02d.txt",now->tm_year,now->tm_mon,now->tm_mday,now->tm_hour,now->tm_min);
+						 logfile.open(buf,std::ios::out | std::ios::binary);
+					 	 }
+>>>>>>> fb786887f6437816797b8d423ce4be2f7600107a
 					 txseq++;
 					 }
 				 break;
@@ -421,7 +430,11 @@ void Lidar::Periodic() {
 				 break;
 			 case 9:
 				 if (glob_lidar_may_run == 0)
+<<<<<<< HEAD
 					 {
+=======
+				 	 {
+>>>>>>> fb786887f6437816797b8d423ce4be2f7600107a
 					 if (logfile.is_open())
 						 logfile.close();
 					 txseq = 0; // back to state 0 once lidar has been shut down.
@@ -467,8 +480,8 @@ void Lidar::convertToXY()
 		if(!lidat[i].dist)
 			continue;
 		double rad = M_PI * ((double)lidat[i].angle / 64.0) / 180;
-		lidatXY[j].x = ((((double)lidat[i].dist / 4.0) * std::sin(rad)));
-		lidatXY[j].y = -((((double)lidat[i].dist / 4.0) * std::cos(rad)));
+		lidatXY[j].x = ((((double)lidat[i].dist) * std::sin(rad)));
+		lidatXY[j].y = -((((double)lidat[i].dist) * std::cos(rad)));
 		printf(" %i,%i",lidatXY[j].x,lidatXY[j].y);
 		j++;
 		}
@@ -499,8 +512,8 @@ void Lidar::filterData(bool convertXY, double leftLimit, double rightLimit, doub
 		if(convertXY)
 			{
 			double rad = M_PI * (lidat[i].angle / 64.0) / 180;
-			lidatXY[n].x = (std::round((lidat[i].dist / 4.0) * std::sin(rad)));
-			lidatXY[n].y = -(std::round((lidat[i].dist / 4.0) * std::cos(rad)));
+			lidatXY[n].x = (std::round((lidat[i].dist) * std::sin(rad)));
+			lidatXY[n].y = -(std::round((lidat[i].dist) * std::cos(rad)));
 			}
 		n++;
 		}
@@ -819,6 +832,7 @@ int Lidar::findCubes()
 		}
 	return 0;
 	}
+<<<<<<< HEAD
 
 int Lidar::squareUpCube()
 	{
@@ -1012,6 +1026,8 @@ int Lidar::squareUpCube()
 		}
 	return 0;
 	}
+=======
+>>>>>>> fb786887f6437816797b8d423ce4be2f7600107a
 // Put methods for controlling this subsystem
 // here. Call these from Commands.
 
