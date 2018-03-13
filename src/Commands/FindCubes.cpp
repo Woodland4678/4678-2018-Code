@@ -63,7 +63,17 @@ void FindCubes::Execute() {
 			{
 			//At this point we know that the intake is out and the arm is out of the way
 			//Find the nearest cube
-			//int value =
+			int value = Robot::lidar->findCubes();
+			if(value == 1)
+				{
+				Robot::intake->grab();
+				getCubeCase = 4;
+				}
+			if(value == 2)
+				{
+				getCubeCase = 0;
+				doneGo = true;
+				}
 			}
 			break;
 		case 4:

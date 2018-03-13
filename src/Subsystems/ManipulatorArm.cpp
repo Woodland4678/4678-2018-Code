@@ -192,14 +192,14 @@ ManipulatorArm::ManipulatorArm() : frc::Subsystem("ManipulatorArm") {
     positions[8][2] = 158;   //e:728     r:-30
     
     //Grab climber
-    positions[9][0] = 71;    //e:-5007   r:71
-    positions[9][1] = 227;   //e:-10957  r:155
-    positions[9][2] = 270;   //e:2649    r:43
+    positions[9][0] = 67;    //e:-5007   r:71
+    positions[9][1] = 224;   //e:-10957  r:155
+    positions[9][2] = 279;   //e:2649    r:43
     
     //Place climber
-    positions[10][0] = 99;   //e:-859    r:99
-    positions[10][1] = 98;   //e:-4154   r:0
-    positions[10][2] = 180;  //e:3691    r:82
+    positions[10][0] = 95;   //e:-859    r:99
+    positions[10][1] = 129;   //e:-4154   r:0
+    positions[10][2] = 128;  //e:3691    r:82
     
     //Carry
     positions[11][0] = 127;  //e:3291    r:127
@@ -348,110 +348,6 @@ bool ManipulatorArm::fineMovement(double joyX, double joyY)
 		{
 		ShoulderDeg = (90 - std::abs(ShoulderDeg)) + 90;
 		elbowDeg *= -1;
-		case 0:
-			{
-			//Get current end point
-			double elbPosX = shoulderSeg.length * std::cos(positions[targetPos][0] * (M_PI/180));
-			double elbPosY = shoulderSeg.length * std::sin(positions[targetPos][0] * (M_PI/180));
-
-			double currX = elbPosX + elbowSeg.length * std::cos(positions[targetPos][1] * (M_PI/180));
-			double currY = elbPosY + elbowSeg.length * std::sin(positions[targetPos][1] * (M_PI/180));
-			//Calculate Target Position
-			double tarX = std::abs(currX);
-			double tarY = std::abs(currY);
-
-			tarX += FINECONTROLBOXSIZE * joyX;
-			tarY += FINECONTROLBOXSIZE * joyY;
-
-			frc::SmartDashboard::PutNumber("Target X", tarX);
-			frc::SmartDashboard::PutNumber("Target Y", tarY);
-
-			//Check limits
-			if(tarX > 26)
-				tarX = 26;
-			if(tarX < -26)
-				tarX = -26;
-			if(tarY > 77)
-				tarY = 77;
-			if(tarY < 50)
-				tarY = 50;
-			if((tarX < 1)&&(tarY > 50))
-				tarX = 1;
-
-			//Inverse Kitematics
-			//Elbow
-			double casBrakets = ((std::pow(tarX,2) + std::pow(tarY,2)) - std::pow(37,2) - std::pow(40,2))/(-2*(37)*(40));
-			//Check value incase it is too far
-			if((casBrakets < -1)||(casBrakets > 1))
-				casBrakets = std::round(casBrakets);
-			frc::SmartDashboard::PutNumber("El cos Braket", casBrakets);
-			double angElbow = M_PI - std::acos(casBrakets);
-			frc::SmartDashboard::PutNumber("El radians", angElbow);
-			//Shoulder
-			double angShoulder = std::atan(tarY / tarX) - std::atan((40 * std::sin(-angElbow))/(37 + 40 * std::cos(-angElbow)));
-			frc::SmartDashboard::PutNumber("Sh radians", angShoulder);
-			//Convert radians to degrees
-			elbowDeg = (angElbow * 180) / M_PI;
-			ShoulderDeg = (angShoulder * 180) / M_PI;
-
-			//Check for negative
-			if((currX) < 0)
-				{
-				ShoulderDeg = (90 - std::abs(ShoulderDeg)) + 90;
-				elbowDeg *= -1;
-				}
-
-			if(ShoulderDeg > 127)
-				ShoulderDeg = 127;
-			if(ShoulderDeg < 48)
-				ShoulderDeg = 48;
-			if(elbowDeg > 164)
-				elbowDeg = 164;
-			if(elbowDeg < -164)
-				elbowDeg = -164;
-
-			elbowDeg -= ShoulderDeg;
-			elbowDeg *= -1;
-
-			//Lets just do some quick tests to make sure we aren't attempting to move
-			//	too far too quickly
-			if (std::abs(ShoulderDeg - shoulderSeg.absAngle) > 20)
-				moveCase = 2;
-			if (std::abs(elbowDeg - elbowSeg.absAngle) > 20)
-				moveCase = 2;
-
-			//How much time?
-			shTime = 1.5;
-			elTime = 1.5;
-
-			initMovement();
-
-			frc::SmartDashboard::PutNumber("Shoulder Degree", ShoulderDeg);
-			frc::SmartDashboard::PutNumber("Elbow Degree", elbowDeg);
-
-			fineMoveCase++;
-			break;
-			}
-		case 1:
-			{
-			updateArm();
-			double currTime = frc::Timer::GetFPGATimestamp() - origTimeStamp;
-
-			if (!shoulderMovement)
-				shoulderMovement = shoulderGoToPosition(shoulderStartPos,ShoulderDeg,currTime,shTime);
-			if (!elbowMovement)
-				elbowMovement = elbowGoToPosition(elbowStartPos,elbowDeg,currTime,elTime);
-			//if (!wristMovement)
-			//	wristMovement = wristGoToPosition(wristStartPos,positions[pos][2],currTime,wrTime);
-
-			//Movement Check
-			if(shoulderMovement && elbowMovement)
-				{
-				fineMoveCase++;
-				return true;
-				}
-			}
-			break;
 		}
 
 	if(ShoulderDeg > 127)
@@ -642,7 +538,7 @@ bool ManipulatorArm::moveTo(int pos, double addShTime, double addElTime)
 			moveCase += 1;
 			}
 			break;
-		case 1:
+		case 2:
 			{
 			updateArm();
 			double currTime = frc::Timer::GetFPGATimestamp() - origTimeStamp;
@@ -712,6 +608,7 @@ bool ManipulatorArm::moveTo(int pos, double addShTime, double addElTime)
 				{
 				//Once we detect that there is a cube, clamp down on it
 				squeeze();
+				Robot::intake->release();
 				moveCase = 0;
 				return true;
 				}

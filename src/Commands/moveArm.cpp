@@ -53,8 +53,6 @@ void moveArm::Execute() {
 			double joyX = Robot::oi->getoperate()->GetRawAxis(2);
 			double joyY = Robot::oi->getoperate()->GetRawAxis(3);
 			double wristMove = Robot::oi->getoperate()->GetRawAxis(1);
-			double joyX = Robot::oi->getdriver()->GetRawAxis(2);
-			double joyY = Robot::oi->getdriver()->GetRawAxis(3);
 			if((std::abs(joyX-0) < 0.07)&&(std::abs(joyY-0) < 0.07))
 				{
 				frc::SmartDashboard::PutBoolean("Fine Motion Override", false);
