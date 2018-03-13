@@ -1,5 +1,5 @@
 /*
- * DriveMotorCalculator.cpp
+f * DriveMotorCalculator.cpp
  *
  *  Created on: Jan 24, 2018
  *      Author: wchs
@@ -66,6 +66,10 @@ static const int   s_CalcZoneTravel(4);
 static const int   s_CalcZoneRampDown(8);
 static const int   s_CalcZoneAll(s_CalcZoneStartUp | s_CalcZoneRampUp | s_CalcZoneTravel | s_CalcZoneRampDown);
 
+// Maximum number of times the encoder values don't change before we say the robot is stopped
+static const int   s_MaxStoppedCnt(5);
+
+
 // //////////////////////////////////  PUBLIC ////////////////////////////////////////////////
 // ********************************  LIFECYCLE  *********************************************
 
@@ -92,7 +96,11 @@ DriveMotorCalculator::DriveMotorCalculator(int leftDistanceCm, int rightDistance
     m_previousState(CalculatorStateUnknown),
     m_observerPtr(),
     m_zonesRequired(s_CalcZoneAll),
-	m_percentDone(0.0)
+	m_percentDone(0.0),
+
+    m_prevLeftEncoder(0),
+    m_prevRightEncoder(0),
+    m_stoppedCnt(0)
 {
     setTotalDistances(leftDistanceCm, rightDistanceCm);
     setDefaultZonePowers();
@@ -260,17 +268,27 @@ bool  DriveMotorCalculator::getGoingBackwards() const {
 
 
 bool  DriveMotorCalculator::getMotorSpeeds(float &leftMotorPower, float &rightMotorPower, int leftEncoder, int rightEncoder) {
-	validateIntegerity();
 
-	// Convert the encode values to distance travelled
-	bool   retval(false);
+    validateIntegerity();
+
 	float  left_travel_cm(0.0);
 	float  right_travel_cm(0.0);
+	CalculatorStateEnum  motor_state(CalculatorStateUnknown);
 
-	calculateTravelDistance(left_travel_cm, right_travel_cm, leftEncoder, rightEncoder);
+	// If the robot hits something before it covers the distance then it will never finish
+	// This is bad for autonomous since it won't allow the code to move to the next state
+	if (checkIfStopped(leftEncoder, rightEncoder) == true) {
+        motor_state = CalculatorStateFinish;
+	}
+	else {
+	    // Convert the encode values to distance travelled
+	    calculateTravelDistance(left_travel_cm, right_travel_cm, leftEncoder, rightEncoder);
 
-	// Based on the distance travelled figure out what state the robot is in
-	CalculatorStateEnum  motor_state(getMotorState(left_travel_cm, right_travel_cm));
+	    // Based on the distance travelled figure out what state the robot is in
+	    motor_state = getMotorState(left_travel_cm, right_travel_cm);
+	}
+
+    bool  retval(false);
 
 	switch (motor_state) {
 	case CalculatorStateStartUp:
@@ -517,7 +535,48 @@ void  DriveMotorCalculator::setDefaultZoneStartPoints() {
         tmp_float     = m_maxTotalDistanceCm * s_DefaultStraightMultiplier;
         tmp_int       = static_cast<int>(ceil(tmp_float));
         m_turnStartCm = std::min(tmp_int, s_MaxStraightDistanceCm);
+
+        if (m_turnStartCm == 0) {
+            m_turnStartCm = 1;
+        }
+
+        // With short distances the above calculations can be screwed up
+        // e.g. travelStart ends up being after rampDownStart
+        if ((m_maxTotalDistanceCm < s_MinPowerDistanceCm) &&
+            ((m_rampUpStartCm >= m_travelStartCm) || (m_travelStartCm >= m_rampDownStartCm) ||
+            (m_rampDownStartCm >= m_maxTotalDistanceCm))) {
+            const int start_up_dist(static_cast<int>(m_maxTotalDistanceCm * 0.30));
+            const int ramp_up_dist(static_cast<int>(m_maxTotalDistanceCm * 0.20));
+            const int ramp_down_dist(static_cast<int>(m_maxTotalDistanceCm * 0.30));
+
+            m_rampUpStartCm   = std::min(start_up_dist, s_StartUpDistanceCm);
+            m_travelStartCm   = m_rampUpStartCm + ramp_up_dist;
+            m_rampDownStartCm = m_maxTotalDistanceCm - ramp_down_dist;
+        }
     }
+}
+
+bool  DriveMotorCalculator::checkIfStopped(int leftEncoder, int rightEncoder) {
+
+    // Make sure the robot has moved from the starting position
+    if (leftEncoder != m_startingLeftEncoder && rightEncoder != m_startingRightEncoder) {
+        // If the encoders haven't changed then the robot is not moving
+        // Increment the stop counter and check if have exceeded the maximum limit
+        if (leftEncoder == m_prevLeftEncoder && rightEncoder == m_prevRightEncoder) {
+            ++m_stoppedCnt;
+            if (m_stoppedCnt == s_MaxStoppedCnt) {
+                return true;
+            }
+        }
+        else {
+            m_stoppedCnt = 0;
+        }
+
+        m_prevLeftEncoder  = leftEncoder;
+        m_prevRightEncoder = rightEncoder;
+    }
+
+    return false;
 }
 
 void  DriveMotorCalculator::calculateTravelDistance(float &leftTravelCm, float &rightTravelCm,
@@ -753,7 +812,6 @@ void   DriveMotorCalculator::calculatePercentDone(float leftTravelCm, float righ
     }
 }
 
-
 void  DriveMotorCalculator::notifyObserver(CalculatorStateEnum  motorState) {
     if (m_observerPtr && m_previousState != motorState) {
         switch (motorState) {
@@ -809,7 +867,7 @@ void   DriveMotorCalculator::validateIntegerity() const {
             assert(m_rampUpStartCm <= m_travelStartCm);
 
             if ((m_zonesRequired & s_CalcZoneStartUp) == s_CalcZoneStartUp) {
-                assert(m_rampUpStartCm == s_StartUpDistanceCm);
+                assert(m_rampUpStartCm <= s_StartUpDistanceCm);
             }
             else {
                 assert(m_rampUpStartCm == 0);
@@ -832,8 +890,11 @@ void   DriveMotorCalculator::validateIntegerity() const {
                 assert(m_travelStartCm == 0);
             }
 
-            assert(m_travelStartCm < m_leftTotalDistanceCm);
-            assert(m_travelStartCm < m_rightTotalDistanceCm);
+            // With hard turns the travelStart can exceed the total distance travelled by one wheel
+            // assert(m_travelStartCm < m_leftTotalDistanceCm);
+            // assert(m_travelStartCm < m_rightTotalDistanceCm);
+
+            assert(m_travelStartCm < m_maxTotalDistanceCm);
 
             if ((m_zonesRequired & s_CalcZoneRampDown) == s_CalcZoneRampDown) {
                 assert(m_rampDownPower > 0.0);
@@ -853,6 +914,8 @@ void   DriveMotorCalculator::validateIntegerity() const {
         }
 
     	assert(m_turnStartCm >= 0 && m_turnStartCm <= s_MaxStraightDistanceCm);
+
+        assert(m_stoppedCnt >= 0 && m_stoppedCnt < s_MaxStoppedCnt);
     }
 
 //	assert(m_startUpPower >= 0.0);

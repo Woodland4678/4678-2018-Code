@@ -90,12 +90,10 @@ void  LeftSideLeftScale::execute() {
 	case ScenarioState1:
 		if (m_calculator1_init == false) {
 			Robot::driveTrain->shiftUp();
-			Robot::manipulatorArm->initMovement();
 		}
 
 		if (moveRobot(m_calculator1_init, m_calculator1_Ptr) == true) {
 			m_currentState = ScenarioState2;
-//			Robot::manipulatorArm->initMovement();
 		}
 
 		if (!m_armMovement1) {
@@ -103,13 +101,11 @@ void  LeftSideLeftScale::execute() {
 		}
 		else if (m_armInitMovement2 == false) {
 			m_armInitMovement2 = true;
-			Robot::manipulatorArm->initMovement();
 		}
 
 		if (m_calculator1_Ptr->getPerentDone() >= 0.50 && m_armInitMovement2 == false) {
 			m_armMovement1 = true;
 			m_armInitMovement2 = true;
-			Robot::manipulatorArm->initMovement();
 		}
 
 		if (m_armInitMovement2 == true && !m_armMovement2) {
@@ -121,7 +117,6 @@ void  LeftSideLeftScale::execute() {
 	case ScenarioState2:
 		if (m_armInitMovement2 == false) {
 			m_armInitMovement2 = true;
-			Robot::manipulatorArm->initMovement();
 		}
 
 		if (moveRobot(m_calculator2_init, m_calculator2_Ptr) == true) {
@@ -130,7 +125,6 @@ void  LeftSideLeftScale::execute() {
 			++m_cnt;
 			if (m_cnt == 25 && m_armMovement2) {
 				m_currentState = ScenarioState3;
-//				Robot::intake->initMovement();
 			}
 		}
 
@@ -143,8 +137,6 @@ void  LeftSideLeftScale::execute() {
 		// Back robot up and turn slightly
 		if (moveRobot(m_calculator3_init, m_calculator3_Ptr) == true) {
 			m_currentState = ScenarioState4;
-			Robot::manipulatorArm->initMovement();
-//			Robot::intake->initMovement();
 //			setFinished();
 		}
 //		if (!m_intakeDown) {
@@ -178,14 +170,12 @@ void  LeftSideLeftScale::execute() {
 		if (m_cnt > 25 && Robot::driveTrain->getLeftSpeed() < 100) {
 			Robot::intake->grab();
 			m_currentState = ScenarioState6;
-//			Robot::manipulatorArm->initMovement();
 		}
 		const int  retval(Robot::lidar->findCubes());
 
 		if (retval == 1) {
 			Robot::intake->grab();
 			m_currentState = ScenarioState6;
-//			Robot::manipulatorArm->initMovement();
 		}
 		else if (retval == 2) {
 //			m_currentState = ScenarioState4;
@@ -206,7 +196,6 @@ void  LeftSideLeftScale::execute() {
 		}
 		break;
 	case ScenarioState7:
-		// Come ahead so can find a cube
 		if (!m_armMovement3) { //should be movement4 and moveTo5
 			m_armMovement3 = Robot::manipulatorArm->moveTo(11);
 		} else {
@@ -215,7 +204,6 @@ void  LeftSideLeftScale::execute() {
 		}
 		break;
 	case ScenarioState8:
-		// Come ahead so can find a cube
 		m_cnt += 1;
 		Robot::manipulatorArm->squeeze();
 		if(m_cnt > 5) {
