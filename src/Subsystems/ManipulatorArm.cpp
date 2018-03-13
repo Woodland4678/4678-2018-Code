@@ -346,10 +346,8 @@ bool ManipulatorArm::fineMovement(double joyX, double joyY)
 	//Check for negative
 	if((currX) < 0)
 		{
-<<<<<<< HEAD
 		ShoulderDeg = (90 - std::abs(ShoulderDeg)) + 90;
 		elbowDeg *= -1;
-=======
 		case 0:
 			{
 			//Get current end point
@@ -454,7 +452,6 @@ bool ManipulatorArm::fineMovement(double joyX, double joyY)
 				}
 			}
 			break;
->>>>>>> fb786887f6437816797b8d423ce4be2f7600107a
 		}
 
 	if(ShoulderDeg > 127)
@@ -494,14 +491,11 @@ bool ManipulatorArm::moveTo(int pos, double addShTime, double addElTime)
 	switch(moveCase)
 		{
 		case 0:
-<<<<<<< HEAD
 			initMovement();
 			targetPos = pos;
 			moveCase = 1;
 			break;
 		case 1:
-=======
->>>>>>> fb786887f6437816797b8d423ce4be2f7600107a
 			{
 			//Pre calculations here, timing and shoulder movements
 			//Timing
@@ -553,15 +547,12 @@ bool ManipulatorArm::moveTo(int pos, double addShTime, double addElTime)
 					}
 				if((std::abs(targetZone - currentZone)) == 1)
 					{
-<<<<<<< HEAD
 					//shTime += 0.3;
 					//elTime += 0.3;
 					//wrTime += 0.3;
-=======
 					shTime += 0.3;
 					elTime += 0.3;
 					wrTime += 0.3;
->>>>>>> fb786887f6437816797b8d423ce4be2f7600107a
 					}
 				if(currentZone != 1)
 					{
@@ -689,10 +680,7 @@ bool ManipulatorArm::moveTo(int pos, double addShTime, double addElTime)
 			//Movement Check
 			if(shoulderMovement && elbowMovement && wristMovement)
 				{
-<<<<<<< HEAD
-=======
 				moveCase++;
->>>>>>> fb786887f6437816797b8d423ce4be2f7600107a
 				prevPos = currPos;
 				currPos = pos;
 				pickupCount = 0;

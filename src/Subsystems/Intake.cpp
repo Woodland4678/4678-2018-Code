@@ -113,10 +113,7 @@ bool Intake::moveTo(int position)
 	switch(moveCase)
 		{
 		case 0:
-<<<<<<< HEAD
 			initMovement();
-=======
->>>>>>> fb786887f6437816797b8d423ce4be2f7600107a
 			stopWheels();
 			Status.position = 2; //means we are moving
 			moveCase=1;
@@ -129,18 +126,13 @@ bool Intake::moveTo(int position)
 			Robot::manipulatorArm->updateArm();
 			if((Robot::manipulatorArm->wristSeg.posX > 0) && (Robot::manipulatorArm->wristSeg.posY < 14))
 				{
-<<<<<<< HEAD
 				moveCase = 2; //Lets just not move until the arm is out of the way
 				return false;
-=======
-				Robot::manipulatorArm->updateArm();
 				if((Robot::manipulatorArm->wristSeg.posX > 0) && (Robot::manipulatorArm->wristSeg.posY < 14))
 					{
 					//moveCase = 3;
 					return true;
 					}
-
->>>>>>> fb786887f6437816797b8d423ce4be2f7600107a
 				}
 
 			if(lifterGoToPosition(lifterStartPos,positions[position],currTime,1))

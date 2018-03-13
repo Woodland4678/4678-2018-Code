@@ -365,19 +365,17 @@ void Lidar::Periodic() {
 					 // txcmd = 0;
 					 skcnt = 0; // use this to delay for a 100 count (2 seconds) to allow lidar to spin up.
 					 if (!logfile.is_open())
-<<<<<<< HEAD
 						 {
 						 now = localtime(&t);
 						 sprintf(buf,"/media/sdb1/LL%02d%02d%02d%02d%02d.txt",now->tm_year,now->tm_mon,now->tm_mday,now->tm_hour,now->tm_min);
 						 logfile.open(buf,std::ios::out | std::ios::binary);
 						 }
-=======
+					 else
 					 	 {
 						 now = localtime(&t);
 						 sprintf(buf,"/media/sdb1/LL%02d%02d%02d%02d%02d.txt",now->tm_year,now->tm_mon,now->tm_mday,now->tm_hour,now->tm_min);
 						 logfile.open(buf,std::ios::out | std::ios::binary);
 					 	 }
->>>>>>> fb786887f6437816797b8d423ce4be2f7600107a
 					 txseq++;
 					 }
 				 break;
@@ -430,11 +428,7 @@ void Lidar::Periodic() {
 				 break;
 			 case 9:
 				 if (glob_lidar_may_run == 0)
-<<<<<<< HEAD
-					 {
-=======
 				 	 {
->>>>>>> fb786887f6437816797b8d423ce4be2f7600107a
 					 if (logfile.is_open())
 						 logfile.close();
 					 txseq = 0; // back to state 0 once lidar has been shut down.
@@ -832,7 +826,6 @@ int Lidar::findCubes()
 		}
 	return 0;
 	}
-<<<<<<< HEAD
 
 int Lidar::squareUpCube()
 	{
@@ -1026,8 +1019,6 @@ int Lidar::squareUpCube()
 		}
 	return 0;
 	}
-=======
->>>>>>> fb786887f6437816797b8d423ce4be2f7600107a
 // Put methods for controlling this subsystem
 // here. Call these from Commands.
 
