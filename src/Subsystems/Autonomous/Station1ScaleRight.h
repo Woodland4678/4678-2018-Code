@@ -46,10 +46,24 @@ private:
     DriveCalculatorPtrType   m_calculator4_Ptr;
 	bool                     m_calculator4_init;
 
+    DriveCalculatorPtrType   m_calculator5_Ptr;
+	bool                     m_calculator5_init;
+
+	DriveCalculatorPtrType   m_calculator6_Ptr;
+	bool                     m_calculator6_init;
+
     StateObserverPtrType     m_stateObserverPtr;
     AutoScenarioStateEnum    m_currentState;
 
     bool                     m_armMovement;
+    bool					 m_armMovement2;
+    bool					 m_armMovement3;
+    bool					 m_armMovement4;
+    bool					 m_armMovement5;
+
+    bool 					 m_intakeDown;
+
+    int						 m_cnt;
 };
 
 #endif // STATION_1_SCALE_RIGHT_H_

@@ -55,6 +55,7 @@ private:
     bool					 m_armMovement2;
     bool 					 m_armMovement3;
     bool					 m_armMovement4;
+    bool					 m_armMovement5;
     bool                     m_armInitMovement2;
 
     bool					 m_intakeDown;

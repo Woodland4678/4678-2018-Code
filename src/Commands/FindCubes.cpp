@@ -37,7 +37,9 @@ void FindCubes::Execute() {
 		doneGo = true;
 		return;
 		}
-	switch(getCubeCase)
+	if(Robot::lidar->findCubes(-180.0,180.0) == 1)
+		doneGo = true;
+	/*switch(getCubeCase)
 		{
 		case 0:
 			getCubeCase = 3;
@@ -97,7 +99,7 @@ void FindCubes::Execute() {
 		case 8:
 			//Bring in the intake
 			break;
-		}
+		}*/
 }
 
 // Make this return true when this Command no longer needs to run execute()

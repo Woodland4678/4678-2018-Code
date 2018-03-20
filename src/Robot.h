@@ -57,7 +57,7 @@ public:
 	bool done;
 	int caseThing;
 	int cnt;
-	 AHRS *ahrs;
+	static AHRS *ahrs;
 
 	static bool isAuto;
 };

@@ -22,7 +22,6 @@ std::shared_ptr<frc::SpeedController> RobotMap::driveTrainleftMotor;
 std::shared_ptr<frc::Encoder> RobotMap::driveTrainrightEncoderDrive;
 std::shared_ptr<frc::Encoder> RobotMap::driveTrainleftEncoderDrive;
 std::shared_ptr<frc::Compressor> RobotMap::driveTrainCompressor;
-std::shared_ptr<frc::DoubleSolenoid> RobotMap::driveTrainshoulderClimber;
 std::shared_ptr<frc::Solenoid> RobotMap::driveTrainshifter;
 std::shared_ptr<WPI_TalonSRX> RobotMap::manipulatorArmshoulder;
 std::shared_ptr<WPI_TalonSRX> RobotMap::manipulatorArmelbow;
@@ -32,6 +31,7 @@ std::shared_ptr<WPI_VictorSPX> RobotMap::manipulatorArmelbowSlave;
 std::shared_ptr<frc::DoubleSolenoid> RobotMap::manipulatorArmclaw;
 std::shared_ptr<frc::Relay> RobotMap::manipulatorArmindicator;
 std::shared_ptr<frc::DigitalInput> RobotMap::manipulatorArmcubeDetector;
+std::shared_ptr<frc::DoubleSolenoid> RobotMap::manipulatorArmshoulderClimber;
 std::shared_ptr<WPI_TalonSRX> RobotMap::intakelifter;
 std::shared_ptr<frc::SpeedController> RobotMap::intakerightWheels;
 std::shared_ptr<frc::SpeedController> RobotMap::intakeleftWheels;
@@ -60,9 +60,6 @@ void RobotMap::init() {
     driveTrainCompressor.reset(new frc::Compressor(0));
     lw->AddActuator("DriveTrain", "Compressor", driveTrainCompressor);
     
-    driveTrainshoulderClimber.reset(new frc::DoubleSolenoid(0, 2, 3));
-    lw->AddActuator("DriveTrain", "shoulderClimber", driveTrainshoulderClimber);
-    
     driveTrainshifter.reset(new frc::Solenoid(0, 5));
     lw->AddActuator("DriveTrain", "shifter", driveTrainshifter);
     
@@ -89,7 +86,10 @@ void RobotMap::init() {
     
     manipulatorArmcubeDetector.reset(new frc::DigitalInput(4));
     lw->AddSensor("ManipulatorArm", "cubeDetector", manipulatorArmcubeDetector);
-
+    
+    manipulatorArmshoulderClimber.reset(new frc::DoubleSolenoid(0, 2, 3));
+    lw->AddActuator("ManipulatorArm", "shoulderClimber", manipulatorArmshoulderClimber);
+    
     intakelifter.reset(new WPI_TalonSRX(1));
     
     

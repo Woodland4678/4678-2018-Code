@@ -66,7 +66,7 @@ public:
     bool  getMotorSpeeds(float &leftMotorPower, float &rightMotorPower, int leftEncoder, int rightEncoder);
 
     std::string  dumpObject() const;
-    float  getPerentDone() const;
+    float  getPercentDone() const;
 
 private:
     // TODO: change the constructors and operators to c11
@@ -127,6 +127,7 @@ private:
     int    m_prevLeftEncoder;           // value of the left encoder last time getMotorSpeeds was called
     int    m_prevRightEncoder;          // value of the right encoder last time getMotorSpeeds was called
     int    m_stoppedCnt;                // counter to track when encoder values don't change
+    CalculatorStateEnum   m_prevState;   // previous state of the calculator code
 };
 
 #endif /* DRIVE_MOTOR_CALCULATOR_H_ */

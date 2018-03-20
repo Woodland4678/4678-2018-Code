@@ -21,10 +21,10 @@
 #define MINANGLERANGE	45
 #define OUTLIERCHECK	2
 #define MAXDISTRANGE	100
-#define MAXDISTNEWLINE	400
+#define MAXDISTNEWLINE	80
 
 #define CUBEWIDTH		330.2
-#define CUBEHIEGHT		279.4
+#define CUBEHIEGHT		265.0
 #define CUBERANGEWIDTH	40
 #define CUBERANGEHIEGHT	40
 #define CENTRECUBE      233.5 // sqrt(2*CUBEWIDTH^2)/2
@@ -129,12 +129,13 @@ public:
 	void convertToXY();
 	void filterData(bool convertXY, double leftLimit, double rightLimit, double minDistance, double maxDistance);
 	void FindLines();
-	void checkLinesForCubes();
+	void checkLinesForCubes(double frangle,double toangle);
 	void calculatePathToNearestCube();
-	int findCubes();
+	int findCubes(double frangle,double toangle);
 	void startLidar();
 	void stopLidar();
 	int squareUpCube();
+	void  getDistanceToCube(int &leftDistCm, int &rightDistCm);
 
 	int cubeFindCase;
 	int cubeSquaringCase;

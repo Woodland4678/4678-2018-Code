@@ -30,6 +30,7 @@ AutonomousCommand::AutonomousCommand(): frc::Command() {
 void AutonomousCommand::Initialize() {
 	Robot::isAuto = true;
 	// Get values from console buttons for station location and game objective
+	frc::SmartDashboard::PutBoolean("I am here", true);
 	int  auto_side(0);
 	int  auto_mode(0);
 
@@ -52,7 +53,7 @@ void AutonomousCommand::Initialize() {
 
 	Robot::driveTrain->shiftUp();
 
-	AutoScenarioEnum scenario_select = AutoScenario_LeftSide_LeftScale;
+	AutoScenarioEnum scenario_select = AutoScenario_Station1_SwitchLeft;
 
 //	printf("AutonomousCommand::Initialize(), station=%d, switch_side=%d, scale_side=%d, objective=%d, scenario_select=%d\n",
 //			station, switch_side, scale_side, objective, scenario_select);

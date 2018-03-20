@@ -100,7 +100,8 @@ DriveMotorCalculator::DriveMotorCalculator(int leftDistanceCm, int rightDistance
 
     m_prevLeftEncoder(0),
     m_prevRightEncoder(0),
-    m_stoppedCnt(0)
+    m_stoppedCnt(0),
+	m_prevState(CalculatorStateUnknown)
 {
     setTotalDistances(leftDistanceCm, rightDistanceCm);
     setDefaultZonePowers();
@@ -320,7 +321,8 @@ bool  DriveMotorCalculator::getMotorSpeeds(float &leftMotorPower, float &rightMo
 		break;
 	}
 
-    correctPowers(leftMotorPower, rightMotorPower);
+	m_prevState = motor_state;
+	correctPowers(leftMotorPower, rightMotorPower);
     calculatePercentDone(left_travel_cm, right_travel_cm);
 
     // Check if need to notify the state observer
@@ -431,7 +433,7 @@ std::string  DriveMotorCalculator::dumpObject() const {
     return stream.str();
 }
 
-float  DriveMotorCalculator::getPerentDone() const {
+float  DriveMotorCalculator::getPercentDone() const {
 
 	return m_percentDone;
 }
@@ -563,6 +565,11 @@ bool  DriveMotorCalculator::checkIfStopped(int leftEncoder, int rightEncoder) {
         // If the encoders haven't changed then the robot is not moving
         // Increment the stop counter and check if have exceeded the maximum limit
         if (leftEncoder == m_prevLeftEncoder && rightEncoder == m_prevRightEncoder) {
+            // Check if the already finished and just calling the code again
+        	if (m_prevState == CalculatorStateFinish) {
+        		return true;
+        	}
+
             ++m_stoppedCnt;
             if (m_stoppedCnt == s_MaxStoppedCnt) {
                 return true;
@@ -915,7 +922,7 @@ void   DriveMotorCalculator::validateIntegerity() const {
 
     	assert(m_turnStartCm >= 0 && m_turnStartCm <= s_MaxStraightDistanceCm);
 
-        assert(m_stoppedCnt >= 0 && m_stoppedCnt < s_MaxStoppedCnt);
+        assert(m_stoppedCnt >= 0 && m_stoppedCnt <= s_MaxStoppedCnt);
     }
 
 //	assert(m_startUpPower >= 0.0);

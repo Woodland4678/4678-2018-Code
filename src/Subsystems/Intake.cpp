@@ -65,8 +65,11 @@ Intake::Intake() : frc::Subsystem("Intake") {
 	Status.WheelDirection = IntakeWheelDirection::DirectionStopped;
 	Status.WheelSpeed = WHEELSPEEDSTOPPED;
 
-	positions[0] = 572;
-	positions[1] = 6000;
+	// For intake position, gently place intake into robot.  Take reading
+	// of intake encoder and add 100 to get position 0
+	positions[0] = 3450; // Was 572, now 3072
+	positions[1] = positions[0] + 5425; // Was 6000, now 8840
+	// Diff was 5428, now = 5758, lets us 5425
 }
 
 void Intake::InitDefaultCommand() {
@@ -110,12 +113,14 @@ void Intake::setLifterPosition(double position)
 bool Intake::moveTo(int position)
 	{
 	frc::SmartDashboard::PutNumber("Intake Case", moveCase);
+	if(position != Status.targetPos)
+		moveCase = 0;
 	switch(moveCase)
 		{
 		case 0:
 			initMovement();
 			stopWheels();
-			Status.position = 2; //means we are moving
+			Status.targetPos = position; //means we are moving
 			moveCase=1;
 			break;
 		case 1:
@@ -188,9 +193,9 @@ double Intake::invSigmod(double end, double start, double mult, double offset, d
 int Intake::checkPosition()
 	{
 	Status.position = 2; //Unknown
-	if(std::abs(getLifterAngular() - 6000) < 500)
+	if(std::abs(getLifterAngular() - positions[1]) < 500)
 		Status.position = IntakePositions::GetCube;
-	if(std::abs(getLifterAngular() - 572) < 500)
+	if(std::abs(getLifterAngular() - positions[0]) < 500)
 		Status.position = IntakePositions::InRobot;
 	return Status.position;
 	}

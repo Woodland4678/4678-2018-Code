@@ -51,6 +51,7 @@ private:
 
 	typedef struct Status {
 		int position;
+		int targetPos;
 		int Gribber;
 		double WheelSpeed;
 		int WheelDirection;

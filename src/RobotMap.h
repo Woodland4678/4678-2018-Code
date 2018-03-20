@@ -32,7 +32,6 @@ public:
 	static std::shared_ptr<frc::Encoder> driveTrainrightEncoderDrive;
 	static std::shared_ptr<frc::Encoder> driveTrainleftEncoderDrive;
 	static std::shared_ptr<frc::Compressor> driveTrainCompressor;
-	static std::shared_ptr<frc::DoubleSolenoid> driveTrainshoulderClimber;
 	static std::shared_ptr<frc::Solenoid> driveTrainshifter;
 	static std::shared_ptr<WPI_TalonSRX> manipulatorArmshoulder;
 	static std::shared_ptr<WPI_TalonSRX> manipulatorArmelbow;
@@ -42,6 +41,7 @@ public:
 	static std::shared_ptr<frc::DoubleSolenoid> manipulatorArmclaw;
 	static std::shared_ptr<frc::Relay> manipulatorArmindicator;
 	static std::shared_ptr<frc::DigitalInput> manipulatorArmcubeDetector;
+	static std::shared_ptr<frc::DoubleSolenoid> manipulatorArmshoulderClimber;
 	static std::shared_ptr<WPI_TalonSRX> intakelifter;
 	static std::shared_ptr<frc::SpeedController> intakerightWheels;
 	static std::shared_ptr<frc::SpeedController> intakeleftWheels;

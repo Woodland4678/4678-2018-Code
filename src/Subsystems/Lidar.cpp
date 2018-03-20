@@ -290,7 +290,7 @@ void Lidar::Periodic() {
 												{
 												if (logfile.is_open())
 													{
-													sprintf(buf,"%d,%d,%d\n",lidat[acnt].angle,lidat[acnt].dist,lidat[acnt].tstamp);
+													sprintf(buf,"D,%d,%d,%d\n",lidat[acnt].angle,lidat[acnt].dist,lidat[acnt].tstamp);
 													logfile.write(buf,strlen(buf));
 													}
 
@@ -367,13 +367,13 @@ void Lidar::Periodic() {
 					 if (!logfile.is_open())
 						 {
 						 now = localtime(&t);
-						 sprintf(buf,"/media/sdb1/LL%02d%02d%02d%02d%02d.txt",now->tm_year,now->tm_mon,now->tm_mday,now->tm_hour,now->tm_min);
+						 sprintf(buf,"/media/sda1/LL%02d%02d%02d%02d%02d%02d.txt",now->tm_year,now->tm_mon,now->tm_mday,now->tm_hour,now->tm_min,now->tm_sec);
 						 logfile.open(buf,std::ios::out | std::ios::binary);
 						 }
 					 else
 					 	 {
 						 now = localtime(&t);
-						 sprintf(buf,"/media/sdb1/LL%02d%02d%02d%02d%02d.txt",now->tm_year,now->tm_mon,now->tm_mday,now->tm_hour,now->tm_min);
+						 sprintf(buf,"/media/sdb1/LL%02d%02d%02d%02d%02d%02d.txt",now->tm_year,now->tm_mon,now->tm_mday,now->tm_hour,now->tm_min,now->tm_sec);
 						 logfile.open(buf,std::ios::out | std::ios::binary);
 					 	 }
 					 txseq++;
@@ -498,7 +498,7 @@ void Lidar::filterData(bool convertXY, double leftLimit, double rightLimit, doub
 		if(angle > (180+rightLimit))
 			continue;
 		//Distance
-		dist = lidat[i].dist / 4.0f;
+		dist = lidat[i].dist;
 		if((dist < minDistance)||(dist > maxDistance))
 			continue;
 
@@ -703,12 +703,19 @@ void Lidar::FindLines(){
 	linecnt = NumLines;
 
 	//TODO: Remove this debug stuff!
-	for(int i = 0; i<(linecnt+1); i++)
+	for(int i = 0; i<(linecnt+1); i++){
 		printf("Line %i: start(%i, %i) end(%i, %i) angle=%f length=%i \n",i, lines[i].start.x,lines[i].start.y, lines[i].end.x,lines[i].end.y,lines[i].angle,lines[i].length);
+		if(logfile.is_open())
+		{
+			sprintf(buf,"L,%i,%i,%i,%i,%f,%i\n",lines[i].start.x,lines[i].start.y, lines[i].end.x,lines[i].end.y,lines[i].angle,lines[i].length);
+			logfile.write(buf,strlen(buf));
+		}
+	}
+
 
 }
 
-void Lidar::checkLinesForCubes(){
+void Lidar::checkLinesForCubes(double frangle, double toangle){
 	int n = 0, prev = 0;
 	double diffWidth, diffHieght, angle, dist, distX, distY;
 	tpPoint center;
@@ -726,24 +733,32 @@ void Lidar::checkLinesForCubes(){
 		}
 		diffWidth = std::abs(CUBEWIDTH - lines[i].length);
 		diffHieght = std::abs(CUBEHIEGHT - lines[i].length);
-		if ((diffWidth < CUBERANGEWIDTH)||(diffHieght < CUBERANGEHIEGHT)){
+		if (((diffWidth < CUBERANGEWIDTH)||(diffHieght < CUBERANGEHIEGHT))&&(lines[i].angle > frangle)&&(lines[i].angle < toangle)){
 			cubes[n].location.x = (lines[i].start.x + lines[i].end.x) / 2;
 			cubes[n].location.y = (lines[i].start.y + lines[i].end.y) / 2;
 			//Distance from 0,0 (lidar)
 			cubes[n].distance = sqrt(pow(cubes[n].location.x,2) + pow(cubes[n].location.y,2));
 			//Angle from the front from 0,0 (lidar)
 			cubes[n].angle = (180 * (asin((double)(cubes[n].location.x) / (double)(cubes[n].distance)))) / M_PI;
-			prev = 1;
+			// prev = 1; // Commented out by Maurice 18-Mar-2018.  Caused process to miss first cube.
 			n++;
 		}
 	}
 	cubecnt = n;
 	for(int i = 0; i<cubecnt; i++)
+		{
+		if(logfile.is_open())
+			{
+			sprintf(buf,"C,%i,%i,%i,%f\n",cubes[i].location.x,cubes[i].location.y, cubes[i].distance,cubes[i].angle);
+			logfile.write(buf,strlen(buf));
+			}
 		printf("Cube %i: Loca(%i, %i) dist=%i angle=%f\n",i, cubes[i].location.x,cubes[i].location.y, cubes[i].distance,cubes[i].angle);
+		}
 }
 
 void Lidar::calculatePathToNearestCube()
 	{
+	double angle2use;
 	if (cubecnt == 0) {
 		rightcm = 0;
 		leftcm = 0;
@@ -761,23 +776,28 @@ void Lidar::calculatePathToNearestCube()
 	}
 
 	double theta = 0, r = 0, rLeft = 0, rRight = 0;
-	theta = (M_PI * cubes[idx].angle)/180;
+	angle2use = cubes[idx].angle + 6.0; // Shift for angle adjustment issues
+	theta = (M_PI * angle2use)/180;
 	theta = std::abs(theta);
-	r = (cubes[idx].distance * sin((M_PI/2) - theta))/(sin(2 * theta));
-	rRight = ((cubes[idx].angle > 0) ? (r - 298) : (r + 298));
-	rLeft = ((cubes[idx].angle > 0) ? (r + 298) : (r - 298));
+	r = (cubes[idx].distance * std::sin((M_PI/2) - theta))/(std::sin(2 * theta));
+	rRight = ((angle2use > 0) ? (r - 298) : (r + 298));
+	rLeft = ((angle2use > 0) ? (r + 298) : (r - 298));
 	rightcm = (theta * rRight)/5;
 	leftcm = (theta * rLeft)/5;
 
-	//Bring it back a little
-	rightcm -= 3;
-	leftcm -= 3;
+//	//Bring it back a little
+//	rightcm -= 3;
+//	leftcm -= 3;
+
+	// Found wasn't grabbing a cube so add a little bit
+	rightcm += 3;
+	leftcm += 3;
 
 	printf("theta = %f, r = %f, rRight = %f, rLeft = %f\n", theta, r, rRight, rLeft);
 	printf("rightcm = %i   leftcm = %i\n", rightcm, leftcm);
 	}
 
-int Lidar::findCubes()
+int Lidar::findCubes(double frangle, double toangle)
 	{
 	switch(cubeFindCase)
 		{
@@ -799,9 +819,9 @@ int Lidar::findCubes()
 			//Process the data
 
 			printf("Data Count = %i\n",glob_lidar_count);
-			filterData(true, 80,80,50,3000);
+			filterData(true, 40,40,50,5000);
 			FindLines();
-			checkLinesForCubes();
+			checkLinesForCubes(frangle,toangle);
 			if(cubecnt > 0) //Did we find any?
 				{
 				calculatePathToNearestCube();
@@ -1021,4 +1041,10 @@ int Lidar::squareUpCube()
 	}
 // Put methods for controlling this subsystem
 // here. Call these from Commands.
+
+
+void  Lidar::getDistanceToCube(int &leftDistCm, int &rightDistCm) {
+	leftDistCm  = leftcm;
+	rightDistCm = rightcm;
+}
 

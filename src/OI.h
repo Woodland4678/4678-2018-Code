@@ -32,9 +32,10 @@ private:
 	
 	
 	
+	
 	std::shared_ptr<frc::Joystick> operate;
-	std::shared_ptr<frc::JoystickButton> operatorBtn12_RJoy_PlaceHook;
-	std::shared_ptr<frc::JoystickButton> operatorBtn11_LJoy_GrabHook;
+	std::shared_ptr<frc::JoystickButton> operatorBtn12_RJoy_MoveShDown;
+	std::shared_ptr<frc::JoystickButton> operatorBtn11_LJoy_MoveElDown;
 	std::shared_ptr<frc::JoystickButton> operatorBtn10_Start_Portal;
 	std::shared_ptr<frc::JoystickButton> operatorBtn9_Back_Home;
 	std::shared_ptr<frc::JoystickButton> operatorBtn8_RTrigger_GrabCube;
@@ -45,6 +46,7 @@ private:
 	std::shared_ptr<frc::JoystickButton> operatorBtn2_A_LowScale;
 	std::shared_ptr<frc::JoystickButton> operatorBtn1_X_Carry;
 	std::shared_ptr<frc::Joystick> driver;
+	std::shared_ptr<frc::JoystickButton> driverBtn7_LTrigger_Climber;
 	std::shared_ptr<frc::JoystickButton> driverBtn4_Y_ToggleIntakeClamp;
 	std::shared_ptr<frc::JoystickButton> driverBtn10_Start_IntakeWheelsStop;
 	std::shared_ptr<frc::JoystickButton> driverBtn12_RJoy_InTakeWheelsOut;
