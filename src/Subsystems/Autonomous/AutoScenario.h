@@ -9,14 +9,12 @@
 #define AUTO_SCENARIO_H_
 
 // SYSTEM INCLUDES
-//#include <boost/shared_ptr.hpp>         // test harness version
 #include <memory>                     // robot code version
 
 // FORWARD DECLARATION
 class AutoScenario;
 
 // TYPEDEFS
-// typedef boost::shared_ptr<AutoScenario>     AutoScenarioPtrType;     // test harness version
 typedef std::shared_ptr<AutoScenario>        AutoScenarioPtrType;     // robot code version
 
 // ENUMS
@@ -34,6 +32,8 @@ enum AutoScenarioStateEnum {
 	ScenarioState8,
 	ScenarioState9,
 	ScenarioState10,
+    ScenarioState11,
+    ScenarioState12,
 	ScenarioStateMax
 };
 

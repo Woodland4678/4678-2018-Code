@@ -14,7 +14,6 @@
 static const int  s_encoderPulsesPerCm(33);   // Value to use for Chevron-7
 
 // FUNCTIONS
-
 int  getEncoderPulsesPerCm()  {
 	return s_encoderPulsesPerCm;
 }
@@ -46,24 +45,25 @@ ScaleSideEnum   transformScaleFms(unsigned char scaleChar) {
 }
 
 
-StartStationEnum   transformConsoleSide(int autoSide) {
+RobotStartEnum  transformConsoleSwitch1(int autoSide) {
 
 	switch (autoSide) {
-	case 0: return StartStation1;
-	case 1: return StartStation2;
-	case 2: return StartStation3;
+	case 0: return RobotStartLeft;
+	case 1: return RobotStartMiddle;
+	case 2: return RobotStartRight;
 	}
 
-    return StartStationUnknown;
+    return RobotStartUnknown;
 }
 
-AutoObjectiveEnum   transformConsoleMode(int autoMode) {
+AutoObjectiveEnum   transformConsoleSwitch2(int autoMode) {
 
 	switch (autoMode) {
-	case 0: return AutoObjectiveCrossLine;
+	case 0: return AutoObjectiveNoAuto;
 	case 1: return AutoObjectiveSwitch;
 	case 2: return AutoObjectiveScale;
-	case 3: return AutoObjectiveSwitchScale;
+//	  case 3: return AutoObjectiveSwitchScale;
+//    case 4: return AutoObjectiveMoveForward;
 	}
 
     return AutoObjectiveUnknown;

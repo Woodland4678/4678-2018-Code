@@ -7,7 +7,7 @@ f * DriveMotorCalculator.cpp
 
 // The define below enables asserts within the code
 // It should only be enabled when within the test harness - off for production
-#define TEST_HARNESS_ENABLE_CHECKS    1
+// #define TEST_HARNESS_ENABLE_CHECKS    1
 
 // SYSTEM INCLUDES
 #include <cassert>
@@ -100,8 +100,7 @@ DriveMotorCalculator::DriveMotorCalculator(int leftDistanceCm, int rightDistance
 
     m_prevLeftEncoder(0),
     m_prevRightEncoder(0),
-    m_stoppedCnt(0),
-	m_prevState(CalculatorStateUnknown)
+    m_stoppedCnt(0)
 {
     setTotalDistances(leftDistanceCm, rightDistanceCm);
     setDefaultZonePowers();
@@ -321,8 +320,7 @@ bool  DriveMotorCalculator::getMotorSpeeds(float &leftMotorPower, float &rightMo
 		break;
 	}
 
-	m_prevState = motor_state;
-	correctPowers(leftMotorPower, rightMotorPower);
+    correctPowers(leftMotorPower, rightMotorPower);
     calculatePercentDone(left_travel_cm, right_travel_cm);
 
     // Check if need to notify the state observer
@@ -563,13 +561,13 @@ bool  DriveMotorCalculator::checkIfStopped(int leftEncoder, int rightEncoder) {
     // Make sure the robot has moved from the starting position
     if (leftEncoder != m_startingLeftEncoder && rightEncoder != m_startingRightEncoder) {
         // If the encoders haven't changed then the robot is not moving
-        // Increment the stop counter and check if have exceeded the maximum limit
         if (leftEncoder == m_prevLeftEncoder && rightEncoder == m_prevRightEncoder) {
-            // Check if the already finished and just calling the code again
-        	if (m_prevState == CalculatorStateFinish) {
-        		return true;
-        	}
+            // If the robot has finished then don't bother updating the counter
+            if (m_previousState == CalculatorStateFinish) {
+                return true;
+            }
 
+            // Increment the stop counter and check if have exceeded the maximum limit
             ++m_stoppedCnt;
             if (m_stoppedCnt == s_MaxStoppedCnt) {
                 return true;

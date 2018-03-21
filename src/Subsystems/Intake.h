@@ -109,6 +109,7 @@ public:
 	void updateEndEffector();
 	bool moveTo(int position);
 	int checkPosition();
+	std::string getPositionSting(int pos);
 
 	tpStatus Status;
 	tpArmSegment lifterSeg;

@@ -12,13 +12,13 @@
 #include "AutoScenario.h"
 
 // ENUMS
-// Defines what station the robot is starting from
-enum StartStationEnum  {
-    StartStationUnknown = 0,
-    StartStation1,
-    StartStation2,
-    StartStation3,
-    StartStationMax
+// Defines where along the wall the robot is starting from
+enum RobotStartEnum  {
+    RobotStartUnknown = 0,
+    RobotStartLeft,
+    RobotStartMiddle,
+    RobotStartRight,
+    RobotStartMax
 };
 
 // Defines what side of the switch we own
@@ -42,10 +42,11 @@ enum ScaleSideEnum  {
 // Defines what the objective is for autonomous
 enum AutoObjectiveEnum  {
     AutoObjectiveUnknown = 0,
-    AutoObjectiveCrossLine,
+    AutoObjectiveNoAuto,
     AutoObjectiveSwitch,
     AutoObjectiveScale,
-    AutoObjectiveSwitchScale,
+//    AutoObjectiveSwitchScale,
+//    AutoObjectiveMoveForward,
     AutoObjectiveMax
 };
 
@@ -53,39 +54,38 @@ enum AutoObjectiveEnum  {
 enum AutoScenarioEnum  {
     AutoScenarioUnknown = 0,
 
-    AutoScenario_Station1_CrossLine,
-    AutoScenario_Station1_SwitchLeft,
-    AutoScenario_Station1_SwitchRight,
-    AutoScenario_Station1_ScaleLeft,
-    AutoScenario_Station1_ScaleRight,
-    AutoScenario_Station1_SwitchLeft_ScaleLeft,
-    AutoScenario_Station1_SwitchLeft_ScaleRight,
-    AutoScenario_Station1_SwitchRight_ScaleLeft,
-    AutoScenario_Station1_SwitchRight_ScaleRight,
+    AutoScenario_RobotLeft_NoAuto,
+//    AutoScenario_RobotLeft_SwitchLeft,
+//    AutoScenario_RobotLeft_SwitchRight,
+    AutoScenario_RobotLeft_ScaleLeft,
+    AutoScenario_RobotLeft_ScaleRight,
+//    AutoScenario_RobotLeft_SwitchLeft_ScaleLeft,
+//    AutoScenario_RobotLeft_SwitchLeft_ScaleRight,
+//    AutoScenario_RobotLeft_SwitchRight_ScaleLeft,
+//    AutoScenario_RobotLeft_SwitchRight_ScaleRight,
+//    AutoScenario_RobotLeft_MoveForward,
 
-    AutoScenario_Station2_CrossLine,
-    AutoScenario_Station2_SwitchLeft,
-    AutoScenario_Station2_SwitchRight,
-    AutoScenario_Station2_ScaleLeft,
-    AutoScenario_Station2_ScaleRight,
-    AutoScenario_Station2_SwitchLeft_ScaleLeft,
-    AutoScenario_Station2_SwitchLeft_ScaleRight,
-    AutoScenario_Station2_SwitchRight_ScaleLeft,
-    AutoScenario_Station2_SwitchRight_ScaleRight,
+    AutoScenario_RobotMiddle_NoAuto,
+    AutoScenario_RobotMiddle_SwitchLeft,
+    AutoScenario_RobotMiddle_SwitchRight,
+//    AutoScenario_RobotMiddle_ScaleLeft,
+//    AutoScenario_RobotMiddle_ScaleRight,
+//    AutoScenario_RobotMiddle_SwitchLeft_ScaleLeft,
+//    AutoScenario_RobotMiddle_SwitchLeft_ScaleRight,
+//    AutoScenario_RobotMiddle_SwitchRight_ScaleLeft,
+//    AutoScenario_RobotMiddle_SwitchRight_ScaleRight,
+//    AutoScenario_RobotMiddle_MoveForward,
 
-    AutoScenario_Station3_CrossLine,
-    AutoScenario_Station3_SwitchLeft,
-    AutoScenario_Station3_SwitchRight,
-    AutoScenario_Station3_ScaleLeft,
-    AutoScenario_Station3_ScaleRight,
-    AutoScenario_Station3_SwitchLeft_ScaleLeft,
-    AutoScenario_Station3_SwitchLeft_ScaleRight,
-    AutoScenario_Station3_SwitchRight_ScaleLeft,
-    AutoScenario_Station3_SwitchRight_ScaleRight,
-
-	AutoScenario_LeftSide_LeftScale,
-	AutoScenario_LeftSide_LeftSwitch,
-	AutoScenario_LeftSide_LeftScale_RightSwitch,
+    AutoScenario_RobotRight_NoAuto,
+//    AutoScenario_RobotRight_SwitchLeft,
+//    AutoScenario_RobotRight_SwitchRight,
+//    AutoScenario_RobotRight_ScaleLeft,
+//    AutoScenario_RobotRight_ScaleRight,
+//    AutoScenario_RobotRight_SwitchLeft_ScaleLeft,
+//    AutoScenario_RobotRight_SwitchLeft_ScaleRight,
+//    AutoScenario_RobotRight_SwitchRight_ScaleLeft,
+//    AutoScenario_RobotRight_SwitchRight_ScaleRight,
+//    AutoScenario_RobotRight_MoveForward,
 
     AutoScenarioMax
 };
@@ -95,10 +95,11 @@ int  getEncoderPulsesPerCm();
 
 SwitchSideEnum      transformSwitchFms(unsigned char switchChar);
 ScaleSideEnum       transformScaleFms(unsigned char scaleChar);
-StartStationEnum    transformConsoleSide(int autoSide);
-AutoObjectiveEnum   transformConsoleMode(int autoMode);
+RobotStartEnum      transformConsoleSwitch1(int autoSide);
+AutoObjectiveEnum   transformConsoleSwitch2(int autoMode);
 
-AutoScenarioEnum  autoScenarioFinder(StartStationEnum station, SwitchSideEnum switchSide, ScaleSideEnum scaleSide, AutoObjectiveEnum objective);
+AutoScenarioEnum  autoScenarioFinder(RobotStartEnum robotStart, SwitchSideEnum switchSide,
+                                     ScaleSideEnum scaleSide, AutoObjectiveEnum objective);
 
 AutoScenarioPtrType   autoScenarioFactory(AutoScenarioEnum autoScenario);
 

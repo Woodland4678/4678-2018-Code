@@ -276,6 +276,19 @@ bool Intake::spinReverse(double power) {
 	return true;
 }
 
+std::string Intake::getPositionSting(int pos)
+	{
+	std::string str;
+	if(pos == IntakePositions::InRobot)
+		str = "In Robot";
+	else if (pos == IntakePositions::GetCube)
+		str = "Outside Robot";
+	else
+		str = "Unknown";
+	return str;
+
+	}
+
 // Put methods for controlling this subsystem
 // here. Call these from Commands.
 
