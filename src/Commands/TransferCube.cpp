@@ -38,7 +38,6 @@ void TransferCube::Execute() {
 	//totalCount++;
 	//if(totalCount > 100)
 	//	done = true;
-
 	//Is the cube lined up correctly?
 	if(Robot::intake->checkPosition() == Robot::intake->IntakePositions::InRobot)
 		{
@@ -46,7 +45,7 @@ void TransferCube::Execute() {
 		done = true;
 		return;
 		}
-
+	Robot::intake->stopWheels();
 	//Is the arm in pickup location?
 	if((Robot::manipulatorArm->currPos != 5)&&!done2) //If not
 		done2 = Robot::manipulatorArm->moveTo(5);

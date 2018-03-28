@@ -74,8 +74,8 @@ void DriveRobot::Execute() {
 
 	if(((Robot::manipulatorArm->targetPos > 0) && (Robot::manipulatorArm->targetPos < 5))&&(Robot::manipulatorArm->checkForCube()))
 		{
-		leftPower *= 0.4;
-		rightPower *= 0.4;
+		leftPower *= 0.5;
+		rightPower *= 0.5;
 		}
 
 	Robot::driveTrain->SetLeftPower(leftPower);

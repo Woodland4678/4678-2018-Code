@@ -70,10 +70,11 @@ Intake::Intake() : frc::Subsystem("Intake") {
 #if FLIGHTBOT
 	positions[0] = 4000; // Was 572, now 3072
 	positions[1] = positions[0] + 5525; // Was 6000, now 8840		9762
+	positions[2] = positions[0] + 3428;
 #else
 	positions[0] = 3072;
 	positions[1] = positions[0] + 5762; // Was 6000, now 8840		9762
-	positions[2] = 6500;
+	positions[2] = positions[0] + 3428;
 #endif
 
 	// Diff was 5428, now = 5758, lets us 5425

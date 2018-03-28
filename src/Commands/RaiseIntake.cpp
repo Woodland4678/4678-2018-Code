@@ -32,6 +32,11 @@ void RaiseIntake::Initialize() {
 
 // Called repeatedly when this Command is scheduled to run
 void RaiseIntake::Execute() {
+	if((Robot::manipulatorArm->currPos == 5) && (Robot::manipulatorArm->targetPos == 5))
+		{
+		done = true;
+		return;
+		}
 	done = Robot::intake->moveTo(Robot::intake->IntakePositions::InRobot);
 
 }

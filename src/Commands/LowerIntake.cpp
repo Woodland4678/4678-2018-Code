@@ -25,6 +25,7 @@ LowerIntake::LowerIntake(): frc::Command() {
 // Called just before this Command runs the first time
 void LowerIntake::Initialize() {
 	done = false;
+	done2 = false;
 //	Robot::intake->initMovement();
 
 }
@@ -36,7 +37,14 @@ void LowerIntake::Execute() {
 		done = true;
 		return;
 		}
-	done = Robot::intake->moveTo(Robot::intake->IntakePositions::GetCube);
+	done2 = Robot::intake->moveTo(Robot::intake->IntakePositions::GetCube);
+	if(done2)
+		{
+		if(Robot::manipulatorArm->currPos == 11)
+			done = Robot::manipulatorArm->moveTo(5);
+		else
+			done = true;
+		}
 }
 
 // Make this return true when this Command no longer needs to run execute()

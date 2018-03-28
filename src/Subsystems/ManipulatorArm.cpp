@@ -218,7 +218,7 @@ ManipulatorArm::ManipulatorArm() : frc::Subsystem("ManipulatorArm") {
     
     //Scale front Min
     positions[2][0] = 122;   //e:1660    r:116
-    positions[2][1] = 36;  //e:-1096   r:-71
+    positions[2][1] = 42;  //e:-1096   r:-71
     positions[2][2] = 14;    //e:687     r:-30
     
     //Scale back Max
@@ -257,15 +257,15 @@ ManipulatorArm::ManipulatorArm() : frc::Subsystem("ManipulatorArm") {
     positions[9][2] = 279;   //e:2649    r:43
     
     //Place climber
-    positions[10][0] = 56;   //e:-859    r:99
-    positions[10][1] = 123;   //e:-4154   r:0
+    positions[10][0] = 52;   //e:-859    r:99
+    positions[10][1] = 117;   //e:-4154   r:0
     positions[10][2] = 143;  //e:3691    r:82
     
-    positions[14][0] = 70;
+    positions[14][0] = 63;
     positions[14][1] = 124;
     positions[14][2] = 163;
 
-    positions[15][0] = 70;
+    positions[15][0] = 63;
     positions[15][1] = 128;
     positions[15][2] = 182;
 
@@ -433,7 +433,7 @@ bool ManipulatorArm::fineMovement(double joyX, double joyY) {
 	if((newTarX < 1)&&(newTarY > 50))
 		newTarX = 1;
 
-	printf("Targets: %f, %f\nPosition: %f, %f\nCircle: %f, %f\nNew Targets: %f, %f\n",tarX,tarY,wristSeg.posX,wristSeg.posY,currX,currY,newTarX,newTarY);
+	//printf("Targets: %f, %f\nPosition: %f, %f\nCircle: %f, %f\nNew Targets: %f, %f\n",tarX,tarY,wristSeg.posX,wristSeg.posY,currX,currY,newTarX,newTarY);
 
 	//Inverse Kitematics
 	//Elbow
@@ -601,9 +601,9 @@ bool ManipulatorArm::moveTo(int pos, double addShTime, double addElTime)
 					}
 				if((std::abs(targetZone - currentZone)) == 1)
 					{
-					//shTime += 0.5;
-					//elTime += 0.5;
-					//wrTime += 0.5;
+					shTime += 0.3;
+					elTime += 0.3;
+					wrTime += 0.3;
 					}
 				if(currentZone != 1)
 					{
@@ -816,8 +816,8 @@ bool ManipulatorArm::moveTo(int pos, double addShTime, double addElTime)
 			}
 		case 5:
 			pickupCount++;
-			//if(pickupCount > 20)
-			//	squeeze();
+			if(pickupCount > 20)
+				squeeze();
 			//I have to assume that we have it
 			//Move straight up and then turn wrist
 			if(pickupCount > 40)//Wait a moment to ensure the claw clamped down
