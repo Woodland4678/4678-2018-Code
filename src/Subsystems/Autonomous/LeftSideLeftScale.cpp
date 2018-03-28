@@ -84,6 +84,8 @@ void  LeftSideLeftScale::initialize() {
 	m_armMovement5 = false;
 
 	m_intakeDown = false;
+	m_intakeMovement2 = false;
+	m_intakeMovement3 = false;
 }
 
 void  LeftSideLeftScale::execute() {
@@ -145,7 +147,7 @@ void  LeftSideLeftScale::execute() {
 		}
 		if (abs(Robot::driveTrain->getGyroTurnError()) < 90) {
 			if (!m_armMovement3) {
-				m_armMovement3 = Robot::manipulatorArm->moveTo(11);
+				m_armMovement3 = Robot::manipulatorArm->moveTo(5);
 			}
 		}
 		if (!m_intakeDown) {
@@ -162,7 +164,7 @@ void  LeftSideLeftScale::execute() {
 //			setFinished();
 //		}
 		if (!m_armMovement3) {
-			m_armMovement3 = Robot::manipulatorArm->moveTo(11);
+			m_armMovement3 = Robot::manipulatorArm->moveTo(5);
 		}
 		if (!m_intakeDown) {
 			m_intakeDown = Robot::intake->moveTo(Robot::intake->IntakePositions::GetCube);
@@ -173,7 +175,7 @@ void  LeftSideLeftScale::execute() {
 	{
 		// Find a cubes
 		if (!m_armMovement3) {
-			m_armMovement3 = Robot::manipulatorArm->moveTo(11);
+			m_armMovement3 = Robot::manipulatorArm->moveTo(5);
 		}
 		if (m_cnt > 25 && Robot::driveTrain->getLeftSpeed() < 100) {
 			Robot::intake->grab();
@@ -212,11 +214,20 @@ void  LeftSideLeftScale::execute() {
 //		}
 		break;
 	case ScenarioState7:
+		if (!m_intakeMovement2) {
+			m_intakeMovement2 = Robot::intake->moveTo(2);
+		}
 		if (!m_armMovement4) { //should be movement4 and moveTo5
 			m_armMovement4 = Robot::manipulatorArm->moveTo(5);
 		} else {
-			m_currentState = ScenarioState8;
-			m_cnt = 0;
+			if (!m_intakeMovement2) {
+				m_intakeMovement2 = Robot::intake->moveTo(2);
+			}
+			else if (m_intakeMovement2 && Robot::manipulatorArm->checkForCube()) {
+				m_currentState = ScenarioState8;
+				m_cnt = 0;
+			}
+
 		}
 		break;
 	case ScenarioState8:
@@ -235,6 +246,9 @@ void  LeftSideLeftScale::execute() {
 		}
 		if (!m_armMovement5) {
 			m_armMovement5 = Robot::manipulatorArm->moveTo(3);
+		}
+		if (!m_intakeMovement3) {
+			Robot::intake->moveTo(0);
 		}
 		break;
 	default:

@@ -402,7 +402,7 @@ bool ManipulatorArm::fineMovement(double joyX, double joyY) {
 	double newTarX = tarX;
 	double newTarY = tarY;
 
-	/*updateArm();
+	updateArm();
 	//We have our target, and current location
 	//Find direction vector
 	double dirX = tarX - wristSeg.posX;
@@ -412,14 +412,14 @@ bool ManipulatorArm::fineMovement(double joyX, double joyY) {
 	//Speed stuff
 	dist /= (3 * 0.02); //3 Inches per second, 0.02 each loop's time 50 Hz
 	//Disance calculation
-	double newTarX = (dirX / dist) + wristSeg.posX;
-	double newTarY = (dirY / dist) + wristSeg.posY;
+	newTarX = (dirX / dist) + wristSeg.posX;
+	newTarY = (dirY / dist) + wristSeg.posY;
 
 	if((std::abs(wristSeg.posX - tarX) < 1) && (std::abs(wristSeg.posY - tarY) < 1))
 		{
 		newTarX = tarX;
 		newTarY = tarY;
-		}*/
+		}
 
 	//Check limits
 	if(newTarX > 26)

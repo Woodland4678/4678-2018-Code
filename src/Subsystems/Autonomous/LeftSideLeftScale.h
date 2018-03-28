@@ -59,6 +59,8 @@ private:
     bool                     m_armInitMovement2;
 
     bool					 m_intakeDown;
+    bool					 m_intakeMovement2;
+    bool					 m_intakeMovement3;
 
 
     int                      m_cnt;

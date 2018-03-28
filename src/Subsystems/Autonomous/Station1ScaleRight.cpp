@@ -96,6 +96,8 @@ void  Station1ScaleRight::initialize() {
 	m_armMovement5 = false;
 
 	m_intakeDown = false;
+	m_intakeMovement2 = false;
+	m_intakeMovement3 = false;
 }
 
 int retval;
@@ -193,7 +195,7 @@ void  Station1ScaleRight::execute() {
 	case ScenarioState6: {
 		// Find a cubes
 		if (!m_armMovement2) {
-			m_armMovement2 = Robot::manipulatorArm->moveTo(11);
+			m_armMovement2 = Robot::manipulatorArm->moveTo(5);
 		}
 //		if (m_cnt > 25 && Robot::driveTrain->getLeftSpeed() < 100) {
 //			Robot::intake->grab();
@@ -212,8 +214,8 @@ void  Station1ScaleRight::execute() {
 			if (retval == 1) {
 				Robot::intake->grab();
 				m_cnt = 0;
-					m_currentState = ScenarioState7;
-					m_armMovement3 = false;
+				m_currentState = ScenarioState7;
+				m_armMovement3 = false;
 				}
 			else if (retval == 2) {
 //				m_currentState = ScenarioState4;
@@ -230,10 +232,15 @@ void  Station1ScaleRight::execute() {
 			if (!m_armMovement3) {
 				m_armMovement3 = Robot::manipulatorArm->moveTo(5);
 
-			} else {
+			}
+			if (!m_intakeMovement2) {
+				m_intakeMovement2 = Robot::intake->moveTo(2);
+			}
+			else if ((m_intakeMovement2) && (Robot::manipulatorArm->checkForCube()) && (m_armMovement3)) {
 				m_currentState = ScenarioState8;
 				m_cnt = 0;
 			}
+
 		}
 		break;
 	case ScenarioState8:
@@ -266,6 +273,9 @@ void  Station1ScaleRight::execute() {
 		}
 		if (!m_armMovement4) {
 			m_armMovement4 = Robot::manipulatorArm->moveTo(3);
+		}
+		if (!m_intakeMovement3) {
+			Robot::intake->moveTo(0);
 		}
 	default:
 		break;
