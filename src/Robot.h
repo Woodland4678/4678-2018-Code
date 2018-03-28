@@ -57,6 +57,10 @@ public:
 	bool done;
 	int caseThing;
 	int cnt;
+
+	static char  ms_ourSwitchSide;
+	static char  ms_ourScaleSide;
+
 	static AHRS *ahrs;
 
 	static bool isAuto;

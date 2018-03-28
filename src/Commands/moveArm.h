@@ -48,6 +48,11 @@ private:
 	int povValue;
 	double prevJoyX, prevJoyY;
 	bool moveInit;
+
+	double joyValuesX[4];
+	double joyValuesY[4];
+	int joyCount = 0;
+
 };
 
 #endif

@@ -67,8 +67,15 @@ Intake::Intake() : frc::Subsystem("Intake") {
 
 	// For intake position, gently place intake into robot.  Take reading
 	// of intake encoder and add 100 to get position 0
-	positions[0] = 3450; // Was 572, now 3072
-	positions[1] = positions[0] + 5425; // Was 6000, now 8840
+#if FLIGHTBOT
+	positions[0] = 4000; // Was 572, now 3072
+	positions[1] = positions[0] + 5525; // Was 6000, now 8840		9762
+#else
+	positions[0] = 3072;
+	positions[1] = positions[0] + 5762; // Was 6000, now 8840		9762
+	positions[2] = 6500;
+#endif
+
 	// Diff was 5428, now = 5758, lets us 5425
 }
 
@@ -129,15 +136,10 @@ bool Intake::moveTo(int position)
 
 			//Check if safe!
 			Robot::manipulatorArm->updateArm();
-			if((Robot::manipulatorArm->wristSeg.posX > 0) && (Robot::manipulatorArm->wristSeg.posY < 14))
+			if((Robot::manipulatorArm->wristSeg.posX > 0) && (Robot::manipulatorArm->wristSeg.posY < 12))
 				{
 				moveCase = 2; //Lets just not move until the arm is out of the way
-				return false;
-				if((Robot::manipulatorArm->wristSeg.posX > 0) && (Robot::manipulatorArm->wristSeg.posY < 14))
-					{
-					//moveCase = 3;
-					return true;
-					}
+				return true;
 				}
 
 			if(lifterGoToPosition(lifterStartPos,positions[position],currTime,1))
@@ -148,7 +150,7 @@ bool Intake::moveTo(int position)
 		case 2:
 			Status.position = position;
 			if(position == IntakePositions::GetCube)
-				spinForward(WHEELSPEEDHIGH);
+				spinForward(WHEELSPEEDMAX);
 			return true;
 			break;
 		}
@@ -261,17 +263,25 @@ bool Intake::spinForward(double power) {
 		return false;
 	Status.WheelSpeed = power;
 	Status.WheelDirection = IntakeWheelDirection::DirectionIn;
+#if FLIGHTBOT
+	setRightSpeed(power);
+#else
 	setRightSpeed(-power);
+#endif
 	setLeftSpeed(-power);
 	return true;
 }
 
 bool Intake::spinReverse(double power) {
-	if(Status.position != IntakePositions::GetCube)
-		return false;
+	//if(Status.position != IntakePositions::GetCube)
+	//	return false;
 	Status.WheelSpeed = power;
 	Status.WheelDirection = IntakeWheelDirection::DirectionOut;
+#if FLIGHTBOT
+	setRightSpeed(-power);
+#else
 	setRightSpeed(power);
+#endif
 	setLeftSpeed(power);
 	return true;
 }

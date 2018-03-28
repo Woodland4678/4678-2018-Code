@@ -44,7 +44,7 @@ void  Station1ScaleRight::initialize() {
 	m_calculator1_Ptr.reset(new DriveMotorCalculator(450, 450, encoder_pulses_cm)); //520, 520
 	m_calculator1_init = false;
 
-	m_calculator2_Ptr.reset(new DriveMotorCalculator(275, 171, encoder_pulses_cm)); //300, 171
+	m_calculator2_Ptr.reset(new DriveMotorCalculator(280, 171, encoder_pulses_cm)); //300, 171
 	m_calculator2_init = false;
 
 	m_calculator3_Ptr.reset(new DriveMotorCalculator(440, 440, encoder_pulses_cm));

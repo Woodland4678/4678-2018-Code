@@ -63,11 +63,13 @@ void moveArm::Execute() {
 					m_sender = 12;
 					break;
 				}
+			/*frc::SmartDashboard::PutBoolean("Climb", Robot::manipulatorArm->isClimber);
 			if(Robot::manipulatorArm->isClimber)
 				{
 				double climberSpeed = Robot::oi->getdriver()->GetRawAxis(3);
-				Robot::manipulatorArm->setShoulderSpeed(climberSpeed);
-				}
+				printf("Here!\n");
+				Robot::manipulatorArm->setShoulderPosition(Robot::manipulatorArm->getShoulderAngular() - (climberSpeed*50));
+				}*/
 			//What positions are we allowing?
 			double joyX = Robot::oi->getoperate()->GetRawAxis(2);
 			double joyY = Robot::oi->getoperate()->GetRawAxis(3);
@@ -86,25 +88,57 @@ void moveArm::Execute() {
 			//What positions are we allowing?
 			if((Robot::manipulatorArm->targetPos < 1)||(Robot::manipulatorArm->targetPos > 4))
 				{
-				if((Robot::manipulatorArm->targetPos < 8) || (Robot::manipulatorArm->targetPos == 11))
+				if((Robot::manipulatorArm->targetPos <= 8) || (Robot::manipulatorArm->targetPos == 11))
 					{
 					frc::SmartDashboard::PutBoolean("Fine Motion Control", false);
 					return;
 					}
 				}
 			frc::SmartDashboard::PutBoolean("Fine Motion Control", true);
-
-			//Check if there was enough of a change in the joystick to move the arm
-			//	we don't want to be constantly telling the arm to be moving
-			moveInit = Robot::manipulatorArm->fineMovement(joyX,-joyY);
+			joyValuesX[joyCount] = joyX;
+			joyValuesY[joyCount] = joyY;
+			joyCount++;
+			if(joyCount == 4)
+				{
+				//Filters, remove largest and lowest and average the remaining two
+				double large = -3, small = 3;
+				int larId = 0, smaId = 0;
+				for(int i=0;i<4;i++)
+					{
+					double val = joyValuesX[i] + joyValuesY[i];
+					if(val > large)
+						{
+						large = val;
+						larId = i;
+						continue;
+						}
+					if(val < small)
+						{
+						small = val;
+						smaId = i;
+						continue;
+						}
+					}
+				//Average
+				double sumX = 0;
+				double sumY = 0;
+				for(int i=0;i<4;i++)
+					{
+					if((i == larId)||(i == smaId))
+						continue;
+					sumX += joyValuesX[i];
+					sumY += joyValuesY[i];
+					}
+				moveInit = Robot::manipulatorArm->fineMovement(sumX / 2,-(sumY/2));
+				joyCount = 0;
+				}
 			if(std::abs(wristMove-0) > 0.05)
 				Robot::manipulatorArm->moveWrist(wristMove);
 			break;
 			}
 		case 1: //Carry Position
-			if(!done2)
-				done2 = Robot::manipulatorArm->moveTo(11);
-			if((Robot::manipulatorArm->wristSeg.posX < 0) && (Robot::manipulatorArm->wristSeg.posY > 18))
+			done = Robot::manipulatorArm->moveTo(11);
+			/*if((Robot::manipulatorArm->wristSeg.posX < 0) && (Robot::manipulatorArm->wristSeg.posY > 18))
 				{
 				//Once this movement is done check if there is a cube in the claw
 				if(Robot::manipulatorArm->checkForCube())
@@ -118,7 +152,7 @@ void moveArm::Execute() {
 					if(done2) //Wait for the arm movement is complete
 						done = true; //No cube then end the command
 					}
-				}
+				}*/
 
 			break;
 		case 2: //Scale Low
@@ -140,13 +174,11 @@ void moveArm::Execute() {
 				done = Robot::manipulatorArm->moveTo(1);
 			break;
 		case 6: //Pick up Cube
-			if(!done2)
+			Robot::manipulatorArm->release();
+			done = Robot::manipulatorArm->moveTo(5);
+			/*if(done2)
 				{
-				Robot::manipulatorArm->release();
-				done2 = Robot::manipulatorArm->moveTo(5);
-				}
-			if(done2)
-				{
+				Robot::intake->release();
 				//Check for a cube
 				if(Robot::manipulatorArm->checkForCube())
 					{
@@ -161,7 +193,7 @@ void moveArm::Execute() {
 					}
 				else
 					done = Robot::manipulatorArm->moveTo(11); //failed to get cube, return
-				}
+				}*/
 			break;
 		case 9: //Home
 			done = Robot::manipulatorArm->moveTo(0);
@@ -182,20 +214,23 @@ void moveArm::Execute() {
 				}
 			break;
 		case 12: //Place Climber
-			if(Robot::manipulatorArm->moveTo(10))
+			if(!done2)
+				done2 = Robot::manipulatorArm->moveTo(14);
+			if(done2)
 				{
-				done = true;
-				m_sender = 0;
+				done = Robot::manipulatorArm->moveTo(15);
+				if(done)
+					m_sender = 0;
 				}
 			break;
 		case 13:
 			//Move elbow down
-			Robot::manipulatorArm->setElbowSpeed(-0.2);
+			//Robot::manipulatorArm->setElbowSpeed(-0.2);
 			done = true;
 			break;
 		case 14:
 			//Move shoulder back
-			Robot::manipulatorArm->setShoulderSpeed(-0.1);
+			//Robot::manipulatorArm->setShoulderSpeed(-0.1);
 			done = true;
 			break;
 		case 15:

@@ -11,6 +11,10 @@
 // SYSTEM INCLUDES
 // PROJECT INCLUDES
 #include "AutoScenarioHelpers.h"
+#include "LeftSideLeftScale.h"
+#include "Station1ScaleRight.h"
+#include "Station1SwitchLeft.h"
+#include "Station1SwitchRight.h"
 
 
 // PUBLIC FUNCTIONS
@@ -34,11 +38,11 @@ AutoScenarioPtrType   autoScenarioFactory(AutoScenarioEnum autoScenario)  {
 //        break;
 
     case AutoScenario_RobotLeft_ScaleLeft:
-//        scenario_ptr.reset(new XXX);
+        scenario_ptr.reset(new LeftSideLeftScale);
         break;
 
     case AutoScenario_RobotLeft_ScaleRight:
-//        scenario_ptr.reset(new XXX);
+        scenario_ptr.reset(new Station1ScaleRight);
         break;
 
 //    case AutoScenario_RobotLeft_SwitchLeft_ScaleLeft:
@@ -68,11 +72,11 @@ AutoScenarioPtrType   autoScenarioFactory(AutoScenarioEnum autoScenario)  {
         break;
 
     case AutoScenario_RobotMiddle_SwitchLeft:
-//        scenario_ptr.reset(new XXX);
+        scenario_ptr.reset(new Station1SwitchLeft);
         break;
 
     case AutoScenario_RobotMiddle_SwitchRight:
-//        scenario_ptr.reset(new XXX);
+        scenario_ptr.reset(new Station1SwitchRight);
         break;
 
 //    case AutoScenario_RobotMiddle_ScaleLeft:

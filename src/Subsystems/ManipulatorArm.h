@@ -11,6 +11,8 @@
 
 #ifndef MANIPULATORARM_H
 #define MANIPULATORARM_H
+#include <iostream>
+#include <fstream>
 #include "Commands/Subsystem.h"
 #include "WPILib.h"
 
@@ -32,6 +34,10 @@ typedef struct ArmSeg
 	double relAngle;
 	double encValue;
 	
+	double setAbsAngle;
+	double setRelAngle;
+	double setEncValue;
+
 	double convSlope;
 	double convIntercept;
 	}tpArmSegment;
@@ -69,7 +75,7 @@ private:
 	double wrDegreePerSecond, elDegreePerSecond, shDegreePerSecond;
 	double shMinTime, elMinTime, wrMinTime;
 	
-	int positions[13][3];
+	int positions[32][3];
 
 	double posOffset;
 	double multOffset;
@@ -84,6 +90,9 @@ private:
 	int posOutLast;
 	int pickupCount = 0;
 	int pickupCount2 = 0;
+
+	std::ofstream logfile; // stream for writing to file
+	char buf[256]; // Buffer for writing data
 
 public:
 	ManipulatorArm();
@@ -138,6 +147,9 @@ public:
 	void shiftToShoulder();
 
 	bool calibrate();
+
+	void openLog();
+	void closeLog();
 
 	tpArmSegment shoulderSeg;
 	tpArmSegment elbowSeg;

@@ -37,8 +37,17 @@ void ShiftToClimber::Execute() {
 				moveCase = 1;
 			break;
 		case 1:
+			if(Robot::manipulatorArm->moveTo(13))
+				moveCase = 2;
+			break;
+		case 2:
 			//Switch to climber
 			Robot::manipulatorArm->climber();
+			moveCase = 3;
+			break;
+		case 3:
+			double climberSpeed = Robot::oi->getdriver()->GetRawAxis(3);
+			Robot::manipulatorArm->setShoulderPosition(Robot::manipulatorArm->getShoulderAngular() - (climberSpeed*300));
 			break;
 		}
 }

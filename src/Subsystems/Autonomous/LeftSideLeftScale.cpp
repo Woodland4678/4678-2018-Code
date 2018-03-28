@@ -56,7 +56,7 @@ void  LeftSideLeftScale::initialize() {
 	m_calculator1_Ptr->setTravelPower(0.9);
 	m_calculator1_Ptr->setFinalPower(0.9);
 
-	m_calculator2_Ptr.reset(new DriveMotorCalculator(250, 215, encoder_pulses_cm));
+	m_calculator2_Ptr.reset(new DriveMotorCalculator(250, 200, encoder_pulses_cm));
 	m_calculator2_init = false;
 
     m_calculator2_Ptr->removeStartUpZone();
@@ -72,7 +72,7 @@ void  LeftSideLeftScale::initialize() {
 //	m_calculator4_Ptr.reset(new DriveMotorCalculator(225, 100, encoder_pulses_cm));
 //	m_calculator4_init = false;
 
-	m_calculator5_Ptr.reset(new DriveMotorCalculator(-130, -161, encoder_pulses_cm));
+	m_calculator5_Ptr.reset(new DriveMotorCalculator(-165, -235, encoder_pulses_cm));
 	m_calculator5_init = false;
 
 	m_armMovement1 = false;
@@ -139,7 +139,7 @@ void  LeftSideLeftScale::execute() {
 	case ScenarioState3:
 		// Back robot up and turn slightly
 //		if (moveRobot(m_calculator3_init, m_calculator3_Ptr) == true) {
-		if (Robot::driveTrain->GyroTurn(Robot::ahrs->GetAngle(), 150, 0.15, 0, 0.2)) {
+		if (Robot::driveTrain->GyroTurn(Robot::ahrs->GetAngle(), 158, 0.10, 0, 0.2)) {
 			m_currentState = ScenarioState4;
 //			setFinished();
 		}
@@ -230,7 +230,7 @@ void  LeftSideLeftScale::execute() {
 	case ScenarioState9:
 		if ((moveRobot(m_calculator5_init, m_calculator5_Ptr) == true) && (m_armMovement5)) {
 			m_currentState = ScenarioState2;
-			Robot::manipulatorArm->release();
+//			Robot::manipulatorArm->release();
 			setFinished();
 		}
 		if (!m_armMovement5) {

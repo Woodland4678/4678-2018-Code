@@ -18,7 +18,7 @@
 #define WHEELSPEEDSTOPPED	0
 #define WHEELSPEEDSLOW		0.1
 #define WHEELSPEEDMEDIUM	0.4
-#define WHEELSPEEDHIGH		0.7
+#define WHEELSPEEDHIGH		0.85
 #define WHEELSPEEDMAX		1.0
 
 /**
@@ -66,7 +66,7 @@ private:
 	int moveCase;
 
 	int intakeState;
-	int positions[2];
+	int positions[10];
 	int moveOverridePos;
 	bool moveOverride;
 public:

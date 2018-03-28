@@ -72,6 +72,12 @@ void DriveRobot::Execute() {
 	double leftPower = -(JoyY - 0.75 * JoyX);
 	double rightPower = -(JoyY + 0.75 * JoyX);
 
+	if(((Robot::manipulatorArm->targetPos > 0) && (Robot::manipulatorArm->targetPos < 5))&&(Robot::manipulatorArm->checkForCube()))
+		{
+		leftPower *= 0.4;
+		rightPower *= 0.4;
+		}
+
 	Robot::driveTrain->SetLeftPower(leftPower);
 	Robot::driveTrain->SetRightPower(rightPower);
 #endif

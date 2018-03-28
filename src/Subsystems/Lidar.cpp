@@ -46,6 +46,7 @@ Lidar::Lidar() : frc::Subsystem("Lidar") {
 	glob_lidar_ready = 0;
 	cubeFindCase = 0;
 	cubeSquaringCase = 0;
+	cubeIntakeCase = 0;
 	glob_lidar_may_run = 0;
 	doneGo = false;
 	prevtstamp = (int)(Timer::GetFPGATimestamp()*1000000); // get value in microseconds.
@@ -476,7 +477,7 @@ void Lidar::convertToXY()
 		double rad = M_PI * ((double)lidat[i].angle / 64.0) / 180;
 		lidatXY[j].x = ((((double)lidat[i].dist) * std::sin(rad)));
 		lidatXY[j].y = -((((double)lidat[i].dist) * std::cos(rad)));
-		printf(" %i,%i",lidatXY[j].x,lidatXY[j].y);
+		//printf(" %i,%i",lidatXY[j].x,lidatXY[j].y);
 		j++;
 		}
 	printf("\n");
@@ -488,7 +489,7 @@ void Lidar::filterData(bool convertXY, double leftLimit, double rightLimit, doub
 	unsigned int startidx = 0, n=0;
 	double dist, angle;
 	//TODO: remove this line
-	convertToXY();
+	//convertToXY();
 	for(int i = 0;i<glob_lidar_count;i++)
 		{
 		angle = ((double)lidat[i].angle / 64.0);
@@ -517,10 +518,10 @@ void Lidar::filterData(bool convertXY, double leftLimit, double rightLimit, doub
 	filteredCount = n;
 
 	//TODO: Delete this debug code:
-	printf("Cont: %i\n",xyCount);
-	for(int i = 0; i<xyCount; i++)
-		printf(" %i,%i",lidatXY[i].x,lidatXY[i].y);
-	printf("\n");
+	//printf("Cont: %i\n",xyCount);
+	//for(int i = 0; i<xyCount; i++)
+	//	printf(" %i,%i",lidatXY[i].x,lidatXY[i].y);
+	//printf("\n");
 	}
 
 /*
@@ -704,7 +705,7 @@ void Lidar::FindLines(){
 
 	//TODO: Remove this debug stuff!
 	for(int i = 0; i<(linecnt+1); i++){
-		printf("Line %i: start(%i, %i) end(%i, %i) angle=%f length=%i \n",i, lines[i].start.x,lines[i].start.y, lines[i].end.x,lines[i].end.y,lines[i].angle,lines[i].length);
+		//printf("Line %i: start(%i, %i) end(%i, %i) angle=%f length=%i \n",i, lines[i].start.x,lines[i].start.y, lines[i].end.x,lines[i].end.y,lines[i].angle,lines[i].length);
 		if(logfile.is_open())
 		{
 			sprintf(buf,"L,%i,%i,%i,%i,%f,%i\n",lines[i].start.x,lines[i].start.y, lines[i].end.x,lines[i].end.y,lines[i].angle,lines[i].length);
@@ -752,7 +753,7 @@ void Lidar::checkLinesForCubes(double frangle, double toangle){
 			sprintf(buf,"C,%i,%i,%i,%f\n",cubes[i].location.x,cubes[i].location.y, cubes[i].distance,cubes[i].angle);
 			logfile.write(buf,strlen(buf));
 			}
-		printf("Cube %i: Loca(%i, %i) dist=%i angle=%f\n",i, cubes[i].location.x,cubes[i].location.y, cubes[i].distance,cubes[i].angle);
+		//printf("Cube %i: Loca(%i, %i) dist=%i angle=%f\n",i, cubes[i].location.x,cubes[i].location.y, cubes[i].distance,cubes[i].angle);
 		}
 }
 
@@ -843,6 +844,86 @@ int Lidar::findCubes(double frangle, double toangle)
 				return 1;
 				}
 			break;
+		}
+	return 0;
+	}
+
+int Lidar::checkForCubeIntake()
+	{
+	switch (cubeIntakeCase)
+		{
+		case 0:
+			//Check if the intake is in position
+			//if(Robot::intake->checkPosition() != Robot::intake->IntakePositions::GetCube)
+			//	return 2;
+			//Get readings
+			readLidar();
+			cubeIntakeCase = 1;
+			break;
+		case 1:
+			//Check for completion
+			if(readComplete())
+				{
+				cubeIntakeCase = 2;
+				}
+			break;
+		case 2:
+			{
+			filterData(true, 40,40,50,500);
+			FindLines();
+			//When we filter out everything we will be left with only whats in between the intakes
+			//Is there something here?
+			if((linecnt+1) < 1)
+				return 2; //No cube!
+			//There must be something here then
+			//	What is the largest line
+			int larLen = 0;
+			int stLine = -1;
+			for(int i = 0; i<(linecnt+1);i++)
+				{
+				if(lines[i].length > 50)
+					{
+					if(stLine == -1)
+						stLine = i;
+					}
+				if(lines[i].length > larLen)
+					larLen = lines[i].length;
+				}
+			if (larLen < 30)
+				return 2; //No cube!
+			//By now I think we can be real sure that there is a cube in front of the robot
+			//	Is is flat or diagonal?
+			//	Diagonal will look like V flat looks like _
+			//1 or 2 lines?
+			if ((linecnt+1) > 1)
+				{
+				//We may have a diagonal
+				// Is the difference in angles around 90 degrees?
+				//does the other line exist?
+				if((stLine+1) > (linecnt+1))
+					stLine--;
+				if(std::abs(std::abs((lines[stLine].angle - lines[stLine+1].angle)) - 90) < 10)
+					return 3; //Return diamond shape
+				}
+			else
+				{
+				//Check angle of the line
+				if(std::abs(lines[stLine].angle - 0) > 20)
+					return 4; //Not diamond, but also not quite lined up right
+				}
+			//At this point the cube is flat
+			//Check distance
+			int xLoca = (lines[stLine].start.x + lines[stLine].end.x) / 2;
+			int yLoca = (lines[stLine].start.y + lines[stLine].end.y) / 2;
+			int dist = std::sqrt((xLoca*xLoca) + (yLoca*yLoca));
+			//	If the distance is close enough then the cube is ready to be picked up
+			if(dist < 255)
+				return 1;//Cube flat and ready for pickup!
+			else
+				return 5;//Cube too far away
+			cubeIntakeCase = 0;
+			break;
+			}
 		}
 	return 0;
 	}

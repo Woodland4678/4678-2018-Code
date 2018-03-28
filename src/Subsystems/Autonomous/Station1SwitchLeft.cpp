@@ -41,7 +41,7 @@ void  Station1SwitchLeft::initialize() {
 	m_calculator1_Ptr.reset(new DriveMotorCalculator(90, 175, encoder_pulses_cm));
 	m_calculator1_init = false;
 
-	m_calculator2_Ptr.reset(new DriveMotorCalculator(275, 207, encoder_pulses_cm));
+	m_calculator2_Ptr.reset(new DriveMotorCalculator(275, 195, encoder_pulses_cm));
 	m_calculator2_init = false;
 
 	m_currentState     = ScenarioState1;
@@ -67,6 +67,7 @@ void  Station1SwitchLeft::execute() {
 	case ScenarioState1:
 		if (moveRobot(m_calculator1_init, m_calculator1_Ptr) == true) {
 			m_currentState = ScenarioState2;
+
 		}
 		if (!m_armMovement)
 			m_armMovement = Robot::manipulatorArm->moveTo(7);

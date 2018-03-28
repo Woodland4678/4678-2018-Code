@@ -37,8 +37,9 @@ void FindCubes::Execute() {
 		doneGo = true;
 		return;
 		}
-	if(Robot::lidar->findCubes(-180.0,180.0) == 1)
-		doneGo = true;
+	//if(Robot::lidar->findCubes(-180.0,180.0) == 1)
+	//	doneGo = true;
+	doneGo = Robot::intake->moveTo(2);
 	/*switch(getCubeCase)
 		{
 		case 0:
