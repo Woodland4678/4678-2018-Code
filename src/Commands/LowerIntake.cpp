@@ -32,7 +32,12 @@ void LowerIntake::Initialize() {
 
 // Called repeatedly when this Command is scheduled to run
 void LowerIntake::Execute() {
-	if((Robot::manipulatorArm->currPos == 5) && (Robot::manipulatorArm->targetPos == 5))
+	if(((Robot::manipulatorArm->currPos == 5) || (Robot::manipulatorArm->targetPos == 5))&&(Robot::intake->checkPosition() == 0))
+		{
+		done = true;
+		return;
+		}
+	if(Robot::intake->moveDisabled)
 		{
 		done = true;
 		return;
@@ -60,5 +65,5 @@ void LowerIntake::End() {
 // Called when another command which requires one or more of the same
 // subsystems is scheduled to run
 void LowerIntake::Interrupted() {
-
+	Robot::manipulatorArm->moveCase = 0;
 }

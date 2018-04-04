@@ -44,13 +44,13 @@ void  Station1ScaleRight::initialize() {
 	m_calculator1_Ptr.reset(new DriveMotorCalculator(450, 450, encoder_pulses_cm)); //520, 520
 	m_calculator1_init = false;
 
-	m_calculator2_Ptr.reset(new DriveMotorCalculator(280, 171, encoder_pulses_cm)); //300, 171
+	m_calculator2_Ptr.reset(new DriveMotorCalculator(285, 171, encoder_pulses_cm)); //300, 171
 	m_calculator2_init = false;
 
-	m_calculator3_Ptr.reset(new DriveMotorCalculator(440, 440, encoder_pulses_cm));
+	m_calculator3_Ptr.reset(new DriveMotorCalculator(455, 455, encoder_pulses_cm));
 	m_calculator3_init = false;
 
-	m_calculator6_Ptr.reset(new DriveMotorCalculator(-160, -210, encoder_pulses_cm));
+	m_calculator6_Ptr.reset(new DriveMotorCalculator(-150, -210, encoder_pulses_cm)); //left right
 	m_calculator6_init = false;
 
 //	m_calculator4_Ptr.reset(new DriveMotorCalculator(85, 213, encoder_pulses_cm)); //100, 250
@@ -246,7 +246,7 @@ void  Station1ScaleRight::execute() {
 	case ScenarioState8:
 		m_cnt += 1;
 		Robot::manipulatorArm->squeeze();
-		if(m_cnt > 5) {
+		if(m_cnt > 25) {
 			Robot::intake->release();
 			m_currentState = ScenarioState9;
 		}
@@ -275,7 +275,7 @@ void  Station1ScaleRight::execute() {
 			m_armMovement4 = Robot::manipulatorArm->moveTo(3);
 		}
 		if (!m_intakeMovement3) {
-			Robot::intake->moveTo(0);
+			Robot::intake->moveTo(1);
 		}
 	default:
 		break;

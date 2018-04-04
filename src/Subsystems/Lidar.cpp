@@ -68,6 +68,11 @@ void Lidar::Periodic() {
 	time_t t=time(0);
 	struct tm *now;
 
+	if (logfile.is_open())
+		{
+		sprintf(buf,"E,%d,%d,%f,%f\n",Robot::driveTrain->getLeftEncoder()->Get(),Robot::driveTrain->getRightEncoder()->Get(),Robot::ahrs->GetAngle(),Timer::GetFPGATimestamp());
+		logfile.write(buf,strlen(buf));
+		}
 	if (txcmd != 0)
 		{
 		switch(txcmd)
@@ -791,8 +796,8 @@ void Lidar::calculatePathToNearestCube()
 //	leftcm -= 3;
 
 	// Found wasn't grabbing a cube so add a little bit
-	rightcm += 3;
-	leftcm += 3;
+	rightcm -= 3;
+	leftcm -= 3;
 
 	printf("theta = %f, r = %f, rRight = %f, rLeft = %f\n", theta, r, rRight, rLeft);
 	printf("rightcm = %i   leftcm = %i\n", rightcm, leftcm);

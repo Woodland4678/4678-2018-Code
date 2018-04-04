@@ -91,7 +91,18 @@ void Intake::InitDefaultCommand() {
 
 void Intake::Periodic() {
     // Put code here to be run every loop
-
+	if((Robot::manipulatorArm->currPos != 5)&&(Robot::manipulatorArm->currPos != 0))
+		{
+		if(Robot::manipulatorArm->checkForCube())
+			{
+			moveDisabled = true;
+			moveTo(IntakePositions::InRobot);
+			}
+		else
+			moveDisabled = false;
+		}
+	else
+		moveDisabled = false;
 }
 
 void Intake::getCude(){
@@ -139,7 +150,7 @@ bool Intake::moveTo(int position)
 			Robot::manipulatorArm->updateArm();
 			if((Robot::manipulatorArm->wristSeg.posX > 0) && (Robot::manipulatorArm->wristSeg.posY < 12))
 				{
-				moveCase = 2; //Lets just not move until the arm is out of the way
+				moveCase = 0; //Lets just not move until the arm is out of the way
 				return true;
 				}
 
@@ -195,11 +206,13 @@ double Intake::invSigmod(double end, double start, double mult, double offset, d
 
 int Intake::checkPosition()
 	{
-	Status.position = 2; //Unknown
+	Status.position = 3; //Unknown
 	if(std::abs(getLifterAngular() - positions[1]) < 500)
 		Status.position = IntakePositions::GetCube;
 	if(std::abs(getLifterAngular() - positions[0]) < 500)
 		Status.position = IntakePositions::InRobot;
+	if(std::abs(getLifterAngular() - positions[2]) < 500)
+		Status.position = 2;
 	return Status.position;
 	}
 

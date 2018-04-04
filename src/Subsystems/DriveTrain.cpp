@@ -56,6 +56,11 @@ void DriveTrain::readLeftMotor()
 
 	}
 
+double DriveTrain::readCompressor()
+{
+	return compressor->GetCompressorCurrent();
+}
+
 void DriveTrain::SetRightPower(double power) {
 	rightMotor->Set(power);
 }

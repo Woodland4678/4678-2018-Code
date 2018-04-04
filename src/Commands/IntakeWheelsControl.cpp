@@ -23,22 +23,34 @@ IntakeWheelsControl::IntakeWheelsControl(): frc::Command() {
 
 // Called just before this Command runs the first time
 void IntakeWheelsControl::Initialize() {
-
+	done = false;
 }
 
 // Called repeatedly when this Command is scheduled to run
 void IntakeWheelsControl::Execute() {
 	double joy = Robot::oi->getdriver()->GetRawAxis(2);
-	if(joy > 0) //Intake wheels in
-		Robot::intake->spinForward(1.0);
+	if(Robot::oi->getdriver()->GetRawButton(12))
+		{
+		if(joy > 0) //Intake wheels in
+			{
+			Robot::intake->spinForward(1.0);
+			done = true;
+			}
+		else
+			Robot::intake->spinReverse(1.0);
+		}
 	else
-		Robot::intake->spinReverse(1.0);
+		{
+		if(joy < 0)
+			Robot::intake->stopWheels();
+		done = true;
+		}
 
 }
 
 // Make this return true when this Command no longer needs to run execute()
 bool IntakeWheelsControl::IsFinished() {
-    return true;
+    return done;
 }
 
 // Called once after isFinished returns true

@@ -95,7 +95,7 @@ void moveArm::Execute() {
 					}
 				}
 			frc::SmartDashboard::PutBoolean("Fine Motion Control", true);
-			joyValuesX[joyCount] = joyX;
+			/*joyValuesX[joyCount] = joyX;
 			joyValuesY[joyCount] = joyY;
 			joyCount++;
 			if(joyCount == 4)
@@ -131,7 +131,7 @@ void moveArm::Execute() {
 					}
 				moveInit = Robot::manipulatorArm->fineMovement(sumX / 2,-(sumY/2));
 				joyCount = 0;
-				}
+				}*/
 			if(std::abs(wristMove-0) > 0.05)
 				Robot::manipulatorArm->moveWrist(wristMove);
 			break;
@@ -202,9 +202,17 @@ void moveArm::Execute() {
 			done = Robot::manipulatorArm->moveTo(6);
 			break;
 		case 11: //Climber
-			if(!done2)
+			if(!done3)
+				{
+				if(Robot::manipulatorArm->currPos != 8)
+					done3 = Robot::manipulatorArm->moveTo(8);
+				else
+					done3= true;
+				}
+
+			if(!done2 && done3)
 				done2 = Robot::manipulatorArm->moveTo(9);
-			else
+			if(done2 && done3)
 				{
 				if (Robot::manipulatorArm->moveTo(10))
 					{
@@ -235,10 +243,15 @@ void moveArm::Execute() {
 			break;
 		case 15:
 			//Calibrate
-			if(Robot::manipulatorArm->calibrate())
+			if(!done2)
+				done2 = Robot::manipulatorArm->moveTo(11);
+			else
 				{
-				done = true;
-				m_sender = 0;
+				if(Robot::manipulatorArm->calibrate())
+					{
+					done = true;
+					m_sender = 0;
+					}
 				}
 			break;
 	}
@@ -257,5 +270,6 @@ void moveArm::End() {
 // Called when another command which requires one or more of the same
 // subsystems is scheduled to run
 void moveArm::Interrupted() {
-
+	if((m_sender == 15)||(m_sender == 11)||(m_sender == 12))
+		m_sender = 0;
 }

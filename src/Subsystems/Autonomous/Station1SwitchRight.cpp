@@ -64,11 +64,12 @@ void  Station1SwitchRight::execute() {
 
 	switch (m_currentState) {
 	case ScenarioState1:
+		if (!m_armMovement) {
+			m_armMovement = Robot::manipulatorArm->moveTo(7);
+		}
 		if (moveRobot(m_calculator1_init, m_calculator1_Ptr) == true) {
 			m_currentState = ScenarioState2;
 		}
-		if (!m_armMovement)
-			m_armMovement = Robot::manipulatorArm->moveTo(7);
 		break;
 
 	case ScenarioState2:
@@ -77,8 +78,9 @@ void  Station1SwitchRight::execute() {
 			Robot::manipulatorArm->release();
 			setFinished();
 		}
-		if (!m_armMovement)
+		if (!m_armMovement) {
 			m_armMovement = Robot::manipulatorArm->moveTo(7);
+		}
 		break;
 
 	default:

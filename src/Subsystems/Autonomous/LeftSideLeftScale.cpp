@@ -199,11 +199,12 @@ void  LeftSideLeftScale::execute() {
 	case ScenarioState6:
 		// Come ahead so can find a cube
 		m_cnt++;
-		if (m_cnt > 25) {
+		if (m_cnt > 15) {
 			if (!m_armMovement4) {
 				m_armMovement4 = Robot::manipulatorArm->moveTo(5);
 
 			} else {
+				Robot::intake->stopWheels();
 				m_currentState = ScenarioState7;
 			}
 		}
@@ -233,22 +234,24 @@ void  LeftSideLeftScale::execute() {
 	case ScenarioState8:
 		m_cnt += 1;
 		Robot::manipulatorArm->squeeze();
-		if(m_cnt > 5) {
+		if(m_cnt > 20) {
 			Robot::intake->release();
-			m_currentState = ScenarioState9;
+			if (m_cnt > 25) {
+				m_currentState = ScenarioState9;
+			}
 		}
 		break;
 	case ScenarioState9:
 		if ((moveRobot(m_calculator5_init, m_calculator5_Ptr) == true) && (m_armMovement5)) {
 			m_currentState = ScenarioState2;
-//			Robot::manipulatorArm->release();
+			Robot::manipulatorArm->release();
 			setFinished();
 		}
 		if (!m_armMovement5) {
 			m_armMovement5 = Robot::manipulatorArm->moveTo(3);
 		}
 		if (!m_intakeMovement3) {
-			Robot::intake->moveTo(0);
+			Robot::intake->moveTo(1);
 		}
 		break;
 	default:
