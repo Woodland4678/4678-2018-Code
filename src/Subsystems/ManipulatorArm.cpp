@@ -1284,6 +1284,24 @@ void ManipulatorArm::updateShoulder()
 void ManipulatorArm::updateElbow()
 	{
 	elbowSeg.encValue = getElbowAngular();
+	double elAbsEncoder = elbow->GetSensorCollection().GetPulseWidthPosition();
+	//Check for chain skip
+	double quadExpected = elAbsEncoder * 4.03436;
+	double diff = std::abs(std::abs(elbowSeg.encValue) - quadExpected);
+	if(diff > 200)
+		{
+		frc::SmartDashboard::PutBoolean("Elbow Skipped", true);
+		frc::SmartDashboard::PutNumber("Elbow Skip Expected", -quadExpected);
+		frc::SmartDashboard::PutNumber("Elbow Skip Read", elbowSeg.encValue);
+		frc::SmartDashboard::PutNumber("Elbow Skip Diff", diff);
+		frc::SmartDashboard::PutNumber("Elbow Skip Timestamp", frc::Timer::GetFPGATimestamp());
+		//Auto re-calibrate:
+		//elbow->GetSensorCollection().SetQuadraturePosition(-quadExpected, 0);
+		//elbowSeg.encValue = getElbowAngular();
+		}
+	else
+		frc::SmartDashboard::PutBoolean("Elbow Skipped", false);
+
 	frc::SmartDashboard::PutNumber("Elbow Encoder", elbowSeg.encValue);
 	frc::SmartDashboard::PutNumber("Elbow En Absolute", elbow->GetSensorCollection().GetPulseWidthPosition());
 	//Get angles
@@ -1293,9 +1311,9 @@ void ManipulatorArm::updateElbow()
 	frc::SmartDashboard::PutNumber("Elbow Absolute", elbowSeg.absAngle);
 	//Position
 	elbowSeg.posX = shoulderSeg.posX + shoulderSeg.length * std::cos(shoulderSeg.absAngle * (M_PI/180));
-	frc::SmartDashboard::PutNumber("Elbow Pos X", elbowSeg.posX);
+	//frc::SmartDashboard::PutNumber("Elbow Pos X", elbowSeg.posX);
 	elbowSeg.posY = shoulderSeg.posY + shoulderSeg.length * std::sin(shoulderSeg.absAngle * (M_PI/180));
-	frc::SmartDashboard::PutNumber("Elbow Pos Y", elbowSeg.posY);
+	//frc::SmartDashboard::PutNumber("Elbow Pos Y", elbowSeg.posY);
 	}
 void ManipulatorArm::updateWrist()
 	{
