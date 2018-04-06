@@ -132,8 +132,7 @@ void moveArm::Execute() {
 				moveInit = Robot::manipulatorArm->fineMovement(sumX / 2,-(sumY/2));
 				joyCount = 0;
 				}*/
-			if(std::abs(wristMove-0) > 0.05)
-				Robot::manipulatorArm->moveWrist(wristMove);
+
 			break;
 			}
 		case 1: //Carry Position
@@ -199,14 +198,14 @@ void moveArm::Execute() {
 			done = Robot::manipulatorArm->moveTo(0);
 			break;
 		case 10: //Portal
-			done = Robot::manipulatorArm->moveTo(6);
+			done = Robot::manipulatorArm->moveToRelative(6);
 			break;
 		case 11: //Climber
 			if(!done3)
 				{
-				if(Robot::manipulatorArm->currPos != 8)
-					done3 = Robot::manipulatorArm->moveTo(8);
-				else
+				//if(Robot::manipulatorArm->currPos != 8)
+				//	done3 = Robot::manipulatorArm->moveTo(8);
+				//else
 					done3= true;
 				}
 

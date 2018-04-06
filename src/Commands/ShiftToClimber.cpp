@@ -33,11 +33,11 @@ void ShiftToClimber::Execute() {
 		{
 		case 0:
 			//Move arm to position
-			if(Robot::manipulatorArm->moveTo(12))
+			//if(Robot::manipulatorArm->moveTo(12))
 				moveCase = 1;
 			break;
 		case 1:
-			if(Robot::manipulatorArm->moveTo(13))
+			if(Robot::manipulatorArm->moveToRelative(13))
 				moveCase = 2;
 			break;
 		case 2:
