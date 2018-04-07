@@ -109,6 +109,8 @@ ManipulatorArm::ManipulatorArm() : frc::Subsystem("ManipulatorArm") {
 	shoulderSeg.setAbsAngle = 109;
 	shoulderSeg.setRelAngle = 109;
 	shoulderSeg.setEncValue = convertRelAngleToEncoder(&shoulderSeg, 109);
+	shoulderSeg.setPosX = 0;
+	shoulderSeg.setPosY = 0;
 
 	shDegreePerSecond = 50;
 	shMinTime = 1;
@@ -152,6 +154,8 @@ ManipulatorArm::ManipulatorArm() : frc::Subsystem("ManipulatorArm") {
 	elbowSeg.setRelAngle = -159;
 	elbowSeg.setEncValue = convertRelAngleToEncoder(&elbowSeg, -159);
 #endif
+	elbowSeg.setPosX = shoulderSeg.posX + shoulderSeg.length * std::cos(shoulderSeg.setAbsAngle * (M_PI/180));
+	elbowSeg.setPosY = shoulderSeg.posY + shoulderSeg.length * std::sin(shoulderSeg.setAbsAngle * (M_PI/180));
 
 
 	elDegreePerSecond = 90;
@@ -169,7 +173,7 @@ ManipulatorArm::ManipulatorArm() : frc::Subsystem("ManipulatorArm") {
 	wrist->EnableCurrentLimit(false);
 	wrist->ConfigVoltageCompSaturation(12, 0);
 	wrist->EnableVoltageCompensation(false);
-	setWristPID(2,0,0,0,0);
+	setWristPID(4,0,0,0,0);
 	wrist->ConfigAllowableClosedloopError(0, 5, 0);
 	wrist->ConfigSelectedFeedbackSensor(FeedbackDevice::QuadEncoder, 0, 0);
 	wrist->SetStatusFramePeriod(StatusFrame::Status_1_General_, 10, 0);
@@ -187,9 +191,11 @@ ManipulatorArm::ManipulatorArm() : frc::Subsystem("ManipulatorArm") {
 	wristSeg.setAbsAngle = 0;
 	wristSeg.setRelAngle = 50;
 	wristSeg.setEncValue = convertRelAngleToEncoder(&wristSeg, 50);
+	wristSeg.setPosX = elbowSeg.posX + elbowSeg.length * std::cos(elbowSeg.setAbsAngle * (M_PI/180));
+	wristSeg.setPosY = elbowSeg.posY + elbowSeg.length * std::sin(elbowSeg.setAbsAngle * (M_PI/180));
 
 	wrDegreePerSecond = 90; // 125; // 150; // was 90
-	wrMinTime = 1.5; // 1.0; //  was 1.5
+	wrMinTime = 1; // 1.0; //  was 1.5
 	updateWrist();
 	
 	if(std::abs(wristSeg.absAngle - 0) < 15)
@@ -343,6 +349,11 @@ void ManipulatorArm::Periodic() {
 				joyCount++;
 				if(joyCount == 4)
 					{
+					joyCount = 0;
+					joyReached4 = true;
+					}
+				if(joyReached4)
+					{
 					//Filters, remove largest and lowest and average the remaining two
 					double large = -3, small = 3;
 					int larId = 0, smaId = 0;
@@ -373,7 +384,6 @@ void ManipulatorArm::Periodic() {
 						sumY += joyValuesY[i];
 						}
 					fineMovement(sumX / 2,-(sumY/2));
-					joyCount = 0;
 					}
 				}
 			}
@@ -464,7 +474,7 @@ void ManipulatorArm::initMovement(){
 
 void ManipulatorArm::moveWrist(double joyValue)
 	{
-	double ang = wristSeg.absAngle + (joyValue*4 );
+	double ang = wristSeg.setAbsAngle + (joyValue * 1.0 );
 	if(ang < -80)
 		ang = -80;
 	if (ang > 143)
@@ -482,10 +492,42 @@ bool ManipulatorArm::fineMovement(double joyX, double joyY) {
 	double currX = elbPosX + elbowSeg.length * std::cos(positions[targetPos][1] * (M_PI/180));
 	double currY = elbPosY + elbowSeg.length * std::sin(positions[targetPos][1] * (M_PI/180));
 	//Calculate Target Position
-	double tarX = std::abs(currX);
-	double tarY = std::abs(currY);
+	double tarX = std::abs(currX); // Co-ords of target position.
+	double tarY = std::abs(currY); // Allowable range is tarX +/- joyX * FINECONTROLBOXSIZE
 
-	tarX += FINECONTROLBOXSIZE * joyX;
+	// New position can be determined by taking current position (wristSeg.setPosX and SetPosY)
+	// and adding or subtracting a bit from them based on joystick position.
+	// how much we add is in the range of 0.06 inches per 50th of a second to maybe 0.25 inches/execution cycle
+	// abs of joystick position must be >0.07 so we should normalize this to 0 being at 0.07
+	// if joyX > 0.07, add (joyX - 0.07)*0.3 or so.  if joyX < -0.07, add (joyX + 0.07)*0.3
+	// same for joyY.  If result is beyond tarX +/- FINECONTROLBOXSIZE, set position to FINECONTROLBOXSIZE
+
+	double newTarX = std::abs(wristSeg.setPosX); // by default, we go nowhere.
+	double newTarY = std::abs(wristSeg.setPosY);
+
+	if (joyX > 0.07)
+		newTarX -= (joyX-0.07)*0.3;
+	else if (joyX < -0.07)
+		newTarX -= (joyX+0.07)*0.3;
+
+	if (joyY > 0.07)
+		newTarY += (joyY-0.07)*0.3;
+	else if (joyY < -0.07)
+		newTarY += (joyY+0.07)*0.3;
+
+	if (newTarX > tarX + FINECONTROLBOXSIZE)
+		newTarX = tarX + FINECONTROLBOXSIZE;
+	if (newTarX < tarX - FINECONTROLBOXSIZE)
+		newTarX = tarX - FINECONTROLBOXSIZE;
+
+	if (newTarY > tarY + FINECONTROLBOXSIZE)
+		newTarY = tarY + FINECONTROLBOXSIZE;
+	if (newTarY < tarY - FINECONTROLBOXSIZE)
+		newTarY = tarY - FINECONTROLBOXSIZE;
+
+
+/*
+	tarX += FINECONTROLBOXSIZE * joyX; // joyX, joyY in range -1.0 to +1.0
 	tarY += FINECONTROLBOXSIZE * joyY;
 
 	double newTarX = tarX;
@@ -494,22 +536,32 @@ bool ManipulatorArm::fineMovement(double joyX, double joyY) {
 	//updateArm();
 	//We have our target, and current location
 	//Find direction vector
-	double dirX = tarX - wristSeg.posX;
-	double dirY = tarY - wristSeg.posY;
+	double dirX = tarX - wristSeg.setPosX;
+	double dirY = tarY - wristSeg.setPosY;
 	//Find total distance
 	double dist = std::sqrt((dirX*dirX)+(dirY*dirY));
 	//Speed stuff
-	dist /= (0.5); //3 Inches per second, 0.02 each loop's time 50 Hz
+	dist /= (0.06); //3 Inches per second, 0.02 each loop's time 50 Hz
 	//Disance calculation
-	newTarX = (dirX / dist) + wristSeg.posX;
-	newTarY = (dirY / dist) + wristSeg.posY;
-
-	if((std::abs(wristSeg.posX - tarX) < 1))
+	if(dist == 0)
+		{
+		newTarX = wristSeg.setPosX;
+		newTarY = wristSeg.setPosY;
+		}
+	else
+		{
+		newTarX = (dirX / dist) + wristSeg.setPosX;
+		newTarY = (dirY / dist) + wristSeg.setPosY;
+		}
+	if((std::abs(wristSeg.setPosX - tarX) < 1))
 		{
 		newTarX = tarX;
 		}
-	if(std::abs(wristSeg.posY - tarY) < 1)
+	if(std::abs(wristSeg.setPosY - tarY) < 1)
 		newTarY = tarY;
+
+*/
+
 	//Check limits
 	if(newTarX > 26)
 		newTarX = 26;
@@ -528,8 +580,10 @@ bool ManipulatorArm::fineMovement(double joyX, double joyY) {
 	//Elbow
 	double casBrakets = ((std::pow(newTarX,2) + std::pow(newTarY,2)) - std::pow(37,2) - std::pow(40,2))/(-2*(37)*(40));
 	//Check value incase it is too far
-	if((casBrakets < -1)||(casBrakets > 1))
-		casBrakets = std::floor(casBrakets);
+	if(casBrakets < -1)
+		casBrakets = -1;
+	if(casBrakets > 1)
+		casBrakets = 1;
 	double angElbow = M_PI - std::acos(casBrakets);
 	//Shoulder
 	double angShoulder = std::atan(newTarY / newTarX) - std::atan((40 * std::sin(-angElbow))/(37 + 40 * std::cos(-angElbow)));
@@ -783,6 +837,8 @@ bool ManipulatorArm::moveTo(int pos, double addShTime, double addElTime)
 				shoulderMovement2 = true;
 				shoulderMovement3 = true;
 				}
+			if(wrTime < elTime)
+				wrTime = elTime;
 			//Special case:
 			if((currPos == 11) && (targetPos == 5))
 				{
@@ -804,7 +860,8 @@ bool ManipulatorArm::moveTo(int pos, double addShTime, double addElTime)
 				sprintf(buf,"EM,%f,%f\n",shTarget1,shTarget2);
 				logfile.write(buf,strlen(buf));
 				}
-
+			//shoulderMovement = true;
+			//elbowMovement = true;
 			moveCase += 1;
 			}
 			break;
@@ -1282,6 +1339,8 @@ void ManipulatorArm::setElbowRelAngle(double angle)
 	elbowSeg.setAbsAngle = angle + shoulderSeg.setAbsAngle;
 	elbowSeg.setRelAngle = angle;
 	elbowSeg.setEncValue = pos;
+	wristSeg.setPosX = elbowSeg.posX + elbowSeg.length * std::cos(elbowSeg.setAbsAngle * (M_PI/180));
+	wristSeg.setPosY = elbowSeg.posY + elbowSeg.length * std::sin(elbowSeg.setAbsAngle * (M_PI/180));
 	if (logfile.is_open())
 		{
 		sprintf(buf,"E,%f,%f,%f,%f,%i,%f\n",elbowSeg.absAngle,elbowSeg.setAbsAngle,elbowSeg.relAngle, angle, getElbowAngular(), pos);
@@ -1310,6 +1369,8 @@ void ManipulatorArm::setShoulderAbsAngle(double angle)
 	double pos = convertRelAngleToEncoder(&shoulderSeg, angle);
 	shoulderSeg.setAbsAngle = angle;
 	shoulderSeg.setEncValue = pos;
+	elbowSeg.setPosX = shoulderSeg.posX + shoulderSeg.length * std::cos(shoulderSeg.setAbsAngle * (M_PI/180));
+	elbowSeg.setPosY = shoulderSeg.posY + shoulderSeg.length * std::sin(shoulderSeg.setAbsAngle * (M_PI/180));
 	if (logfile.is_open())
 		{
 		sprintf(buf,"S,%f,%f,%i,%f\n",shoulderSeg.absAngle, angle, getShoulderAngular(), pos);
@@ -1326,6 +1387,8 @@ void ManipulatorArm::setElbowAbsAngle(double angle)
 	elbowSeg.setAbsAngle = angle;
 	elbowSeg.setRelAngle = relAng;
 	elbowSeg.setEncValue = pos;
+	wristSeg.setPosX = elbowSeg.setPosX + elbowSeg.length * std::cos(elbowSeg.setAbsAngle * (M_PI/180));
+	wristSeg.setPosY = elbowSeg.setPosY + elbowSeg.length * std::sin(elbowSeg.setAbsAngle * (M_PI/180));
 	if (logfile.is_open())
 		{
 		sprintf(buf,"E,%f,%f,%f,%f,%i,%f\n",elbowSeg.absAngle,angle,elbowSeg.relAngle, relAng, getElbowAngular(), pos);
@@ -1425,7 +1488,13 @@ bool ManipulatorArm::shoulderGoToPosition(double start, double position, double 
 		setShoulderRelAngle(NewSet);
 	//Return true if the elapse time is complete
 	if (current > time)
+		{
+		if(!Rel)
+			setShoulderAbsAngle(position);
+		else
+			setShoulderRelAngle(position);
 		return true;
+		}
 	return false;
 	}
 
@@ -1444,7 +1513,13 @@ bool ManipulatorArm::elbowGoToPosition(double start, double position, double cur
 
 	//Return true if the elapse time is complete
 	if (current > time)
+		{
+		if(!Rel)
+			setElbowAbsAngle(position);
+		else
+			setElbowRelAngle(position);
 		return true;
+		}
 	return false;
 	}
 
@@ -1463,7 +1538,13 @@ bool ManipulatorArm::wristGoToPosition(double start, double position, double cur
 
 	//Return true if the elapse time is complete
 	if (current > time)
+		{
+		if(!Rel)
+			setWristAbsAngle(position);
+		else
+			setWristRelAngle(position);
 		return true;
+		}
 	return false;
 	}
 

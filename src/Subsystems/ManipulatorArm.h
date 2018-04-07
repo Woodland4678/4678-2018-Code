@@ -28,6 +28,8 @@ typedef struct ArmSeg
 	{
 	double posX;
 	double posY;
+	double setPosX;
+	double setPosY;
 	int length;
 	
 	double absAngle;
@@ -99,6 +101,7 @@ private:
 	double joyValuesX[4];
 	double joyValuesY[4];
 	int joyCount = 0;
+	bool joyReached4 = false;
 
 public:
 	ManipulatorArm();
