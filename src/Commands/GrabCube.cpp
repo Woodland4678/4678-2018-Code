@@ -34,7 +34,7 @@ void GrabCube::Execute() {
 	Robot::manipulatorArm->squeeze();
 	if(count > 5)
 		{
-		Robot::intake->release();
+		//Robot::intake->release();
 		done = true;
 		}
 }

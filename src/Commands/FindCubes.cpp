@@ -31,15 +31,14 @@ void FindCubes::Initialize() {
 
 // Called repeatedly when this Command is scheduled to run
 void FindCubes::Execute() {
-	if(!Robot::oi->getdriver()->GetRawButton(8))
+	if(!Robot::oi->getdriver()->GetRawButton(10))
 		{
 		Robot::lidar->cubeFindCase = 0;
 		doneGo = true;
 		return;
 		}
-	//if(Robot::lidar->findCubes(-180.0,180.0) == 1)
-	//	doneGo = true;
-	doneGo = Robot::intake->moveTo(2);
+	if(Robot::lidar->findCubes(-180.0,180.0) == 1)
+		doneGo = true;
 	/*switch(getCubeCase)
 		{
 		case 0:

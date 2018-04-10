@@ -91,12 +91,17 @@ void Intake::InitDefaultCommand() {
 
 void Intake::Periodic() {
     // Put code here to be run every loop
-	if((Robot::manipulatorArm->currPos != 5)&&(Robot::manipulatorArm->currPos != 0))
+	if (!Robot::isAuto)
 		{
-		if(Robot::manipulatorArm->checkForCube())
+		if((Robot::manipulatorArm->currPos != 5)&&(Robot::manipulatorArm->currPos != 0))
 			{
-			moveDisabled = true;
-			moveTo(IntakePositions::InRobot);
+			if(Robot::manipulatorArm->checkForCube())
+				{
+				moveDisabled = true;
+				moveTo(IntakePositions::InRobot);
+				}
+			else
+				moveDisabled = false;
 			}
 		else
 			moveDisabled = false;

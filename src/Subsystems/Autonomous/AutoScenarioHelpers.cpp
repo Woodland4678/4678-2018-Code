@@ -63,7 +63,7 @@ AutoObjectiveEnum   transformConsoleSwitch2(int autoMode) {
 	case 1: return AutoObjectiveSwitch;
 	case 2: return AutoObjectiveScale;
 //	  case 3: return AutoObjectiveSwitchScale;
-//    case 4: return AutoObjectiveMoveForward;
+    case 3: return AutoObjectiveMoveForward;
 	}
 
     return AutoObjectiveUnknown;

@@ -725,7 +725,7 @@ void Lidar::checkLinesForCubes(double frangle, double toangle){
 	int n = 0, prev = 0;
 	double diffWidth, diffHieght, angle, dist, distX, distY;
 	tpPoint center;
-	for(int i = 0; i<linecnt; i++){
+	for(int i = 0; i<(linecnt+1); i++){
 		if(prev == 1){
 			//Check how far this line is from the prev cube
 			distX = (lines[i].start.x - lines[i-1].end.x);
@@ -739,7 +739,7 @@ void Lidar::checkLinesForCubes(double frangle, double toangle){
 		}
 		diffWidth = std::abs(CUBEWIDTH - lines[i].length);
 		diffHieght = std::abs(CUBEHIEGHT - lines[i].length);
-		if (((diffWidth < CUBERANGEWIDTH)||(diffHieght < CUBERANGEHIEGHT))&&(lines[i].angle > frangle)&&(lines[i].angle < toangle)){
+		if (((lines[i].length > 200)&&(lines[i].length < 360))&&(lines[i].angle > frangle)&&(lines[i].angle < toangle)){
 			cubes[n].location.x = (lines[i].start.x + lines[i].end.x) / 2;
 			cubes[n].location.y = (lines[i].start.y + lines[i].end.y) / 2;
 			//Distance from 0,0 (lidar)
@@ -796,8 +796,8 @@ void Lidar::calculatePathToNearestCube()
 //	leftcm -= 3;
 
 	// Found wasn't grabbing a cube so add a little bit
-	rightcm -= 3;
-	leftcm -= 3;
+	rightcm -= 11;
+	leftcm -= 11;
 
 	printf("theta = %f, r = %f, rRight = %f, rLeft = %f\n", theta, r, rRight, rLeft);
 	printf("rightcm = %i   leftcm = %i\n", rightcm, leftcm);

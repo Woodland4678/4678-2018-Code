@@ -41,25 +41,29 @@ void  Station1ScaleRight::initialize() {
 	m_cnt = 0;
 	int  encoder_pulses_cm(getEncoderPulsesPerCm());
 
-	m_calculator1_Ptr.reset(new DriveMotorCalculator(450, 450, encoder_pulses_cm)); //520, 520
+	m_calculator1_Ptr.reset(new DriveMotorCalculator(450, 450, encoder_pulses_cm)); //520, 520 Drive straight
 	m_calculator1_init = false;
 
-	m_calculator2_Ptr.reset(new DriveMotorCalculator(285, 171, encoder_pulses_cm)); //300, 171
+	m_calculator2_Ptr.reset(new DriveMotorCalculator(285, 171, encoder_pulses_cm)); //300, 171 //curve into the switch area
 	m_calculator2_init = false;
 
-	m_calculator3_Ptr.reset(new DriveMotorCalculator(455, 455, encoder_pulses_cm));
+	m_calculator3_Ptr.reset(new DriveMotorCalculator(455, 455, encoder_pulses_cm)); //drive straight through the switch area
 	m_calculator3_init = false;
 
-	m_calculator6_Ptr.reset(new DriveMotorCalculator(-150, -210, encoder_pulses_cm)); //left right
-	m_calculator6_init = false;
-
-//	m_calculator4_Ptr.reset(new DriveMotorCalculator(85, 213, encoder_pulses_cm)); //100, 250
-	m_calculator4_Ptr.reset(new DriveMotorCalculator(200, 110, encoder_pulses_cm));
+	m_calculator4_Ptr.reset(new DriveMotorCalculator(200, 110, encoder_pulses_cm));//first part of the Nat maneuver. The drive forward part
 	m_calculator4_init = false;
 
-	// Do this in the state machine
-	m_calculator5_Ptr.reset(new DriveMotorCalculator(-200, -148, encoder_pulses_cm));
+	m_calculator6_Ptr.reset(new DriveMotorCalculator(-150, -210, encoder_pulses_cm)); //left right the backup part of the nat maneuver to score the cube
+	m_calculator6_init = false;
+
+	m_calculator5_Ptr.reset(new DriveMotorCalculator(-200, -148, encoder_pulses_cm)); // The backup movtion after grabbing the second cube
 	m_calculator5_init = false;
+
+//	m_calculator4_Ptr.reset(new DriveMotorCalculator(85, 213, encoder_pulses_cm)); //100, 250
+
+
+	// Do this in the state machine
+
 
 	m_stateObserverPtr.reset(new DriveStateObserver);
 	m_currentState     = ScenarioState1;
@@ -104,7 +108,7 @@ int retval;
 
 void  Station1ScaleRight::execute() {
 
-	switch (m_currentState) {
+	switch (m_currentState) { //This state will drive forward
 	case ScenarioState1:
 		if (moveRobot(m_calculator1_init, m_calculator1_Ptr) == true) {
 			m_currentState = ScenarioState2;
@@ -114,7 +118,7 @@ void  Station1ScaleRight::execute() {
 		}
 		break;
 
-	case ScenarioState2:
+	case ScenarioState2: //this state will curve into the switch/scale passage
 		if (moveRobot(m_calculator2_init, m_calculator2_Ptr) == true) {
 			m_currentState = ScenarioState3;
 			m_armMovement = false;
@@ -126,7 +130,7 @@ void  Station1ScaleRight::execute() {
 
 		break;
 
-	case ScenarioState3:
+	case ScenarioState3: //this will drive straight through the switch/scale passage
 //		if (!m_armMovement) {
 //			m_armMovement = Robot::manipulatorArm->moveTo(11);
 //		}
@@ -140,24 +144,26 @@ void  Station1ScaleRight::execute() {
 		}
 		if (((m_calculator3_Ptr->getPercentDone() > 0.5))) {
 			if (!m_armMovement) {
-				m_armMovement = Robot::manipulatorArm->moveTo(3);
+				m_armMovement = Robot::manipulatorArm->moveTo(3,0.1,0.3);
 			}
 		}
 		break;
-	case ScenarioState4:
+	case ScenarioState4: //This is the first part of the nat maneuver (the forward part)
 		if (moveRobot(m_calculator4_init, m_calculator4_Ptr) == true) {
-			m_currentState = ScenarioState10;
+			m_currentState = ScenarioState10; //we go to 10 here because the nat maneuver was sorta pushed in.
 			m_cnt = 0;
 //			m_cnt++;
 //			Robot::manipulatorArm->release();
 		}
 		if (!m_armMovement) {
-			m_armMovement = Robot::manipulatorArm->moveTo(3);
+			m_armMovement = Robot::manipulatorArm->moveTo(3,0.1,0.3);
 		}
-
+		if (!m_intakeDown) {
+				m_intakeDown = Robot::intake->moveTo(Robot::intake->IntakePositions::GetCube);
+		}
 		break;
-	case ScenarioState10:
-		if (m_calculator6_Ptr->getPercentDone() > 0.9) {
+	case ScenarioState10: //the backup part of the nat manuever
+		if (m_calculator6_Ptr->getPercentDone() > 0.9) { //release the cube when the backup is 90% done (this kinda throws it, not sure we need to adjust it at all)
 			Robot::manipulatorArm->release();
 		}
 		if (moveRobot(m_calculator6_init, m_calculator6_Ptr) == true) {
@@ -169,14 +175,14 @@ void  Station1ScaleRight::execute() {
 //			Robot::manipulatorArm->release();
 		}
 		if (!m_armMovement) {
-			m_armMovement = Robot::manipulatorArm->moveTo(3);
+			m_armMovement = Robot::manipulatorArm->moveTo(3,0.1,0.3);
 		}
 		if (!m_intakeDown) {
 			m_intakeDown = Robot::intake->moveTo(Robot::intake->IntakePositions::GetCube);
 		}
 		break;
 
-	case ScenarioState5: //dont think we need to gyro turn on this one
+	case ScenarioState5: //dont think we need to gyro turn on this one, this state is skipped
 //		if (Robot::driveTrain->GyroTurn(Robot::ahrs->GetAngle(), 180, 0.15, 0, 0.2)) {
 //			m_currentState = ScenarioState6;
 //			m_cnt = 0;
@@ -192,7 +198,7 @@ void  Station1ScaleRight::execute() {
 //		}
 		break;
 
-	case ScenarioState6: {
+	case ScenarioState6: { //This state looks for the second cube using the lidar
 		// Find a cubes
 		if (!m_armMovement2) {
 			m_armMovement2 = Robot::manipulatorArm->moveTo(5);
@@ -210,7 +216,7 @@ void  Station1ScaleRight::execute() {
 			retval = Robot::lidar->findCubes(-40.0, 40.0);
 		}
 
-		if ((retval != 0)&&(m_armMovement2)&&(m_intakeDown)) {
+		if ((retval != 0)&&(m_armMovement2)) { //used to wait for the arm and intake movement to be done but I took it out, doesn't go into the if until the arm is in position
 			if (retval == 1) {
 				Robot::intake->grab();
 				m_cnt = 0;
@@ -226,32 +232,36 @@ void  Station1ScaleRight::execute() {
 
 		break;
 	}
-	case ScenarioState7:
-		m_cnt++;
-		if (m_cnt > 15) {
-			if (!m_armMovement3) {
-				m_armMovement3 = Robot::manipulatorArm->moveTo(5);
-
-			}
-			if (!m_intakeMovement2) {
-				m_intakeMovement2 = Robot::intake->moveTo(2);
-			}
-			else if ((m_intakeMovement2) && (Robot::manipulatorArm->checkForCube()) && (m_armMovement3)) {
-				m_currentState = ScenarioState8;
-				m_cnt = 0;
-			}
-
+	case ScenarioState7: //This picks up the cube, we know the arm is in position here based on the previous state.
+		Robot::manipulatorArm->pickUpCube();
+//		m_cnt++;
+//		if (m_cnt > 15) {
+//			if (!m_armMovement3) {
+//				m_armMovement3 = Robot::manipulatorArm->moveTo(5);
+//
+//			}
+		if (!m_intakeMovement2) {
+			m_intakeMovement2 = Robot::intake->moveTo(1);
 		}
-		break;
-	case ScenarioState8:
-		m_cnt += 1;
-		Robot::manipulatorArm->squeeze();
-		if(m_cnt > 25) {
-			Robot::intake->release();
+		if ((Robot::manipulatorArm->targetPos == 11)) {
 			m_currentState = ScenarioState9;
 		}
+//			else if ((m_intakeMovement2) && (Robot::manipulatorArm->checkForCube()) && (m_armMovement3)) {
+//				m_currentState = ScenarioState8;
+//				m_cnt = 0;
+//			}
+//
+//		}
 		break;
-	case ScenarioState9:
+	case ScenarioState8: //this state is skipped ignore it
+//		m_cnt += 1;
+//		Robot::manipulatorArm->squeeze();
+//		if(m_cnt > 25) {
+//			Robot::intake->release();
+			m_currentState = ScenarioState9;
+//		}
+		break;
+	case ScenarioState9: //THis state backs up towards the scale to drop the second cube
 //		if (m_calculator5_init == false) {
 //			int  encoder_pulses_cm(getEncoderPulsesPerCm());
 //
@@ -268,7 +278,7 @@ void  Station1ScaleRight::execute() {
 //		}
 		if ((moveRobot(m_calculator5_init, m_calculator5_Ptr) == true) && (m_armMovement4)) {
 			m_currentState = ScenarioState2;
-			Robot::manipulatorArm->release();
+			Robot::manipulatorArm->release(); //only does this once the driving and the arm motion is done
 			setFinished();
 		}
 		if (!m_armMovement4) {

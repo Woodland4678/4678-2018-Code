@@ -58,6 +58,7 @@ void  Station1SwitchRight::initialize() {
 
 //	Robot::manipulatorArm->initMovement();
 	m_armMovement = false;
+
 }
 
 void  Station1SwitchRight::execute() {

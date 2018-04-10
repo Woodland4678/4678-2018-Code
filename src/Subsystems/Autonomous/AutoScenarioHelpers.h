@@ -46,7 +46,7 @@ enum AutoObjectiveEnum  {
     AutoObjectiveSwitch,
     AutoObjectiveScale,
 //    AutoObjectiveSwitchScale,
-//    AutoObjectiveMoveForward,
+    AutoObjectiveMoveForward,
     AutoObjectiveMax
 };
 
@@ -63,7 +63,7 @@ enum AutoScenarioEnum  {
 //    AutoScenario_RobotLeft_SwitchLeft_ScaleRight,
 //    AutoScenario_RobotLeft_SwitchRight_ScaleLeft,
 //    AutoScenario_RobotLeft_SwitchRight_ScaleRight,
-//    AutoScenario_RobotLeft_MoveForward,
+    AutoScenario_RobotLeft_MoveForward,
 
     AutoScenario_RobotMiddle_NoAuto,
     AutoScenario_RobotMiddle_SwitchLeft,
@@ -85,7 +85,7 @@ enum AutoScenarioEnum  {
 //    AutoScenario_RobotRight_SwitchLeft_ScaleRight,
 //    AutoScenario_RobotRight_SwitchRight_ScaleLeft,
 //    AutoScenario_RobotRight_SwitchRight_ScaleRight,
-//    AutoScenario_RobotRight_MoveForward,
+    AutoScenario_RobotRight_MoveForward,
 
     AutoScenarioMax
 };

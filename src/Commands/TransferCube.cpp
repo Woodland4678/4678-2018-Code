@@ -41,12 +41,12 @@ void TransferCube::Execute() {
 	//if(totalCount > 100)
 	//	done = true;
 	//Is the cube lined up correctly?
-	if(Robot::intake->checkPosition() == Robot::intake->IntakePositions::InRobot)
+	/*if(Robot::intake->checkPosition() == Robot::intake->IntakePositions::InRobot)
 		{
 		done3 = false;
 		done = true;
 		return;
-		}
+		}*/
 	Robot::intake->stopWheels();
 	//Is the arm in pickup location?
 	if((Robot::manipulatorArm->currPos != 5)&&!done2) //If not
@@ -54,7 +54,7 @@ void TransferCube::Execute() {
 	else
 		done2 = true;
 
-	if(done2 && done3)
+	if(done2)
 		{
 		if(!done4)
 			done4 = Robot::manipulatorArm->pickUpCube();
@@ -95,5 +95,6 @@ void TransferCube::End() {
 // Called when another command which requires one or more of the same
 // subsystems is scheduled to run
 void TransferCube::Interrupted() {
-
+	Robot::manipulatorArm->pickUpCase = 0;
+	Robot::manipulatorArm->moveCase = 0;
 }

@@ -34,6 +34,10 @@ enum AutoScenarioStateEnum {
 	ScenarioState10,
     ScenarioState11,
     ScenarioState12,
+    ScenarioState13,
+    ScenarioState14,
+    ScenarioState15,
+    ScenarioState16,
 	ScenarioStateMax
 };
 

@@ -32,7 +32,7 @@ static AutoScenarioDefn  s_AutoScenarioDefnArray[] = {
 //    { RobotStartLeft, SwitchSideLeft,     ScaleSideRight,    AutoObjectiveSwitchScale, AutoScenario_RobotLeft_SwitchLeft_ScaleRight },
 //    { RobotStartLeft, SwitchSideRight,    ScaleSideLeft,     AutoObjectiveSwitchScale, AutoScenario_RobotLeft_SwitchRight_ScaleLeft },
 //    { RobotStartLeft, SwitchSideRight,    ScaleSideRight,    AutoObjectiveSwitchScale, AutoScenario_RobotLeft_SwitchRight_ScaleRight },
-//    { RobotStartLeft, SwitchSideWildcard, ScaleSideWildcard, AutoObjectiveMoveForward, AutoScenario_RobotLeft_MoveForward },
+    { RobotStartLeft, SwitchSideWildcard, ScaleSideWildcard, AutoObjectiveMoveForward, AutoScenario_RobotLeft_MoveForward },
 
     { RobotStartMiddle, SwitchSideWildcard, ScaleSideWildcard, AutoObjectiveNoAuto,      AutoScenario_RobotMiddle_NoAuto },
     { RobotStartMiddle, SwitchSideLeft,     ScaleSideWildcard, AutoObjectiveSwitch,      AutoScenario_RobotMiddle_SwitchLeft },
@@ -54,7 +54,7 @@ static AutoScenarioDefn  s_AutoScenarioDefnArray[] = {
 //    { RobotStartRight, SwitchSideLeft,     ScaleSideRight,    AutoObjectiveSwitchScale, AutoScenario_RobotRight_SwitchLeft_ScaleRight },
 //    { RobotStartRight, SwitchSideRight,    ScaleSideLeft,     AutoObjectiveSwitchScale, AutoScenario_RobotRight_SwitchRight_ScaleLeft },
 //    { RobotStartRight, SwitchSideRight,    ScaleSideRight,    AutoObjectiveSwitchScale, AutoScenario_RobotRight_SwitchRight_ScaleRight },
-//    { RobotStartRight, SwitchSideWildcard, ScaleSideWildcard, AutoObjectiveMoveForward, AutoScenario_RobotRight_MoveForward }
+    { RobotStartRight, SwitchSideWildcard, ScaleSideWildcard, AutoObjectiveMoveForward, AutoScenario_RobotRight_MoveForward }
 };
 
 

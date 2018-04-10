@@ -15,6 +15,7 @@
 #include "Station1ScaleRight.h"
 #include "Station1SwitchLeft.h"
 #include "Station1SwitchRight.h"
+#include "DriveForward.h"
 
 
 // PUBLIC FUNCTIONS
@@ -61,9 +62,9 @@ AutoScenarioPtrType   autoScenarioFactory(AutoScenarioEnum autoScenario)  {
 //        scenario_ptr.reset(new XXX);
 //        break;
 
-//    case AutoScenario_RobotLeft_MoveForward:
-//        scenario_ptr.reset(new RobotCrossLine);
-//        break;
+    case AutoScenario_RobotLeft_MoveForward:
+        scenario_ptr.reset(new DriveRobotForward);
+        break;
 
     // **********  RobotMiddle cases  **********
 
@@ -145,9 +146,9 @@ AutoScenarioPtrType   autoScenarioFactory(AutoScenarioEnum autoScenario)  {
 //        scenario_ptr.reset(new XXX);
 //        break;
 
-//    case AutoScenario_RobotRight_MoveForward:
-//        scenario_ptr.reset(new RobotCrossLine);
-//        break;
+    case AutoScenario_RobotRight_MoveForward:
+        scenario_ptr.reset(new DriveRobotForward);
+        break;
 
     default:
         break;
