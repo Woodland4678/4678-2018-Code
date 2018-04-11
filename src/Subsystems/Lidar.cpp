@@ -796,8 +796,13 @@ void Lidar::calculatePathToNearestCube()
 //	leftcm -= 3;
 
 	// Found wasn't grabbing a cube so add a little bit
-	rightcm -= 11;
-	leftcm -= 11;
+	if (isSwitchAuto) {
+		rightcm -= 20;
+		leftcm -= 20;
+	} else {
+		rightcm -= 11;
+		leftcm -= 11;
+	}
 
 	printf("theta = %f, r = %f, rRight = %f, rLeft = %f\n", theta, r, rRight, rLeft);
 	printf("rightcm = %i   leftcm = %i\n", rightcm, leftcm);

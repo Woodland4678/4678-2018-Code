@@ -51,10 +51,14 @@ private:
     DriveCalculatorPtrType   m_calculator6_Ptr;
 	bool  				     m_calculator6_init;
 
+    DriveCalculatorPtrType   m_calculator7_Ptr;
+	bool  				     m_calculator7_init;
+
     StateObserverPtrType     m_stateObserverPtr;
     AutoScenarioStateEnum    m_currentState;
 
     bool					 m_armMovement;
+    bool					 m_armMovement2;
 	bool 					 m_intakeMovement;
 	bool					 scaleRight;
 
