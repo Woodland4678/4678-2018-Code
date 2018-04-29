@@ -73,7 +73,7 @@ Intake::Intake() : frc::Subsystem("Intake") {
 	positions[2] = positions[0] + 3428;
 #else
 	positions[0] = 3072;
-	positions[1] = positions[0] + 5762; // Was 6000, now 8840		9762
+	positions[1] = positions[0] + 5762;//5762; // Was 6000, now 8840		9762
 	positions[2] = positions[0] + 3428;
 #endif
 
@@ -93,7 +93,7 @@ void Intake::Periodic() {
     // Put code here to be run every loop
 	if (!Robot::isAuto)
 		{
-		if((Robot::manipulatorArm->currPos != 5)&&(Robot::manipulatorArm->currPos != 0))
+		if(((Robot::manipulatorArm->currPos != 5)&&(Robot::manipulatorArm->currPos != 0))&&(Robot::manipulatorArm->targetPos != 5))
 			{
 			if(Robot::manipulatorArm->checkForCube())
 				{

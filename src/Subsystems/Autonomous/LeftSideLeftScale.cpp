@@ -80,13 +80,13 @@ void  LeftSideLeftScale::initialize() {
 //	m_calculator4_Ptr.reset(new DriveMotorCalculator(225, 100, encoder_pulses_cm));
 //	m_calculator4_init = false;
 
-	m_calculator5_Ptr.reset(new DriveMotorCalculator(-165, -205, encoder_pulses_cm)); //-165, -235 //THe backup motion to place 2nd cube
+	m_calculator5_Ptr.reset(new DriveMotorCalculator(-148, -223, encoder_pulses_cm)); //was -150, -220 - just missed the scale (cube didn't touch) //THe backup motion to place 2nd cube
 	m_calculator5_init = false;
 
-	m_calculator7_Ptr.reset(new DriveMotorCalculator(75, 145, encoder_pulses_cm)); //-165, -235 //the forward motion to get closer to the 3rd cube
+	m_calculator7_Ptr.reset(new DriveMotorCalculator(75, 148, encoder_pulses_cm)); //75, 145 //the forward motion to get closer to the 3rd cube
 	m_calculator7_init = false;
 
-	m_calculator8_Ptr.reset(new DriveMotorCalculator(-75, -145, encoder_pulses_cm)); //-165, -235 //The backup motion to score the 3rd cube. 8 and 7 NEED to have the same values
+	m_calculator8_Ptr.reset(new DriveMotorCalculator(-75, -148, encoder_pulses_cm)); //-75, -145 //The backup motion to score the 3rd cube. 8 and 7 NEED to have the same values
 	m_calculator8_init = false;
 
 	m_calculator7_Ptr->setTravelPower(0.9);
@@ -147,7 +147,7 @@ void  LeftSideLeftScale::execute() {
 		if (m_armInitMovement2 == false) {
 			m_armInitMovement2 = true;
 		}
-		if (m_calculator2_Ptr->getPercentDone() > 0.90) { //release the cube during the curve, when we stop the arm will wave a bit and if we drop the cube then it will miss
+		if (m_calculator2_Ptr->getPercentDone() > 0.75) { //release the cube during the curve, when we stop the arm will wave a bit and if we drop the cube then it will miss
 			Robot::manipulatorArm->release();
 		}
 		if (moveRobot(m_calculator2_init, m_calculator2_Ptr) == true) {
@@ -216,7 +216,7 @@ void  LeftSideLeftScale::execute() {
 		}
 		else if (retval == 2) {
 //			m_currentState = ScenarioState4;
-			setFinished();
+//			setFinished();
 		}
 		m_cnt++;
 		break;
@@ -291,7 +291,7 @@ void  LeftSideLeftScale::execute() {
 			m_cnt++;
 		}
 		if (!m_armMovement5) {
-			m_armMovement5 = Robot::manipulatorArm->moveTo(3,0.1,0.5);
+			m_armMovement5 = Robot::manipulatorArm->moveTo(3,0.1,0.3);
 		}
 		if (!m_intakeMovement3) {
 			Robot::intake->moveTo(1);
@@ -325,7 +325,7 @@ void  LeftSideLeftScale::execute() {
 		}
 		else if (retval == 2) {
 //			m_currentState = ScenarioState4;
-			setFinished();
+//			setFinished();
 		}
 		m_cnt++;
 		break;
@@ -347,7 +347,7 @@ void  LeftSideLeftScale::execute() {
 			Robot::lidar->getDistanceToCube(leftDistance, rightDistance);
 			m_currentState = ScenarioState14;
 			//The next line sets the next goToDistance to trace along the same path that the lidar did.
-			m_calculator6_Ptr.reset(new DriveMotorCalculator(-leftDistance, -rightDistance, getEncoderPulsesPerCm())); //-165, -235
+			m_calculator6_Ptr.reset(new DriveMotorCalculator(0.85*(-leftDistance), -rightDistance, getEncoderPulsesPerCm())); //-165, -235
 			m_calculator6_Ptr->setTravelPower(0.9);
 			m_calculator6_Ptr->setFinalPower(0.9);
 			m_calculator6_Ptr->setRampDownPower(0.9);

@@ -47,7 +47,7 @@ void  Station1SwitchRight::initialize() {
 	m_calculator3_Ptr.reset(new DriveMotorCalculator(-100, -200, encoder_pulses_cm));
 	m_calculator3_init = false;
 
-	m_calculator4_Ptr.reset(new DriveMotorCalculator(-190, -100, encoder_pulses_cm));
+	m_calculator4_Ptr.reset(new DriveMotorCalculator(-210, -100, encoder_pulses_cm));
 	m_calculator4_init = false;
 
 	m_calculator5_Ptr.reset(new DriveMotorCalculator(100, 100, encoder_pulses_cm));
@@ -198,11 +198,13 @@ void  Station1SwitchRight::execute() {
 					m_currentState = ScenarioState9;
 					Robot::driveTrain->shiftUp();
 					m_calculator6_Ptr.reset(new DriveMotorCalculator(171, 290, getEncoderPulsesPerCm()));
+					setFinished();//Added to stop robot collisions
 				}
 			} else { //if scale is on the left we want to turn -90
 				if (Robot::driveTrain->GyroTurn(Robot::ahrs->GetAngle(), -90, 0.10, 0, 0.2)) {
 					m_currentState = ScenarioState9;
 					Robot::driveTrain->shiftUp();
+					setFinished();//Added to stop robot collisions
 				}
 			}
 		}

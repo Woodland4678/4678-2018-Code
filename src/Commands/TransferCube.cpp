@@ -49,7 +49,7 @@ void TransferCube::Execute() {
 		}*/
 	Robot::intake->stopWheels();
 	//Is the arm in pickup location?
-	if((Robot::manipulatorArm->currPos != 5)&&!done2) //If not
+	if((Robot::manipulatorArm->currPos != 5)&&(!done2)) //If not
 		done2 = Robot::manipulatorArm->moveTo(5);
 	else
 		done2 = true;

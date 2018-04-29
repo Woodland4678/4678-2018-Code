@@ -30,16 +30,16 @@
 #define WRISTHIGHLIMIT		120.0f
 
 #if FLIGHTBOT
-#define SHOULDERLOWENCODER	-6092.0f //-7897.0
-#define	SHOULDERHIGENCODER	3095.0f //3988.0
+#define SHOULDERLOWENCODER	-5070.0f//-5758.0f //4145 //-5070
+#define	SHOULDERHIGENCODER	4018.0f//3386.0f	//5058 //4018
 
 #define ELBOWLOWLIMIT		-156.2f
-#define ELBOWLOWENCODER		1581.0f
-#define	ELBOWHIGENCODER		-9689.0f
-#define ELBOWABSHOME		220.0f
+#define ELBOWLOWENCODER		-1125.0f
+#define	ELBOWHIGENCODER		-13322.0f
+#define ELBOWABSHOME		279.0f
 
-#define WRISTLOWENCODER		7662.0f//5386.0f
-#define	WRISTHIGENCODER		575.0f//-1308.0f
+#define WRISTLOWENCODER		7515.0f
+#define	WRISTHIGENCODER		241.0f
 #else
 #define SHOULDERLOWENCODER	-6382.0f
 #define	SHOULDERHIGENCODER	2743.0f
@@ -188,8 +188,8 @@ bool ManipulatorArm::Init()
 
 	//Wrist
 	wrist->EnableCurrentLimit(false);
-	wrist->ConfigVoltageCompSaturation(12, 0);
-	wrist->EnableVoltageCompensation(false);
+	wrist->ConfigVoltageCompSaturation(8, 0);
+	wrist->EnableVoltageCompensation(true);
 	setWristPID(4,0,0,0,0);
 	wrist->ConfigAllowableClosedloopError(0, 5, 0);
 	wrist->ConfigSelectedFeedbackSensor(FeedbackDevice::QuadEncoder, 0, 0);
@@ -232,7 +232,7 @@ bool ManipulatorArm::Init()
 	//Home Position
 	positions[0][0] = 109;   //e:624     r:109
 #if FLIGHTBOT
-	positions[0][1] = -46;
+	positions[0][1] = -46 - positions[0][0];
 #else
 	positions[0][1] = -49 - positions[0][0];
 #endif
@@ -249,8 +249,8 @@ bool ManipulatorArm::Init()
 	positions[2][2] = 14 - positions[2][1] - positions[2][0];    //e:687     r:-30
 
 	//Scale back Max
-	positions[3][0] = 93;    //e:-1745   r:93
-	positions[3][1] = 105 - positions[3][0];   //e:-4714   r:12
+	positions[3][0] = 95;    //e:-1745   r:93
+	positions[3][1] = 108 - positions[3][0];   //e:-4714   r:12
 	positions[3][2] = 165 - positions[3][1] - positions[3][0];   //e:3103    r:60
 
 	//scale back min
@@ -260,7 +260,7 @@ bool ManipulatorArm::Init()
 
 	//Pick up cube
 	positions[5][0] = 97;//124;    //e:-1745   r:93
-	positions[5][1] = -42 - positions[5][0];//-22;   //e:2478    r:-154
+	positions[5][1] = -39 - positions[5][0];//-22;   //e:2478    r:-154
 	positions[5][2] = -82 - positions[5][1] - positions[5][0];//-25;   //e:754     r:-28
 
 	//Pick up cube middle
@@ -270,31 +270,35 @@ bool ManipulatorArm::Init()
 
 	//Switch Front
 	positions[7][0] = 113;   //e:2697    r:123
-	positions[7][1] = -15 - positions[7][0];   //e:1614    r:-134
+	positions[7][1] = -10 - positions[7][0];   //e:1614    r:-134
 	positions[7][2] = 19 - positions[7][1] - positions[7][0];    //e:2302    r:30
 
 	//Switch Back
 	positions[8][0] = 68;    //e:-7080   r:123
-	positions[8][1] = 196 - positions[8][0];   //e:-10001  r:134
+	positions[8][1] = 191 - positions[8][0];   //e:-10001  r:134
 	positions[8][2] = 158 - positions[8][1] - positions[8][0];   //e:728     r:-30
 
 	//Grab climber
-	positions[9][0] = 65;//56;//62;    //e:-5007   r:71
-	positions[9][1] = 221 - positions[9][0];//212;//216;   //e:-10957  r:155
-	positions[9][2] = 274 - positions[9][1] - positions[9][0];//265;//259;   //e:2649    r:43
+	positions[9][0] = 68;//56;//62;    //e:-5007   r:71
+	positions[9][1] = 223 - positions[9][0];//212;//216;   //e:-10957  r:155
+	positions[9][2] = 262 - positions[9][1] - positions[9][0];//265;//259;   //e:2649    r:43
 
 	//Place climber
 	positions[10][0] = 52;   //e:-859    r:99
 	positions[10][1] = 118 - positions[10][0];   //e:-4154   r:0
 	positions[10][2] = 143 - positions[10][1] - positions[10][0];  //e:3691    r:82
 
-	positions[14][0] = 63;
-	positions[14][1] = 124 - positions[14][0];
-	positions[14][2] = 163 - positions[14][1] - positions[14][0];
+	positions[14][0] = 62;
+	positions[14][1] = 135 - positions[14][0];
+	positions[14][2] = 108 - positions[14][1] - positions[14][0];
 
-	positions[15][0] = 63;
-	positions[15][1] = 128 - positions[15][0];
-	positions[15][2] = 182 - positions[15][1] - positions[15][0];
+	positions[16][0] = 52;
+	positions[16][1] = 143 - positions[16][0];
+	positions[16][2] = 111 - positions[16][1] - positions[16][0];
+
+	positions[15][0] = 62;
+	positions[15][1] = 142 - positions[15][0];
+	positions[15][2] = 111 - positions[15][1] - positions[15][0];
 
 	//Carry
 	positions[11][0] = 124;  //e:3291    r:127
@@ -309,9 +313,6 @@ bool ManipulatorArm::Init()
 	positions[13][0] = 72;
 	positions[13][1] = -145;
 	positions[13][2] = -120;
-
-	for(int i = 0; i< 13;i++)
-		printf("Pos = %i: Sh = %i , El = %i , wr = %i\n",i,positions[i][0],positions[i][1],positions[i][2]);
 
 	currPos = 0;
 	targetPos = 0;
@@ -503,9 +504,12 @@ void ManipulatorArm::initMovement(){
 		logfile.write(buf,strlen(buf));
 		}
 
-	//frc::SmartDashboard::PutNumber("Shoulder Start", shoulderStartPos);
-	//frc::SmartDashboard::PutNumber("Elbow Start", elbowStartPos);
-	//frc::SmartDashboard::PutNumber("Wrist Start", wristStartPos);
+	for(int i=0;i<4;i++)
+		{
+		pwrTable[0][i] = 0;
+		pwrTable[1][i] = 0;
+		pwrTable[2][i] = 0;
+		}
 
 	shoulderMovement = false;
 	shoulderMovement2 = false;
@@ -576,10 +580,10 @@ bool ManipulatorArm::fineMovement(double joyX, double joyY) {
 		newTarY = tarY - FINECONTROLBOXSIZE;
 
 	//Check limits
-	if(newTarX > 26)
-		newTarX = 26;
-	if(newTarX < -26)
-		newTarX = -26;
+	if(newTarX > 18)
+		newTarX = 18;
+	if(newTarX < -18)
+		newTarX = -18;
 	if(newTarY > 77)
 		newTarY = 77;
 	//if(tarY < 50)
@@ -681,6 +685,13 @@ bool ManipulatorArm::moveTo(int pos, double addShTime, double addElTime)
 				logfile.write(buf,strlen(buf));
 				}
 
+			if(!Robot::isAuto)
+				{
+				shMinTime = 1.3;
+				elMinTime = 1.3;
+				//wrMinTime = 1;
+				}
+
 			if(shTime < shMinTime)
 				shTime = shMinTime;
 			if(elTime < elMinTime)
@@ -700,17 +711,19 @@ bool ManipulatorArm::moveTo(int pos, double addShTime, double addElTime)
 			if((currPos == 1)&&(targetPos == 11))
 				elTime += 1.3;
 			if((currPos == 11)&&(targetPos == 1))
-				elTime += 0.7;
+				elTime += 0.4;
 			if((currPos == 11)&&(targetPos == 4))
 				{
-				shTime += 0.4;
+				shTime += 0.2;
 				elTime += 0.2;
 				}
 			if((currPos == 11)&&(targetPos == 3))
 				{
-				shTime += 0.4;
+				shTime += 0.2;
 				elTime += 0.2;
 				}
+			if((currPos == 8)&&(targetPos == 2))
+				elTime -= 0.2;
 			//Extra shoulder positions
 			//We have to determine how the arm needs to moves to stay within the 16"
 			//Does the elbow move from one zone to another?
@@ -742,11 +755,10 @@ bool ManipulatorArm::moveTo(int pos, double addShTime, double addElTime)
 				elTime += 0.25;
 				if((std::abs(targetZone - currentZone)) > 1)
 					{
-					printf("Here\n");
 					twoZones = true;
 					//add a second to each?
 					shTime += 0.7;
-					elTime += 0.3;
+					elTime += 0.0;
 					wrTime += 0.7;
 					shoulderMovement2 = false;
 					}
@@ -782,7 +794,8 @@ bool ManipulatorArm::moveTo(int pos, double addShTime, double addElTime)
 					getZero = 0 - shTarget1;
 					printf("Rel Check = %i   0\n",getZero);
 					shTime1 = invSigmod(positions[pos][1], elbowStartPosRel, mult,posOffset,getZero);
-					shTime1 += 0.2;
+					shTime1 += 0;
+					shTime +=0.2;
 					//abs -90 second
 					if(twoZones)
 						{
@@ -821,7 +834,8 @@ bool ManipulatorArm::moveTo(int pos, double addShTime, double addElTime)
 					getZero = 180 - shTarget1;
 					printf("Rel Check = %i   180\n",getZero);
 					shTime1 = invSigmod(positions[pos][1], elbowStartPosRel, mult,posOffset,getZero);
-					shTime1 += 0.2;
+					shTime1 += 0;
+					shTime += 0.2;
 					//abs 90 second
 					if(twoZones)
 						{
@@ -863,6 +877,10 @@ bool ManipulatorArm::moveTo(int pos, double addShTime, double addElTime)
 				elTime = 1;
 				wrTime = 0.5;
 				}
+			if((currPos == 4) && (targetPos == 11))
+				shTime1 += 0.5;
+			if(((currPos == 8) && (targetPos == 7))||((currPos == 7) && (targetPos == 8)))
+				shTime2 += 0.2;
 			if (logfile.is_open())
 				{
 				sprintf(buf,"Ta,%f,%f,%f,%f,%f\n",shTime,elTime,wrTime,shTime1,shTime2);
@@ -940,6 +958,22 @@ bool ManipulatorArm::moveTo(int pos, double addShTime, double addElTime)
 			break;
 		case 3:
 			moveCase = 0;
+			//Print out the power stuff
+			frc::SmartDashboard::PutNumber("Sh 0 - 25", pwrTable[0][0]);
+			frc::SmartDashboard::PutNumber("Sh 25 - 50", pwrTable[0][1]);
+			frc::SmartDashboard::PutNumber("Sh 50 - 90", pwrTable[0][2]);
+			frc::SmartDashboard::PutNumber("Sh 90+", pwrTable[0][3]);
+
+			frc::SmartDashboard::PutNumber("El 0 - 25", pwrTable[1][0]);
+			frc::SmartDashboard::PutNumber("El 25 - 50", pwrTable[1][1]);
+			frc::SmartDashboard::PutNumber("El 50 - 90", pwrTable[1][2]);
+			frc::SmartDashboard::PutNumber("El 90+", pwrTable[1][3]);
+
+			frc::SmartDashboard::PutNumber("Wr 0 - 25", pwrTable[2][0]);
+			frc::SmartDashboard::PutNumber("Wr 25 - 50", pwrTable[2][1]);
+			frc::SmartDashboard::PutNumber("Wr 50 - 90", pwrTable[2][2]);
+			frc::SmartDashboard::PutNumber("Wr 90+", pwrTable[2][3]);
+
 			return true;
 			break;
 		case 4:
@@ -1058,7 +1092,8 @@ bool ManipulatorArm::moveToRelative(int pos, double addShTime, double addElTime)
 
 bool ManipulatorArm::pickUpCube()
 	{
-	static int counter1 = 0, counter2 = 0, shStart = 0;
+	static int counter1 = 0, counter2 = 0, shStart = 0, subtractAng = 8;
+	static double orgTime = 0;
 	//The purpose of this function is to move the claw
 	//	down to grab the cube
 	//NOTE: This function assumes that the arm is in pickup position.
@@ -1068,25 +1103,38 @@ bool ManipulatorArm::pickUpCube()
 			counter1 = 0;
 			counter2 = 0;
 			shStart = shoulderSeg.absAngle;
+			if (Robot::intake->checkPosition() == 1) {
+				Robot::intake->setLifterPosition(4000+6000);
+			}
 			pickUpCase = 1;
+			if(checkForCube())
+				subtractAng = 4;
+			else
+				subtractAng = 8;
+			orgTime = frc::Timer::GetFPGATimestamp();
 			break;
 		case 1:
-			counter1++;
+			{
+			double currTime = frc::Timer::GetFPGATimestamp() - orgTime;
 			//Move shoulder down
-			setShoulderAbsAngle(shStart - (counter1*1.5));
+			double newAngle = (((double)shStart - (double)subtractAng) - (double)shStart) * currTime / (0.2) + (double)shStart;
+			setShoulderAbsAngle(newAngle);
+			//setShoulderAbsAngle(shStart - (counter1*1.0));
+			//setShoulderAbsAngle(shStart - 10);
 			//if(checkForCube())
 			//	counter2++;
-			if(checkForCube())//5
+			/*if(checkForCube())//5
 				{
 				counter1 = 0;
 				pickUpCase = 2;
-				}
-			if(counter1 > 5) //10
+				}*/
+			if(currTime > 0.2) //10
 				{
 				counter1 = 0;
 				pickUpCase = 2;
 				}
 			break;
+			}
 		case 2:
 			counter1++;
 			if(counter1 > 5) //10
@@ -1099,7 +1147,7 @@ bool ManipulatorArm::pickUpCube()
 			break;
 		case 4:
 			counter1++;
-			if(counter1 > 5)//15
+			if(counter1 > 10)//15
 				{
 				counter1 = 0;
 				Robot::intake->release();
@@ -1171,7 +1219,7 @@ bool ManipulatorArm::pickUpCubeAuto()
 			break;
 		case 4:
 			counter1++;
-			if(counter1 > 5)//15
+			if(counter1 > 12)//15
 				{
 				counter1 = 0;
 				Robot::intake->release();
@@ -1180,7 +1228,7 @@ bool ManipulatorArm::pickUpCubeAuto()
 			break;
 		case 5:
 			counter1++;
-			if(counter1 > 2)//15
+			if(counter1 > 5)//15
 				{
 				counter1 = 0;
 				moveCase = 0;
@@ -1610,6 +1658,19 @@ void ManipulatorArm::updateShoulder()
 	shoulderSeg.absAngle = shoulderSeg.relAngle;
 	frc::SmartDashboard::PutNumber("Shoulder Absolute", shoulderSeg.absAngle);
 
+	//Read powers
+	if(targetPos != currPos)
+		{
+		double pwr = std::abs(shoulder->GetMotorOutputPercent());
+		if(pwr <= 0.25)
+			pwrTable[0][0]++;
+		else if((pwr > 0.25)||(pwr <= 0.50))
+			pwrTable[0][1]++;
+		else if((pwr > 0.5)||(pwr <= 0.90))
+			pwrTable[0][2]++;
+		else if(pwr > 0.9)
+			pwrTable[0][3]++;
+		}
 	}
 void ManipulatorArm::updateElbow()
 	{
@@ -1640,6 +1701,19 @@ void ManipulatorArm::updateElbow()
 	//frc::SmartDashboard::PutNumber("Elbow Pos X", elbowSeg.posX);
 	elbowSeg.posY = shoulderSeg.posY + shoulderSeg.length * std::sin(shoulderSeg.absAngle * (M_PI/180));
 	//frc::SmartDashboard::PutNumber("Elbow Pos Y", elbowSeg.posY);
+
+	if(targetPos != currPos)
+		{
+		double pwr = std::abs(elbow->GetMotorOutputPercent());
+		if(pwr <= 0.25)
+			pwrTable[1][0]++;
+		else if((pwr > 0.25)||(pwr <= 0.50))
+			pwrTable[1][1]++;
+		else if((pwr > 0.5)||(pwr <= 0.90))
+			pwrTable[1][2]++;
+		else if(pwr > 0.9)
+			pwrTable[1][3]++;
+		}
 	}
 void ManipulatorArm::updateWrist()
 	{
@@ -1655,6 +1729,19 @@ void ManipulatorArm::updateWrist()
 	frc::SmartDashboard::PutNumber("Wrist Pos X", wristSeg.posX);
 	wristSeg.posY = elbowSeg.posY + elbowSeg.length * std::sin(elbowSeg.absAngle * (M_PI/180));
 	frc::SmartDashboard::PutNumber("Wrist Pos Y", wristSeg.posY);
+
+	if(targetPos != currPos)
+		{
+		double pwr = std::abs(wrist->GetMotorOutputPercent());
+		if(pwr <= 0.25)
+			pwrTable[2][0]++;
+		else if((pwr > 0.25)||(pwr <= 0.50))
+			pwrTable[2][1]++;
+		else if((pwr > 0.5)||(pwr <= 0.90))
+			pwrTable[2][2]++;
+		else if(pwr > 0.9)
+			pwrTable[2][3]++;
+		}
 	}	
 void ManipulatorArm::updateEndEffector()
 	{

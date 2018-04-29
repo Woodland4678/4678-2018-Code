@@ -55,9 +55,9 @@ void IntakeWheelsControl::Execute() {
 	if(extraMove)
 		{
 		cnt++;
-		if(cnt < 10)
+		if(cnt < 6)
 			Robot::intake->spinReverse(1.0);
-		else if((cnt >= 10)&&(cnt < 40))
+		else if((cnt >= 6)&&(cnt < 40))
 			Robot::intake->spinForward(1.0);
 		else
 			{

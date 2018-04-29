@@ -782,7 +782,7 @@ void Lidar::calculatePathToNearestCube()
 	}
 
 	double theta = 0, r = 0, rLeft = 0, rRight = 0;
-	angle2use = cubes[idx].angle + 6.0; // Shift for angle adjustment issues
+	angle2use = cubes[idx].angle + 3.0; // Shift for angle adjustment issues
 	theta = (M_PI * angle2use)/180;
 	theta = std::abs(theta);
 	r = (cubes[idx].distance * std::sin((M_PI/2) - theta))/(std::sin(2 * theta));
@@ -840,7 +840,10 @@ int Lidar::findCubes(double frangle, double toangle)
 				m_calculator1_init = false;
 				}
 			else
+				{
+				cubeFindCase = 0;
 				return 2;
+				}
 
 			cubeFindCase++;
 			break;

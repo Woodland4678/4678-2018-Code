@@ -16,7 +16,7 @@
 #include "Commands/Subsystem.h"
 #include "WPILib.h"
 
-#define FINECONTROLBOXSIZE	10.0f
+#define FINECONTROLBOXSIZE	14.0f
 
 /**
  *
@@ -102,6 +102,8 @@ private:
 	double joyValuesY[4];
 	int joyCount = 0;
 	bool joyReached4 = false;
+
+	int pwrTable[3][4];
 
 public:
 	ManipulatorArm();

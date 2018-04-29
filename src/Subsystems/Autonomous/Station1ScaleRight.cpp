@@ -48,6 +48,7 @@ void  Station1ScaleRight::initialize() {
 	m_calculator2_init = false;
 
 	m_calculator3_Ptr.reset(new DriveMotorCalculator(455, 455, encoder_pulses_cm)); //drive straight through the switch area
+//	m_calculator3_Ptr.reset(new DriveMotorCalculator(100, 100, encoder_pulses_cm)); //drive straight through the switch area
 	m_calculator3_init = false;
 
 	m_calculator4_Ptr.reset(new DriveMotorCalculator(200, 110, encoder_pulses_cm));//first part of the Nat maneuver. The drive forward part
@@ -102,6 +103,8 @@ void  Station1ScaleRight::initialize() {
 	m_intakeDown = false;
 	m_intakeMovement2 = false;
 	m_intakeMovement3 = false;
+
+	Robot::driveTrain->shiftUp();
 }
 
 int retval;
@@ -135,6 +138,7 @@ void  Station1ScaleRight::execute() {
 //			m_armMovement = Robot::manipulatorArm->moveTo(11);
 //		}
 		if (moveRobot(m_calculator3_init, m_calculator3_Ptr) == true) {
+	//		setFinished();
 			m_currentState = ScenarioState4;
 			m_cnt = 0;
 			m_armMovement = false;

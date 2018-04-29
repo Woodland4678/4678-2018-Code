@@ -33,7 +33,7 @@ void ShiftToClimber::Execute() {
 		{
 		case 0:
 			//Move arm to position
-			//if(Robot::manipulatorArm->moveTo(12))
+			if(Robot::manipulatorArm->moveTo(16,-0.8,-0.8))
 				moveCase = 1;
 			break;
 		case 1:
@@ -42,8 +42,8 @@ void ShiftToClimber::Execute() {
 			break;
 		case 2:
 			//Switch to climber
-			//Robot::manipulatorArm->climber();
-			//moveCase = 3;
+			Robot::manipulatorArm->climber();
+			moveCase = 3;
 			break;
 		case 3:
 			double climberSpeed = Robot::oi->getdriver()->GetRawAxis(3);
